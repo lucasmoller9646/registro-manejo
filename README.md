@@ -1,9 +1,13 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 2.0
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 2.1
 
 App offline para el registro diario de manejo: entrada y salida de animales, mortalidad, nacimiento, pesaje de auditoría y pérdida de botón electrónico.
 
 Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 2.1
+
+- Entrada y salida: una misma subida puede tener varios camiones (chapa + foto del precinto de cada uno, botón "+ Agregar otro camión") y varias guías/COTAs (botón "+ Agregar otra COTA"; cada una con su QR). El app controla que la COTA del archivo de la balanza esté entre las cargadas y que la suma de animales declarados en todas las COTAs coincida con los contados. En la planilla hay hojas nuevas `camiones` y `cotas` (una fila por camión / por COTA) y columnas `cantidad_camiones`, `cantidad_cotas`, `total_declarado_cotas`. En el JSON: `datos.camiones[]`, `datos.cotas[]` y `adjuntos.fotos_precinto[]`; `chapa_camion` y `cota_nro` siguen existiendo con los valores unidos por " / ".
 
 ## Novedades 2.0
 
