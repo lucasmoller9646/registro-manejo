@@ -1,0 +1,17 @@
+Contraseñas de publicación por estancia (app Registro de manejo)
+Cada capataz recibe SOLO la de su estancia. La clave maestra es para administración.
+
+Ypoti           potrero-25
+Ybypora         sombra-85
+Cafetalera      guampa-78
+La Esperanza    rodeo-93
+Santa Clara     marca-74
+Lusipar         tropilla-72
+Oro Verde       pastura-97
+Santa Maria     molino-89
+Cielo Azul      estribo-80
+Bella Vista     bramadero-87
+
+Clave maestra (todas las estancias): boigordo
+
+Para cambiar una clave: editar CONFIG.CLAVES en servidor_apps_script.gs (texto claro) y CLAVES_HASH en index.html (SHA-256 de la clave), y volver a publicar ambos.

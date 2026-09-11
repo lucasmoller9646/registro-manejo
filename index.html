@@ -407,9 +407,9 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
         <label class="f"><span>Correo de destino</span>
           <input type="text" id="c-mail" placeholder="trazabilidad@ypoti.com" inputmode="email" autocapitalize="off">
         </label>
-        <label class="f"><span>URL de envío automático (opcional)</span>
+        <label class="f"><span>URL del servidor (base de datos)</span>
           <input type="text" id="c-endpoint" placeholder="https://script.google.com/macros/s/…/exec" autocapitalize="off" autocomplete="off">
-          <span class="hint">Si se configura, cada registro se manda solo al servidor cuando hay conexión (y desde allí al correo y a la planilla).</span>
+          <span class="hint">Ya viene configurada. Solo cámbiela si le indican un servidor nuevo.</span>
         </label>
         <button class="btn" id="btn-test-endpoint">Probar conexión</button>
         <div class="msg hidden" id="c-msg"></div>
@@ -440,7 +440,7 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
 <div id="pwd-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:25;display:flex;align-items:center;justify-content:center;padding:16px">
   <div class="card stack" style="max-width:380px;width:100%">
     <h2>Publicar en la base de datos</h2>
-    <p style="font-size:15px;color:var(--ink-2)">Escriba la contraseña para autorizar la publicación de este registro.</p>
+    <p style="font-size:15px;color:var(--ink-2)">Escriba la contraseña de la estancia <b id="pwd-est"></b> para autorizar la publicación de este registro.</p>
     <label class="f"><span class="req">Contraseña</span><input type="password" id="pwd-input" autocomplete="off" autocapitalize="off" inputmode="text"></label>
     <div class="msg bad hidden" id="pwd-err"></div>
     <div class="row"><button class="btn ghost" id="pwd-cancel">Cancelar</button><button class="btn primary" id="pwd-ok">Publicar</button></div>
@@ -805,15 +805,16 @@ if(typeof module!=='undefined'&&module.exports) module.exports=api; else root.Ma
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '1.5.0';
+const APP_VERSION = '1.6.0';
 const ESQUEMA = 'manejo-ypoti/1.2';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista'];
 const ORIGENES_EXTRA = ['Compra externa (proveedor)'];
 const DESTINOS_EXTRA = ['Frigorífico / Venta','Otro'];
 const TIPO_LABEL = {entrada:'Entrada de animales', salida:'Salida de animales', mortalidad:'Mortalidad', nacimiento:'Nacimiento'};
 const DEFAULT_MAIL = 'trazabilidad@ypoti.com';
-const DEFAULT_ENDPOINT = ''; // URL del servidor (Apps Script). Si se define aquí, no hace falta configurarla en cada teléfono.
-const CLAVE_HASH = '29be39bc8d05cb0b0e51e6e823400c42714577f0e3481ea4f30e2a7da94f2b5c'; // SHA-256 de la contraseña de publicación (por ahora una sola para todos)
+const DEFAULT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwnmB0MXm7Wrt7dQEIU9oN7oy1j2XjQ_7HfZkpsn-5rkaWApoBWYv40J-zo7BAanuzIdg/exec'; // servidor (Apps Script) de la base de datos
+// SHA-256 de la contraseña de publicación de cada estancia ('*' = clave maestra, válida para todas)
+const CLAVES_HASH = {"Ypoti": "3d8360923e82ddcb52c25c64a155c1faeb4275f5be5afa24f8cc93feccb1c32b","Ybypora": "1178b2ca622889302b1f03fdb4830dfdc8348ba563e02bdbe069f6e9f4b8062b","Cafetalera": "2d62d94c4350688b77d345f1685bbeaa060de14360ac0f4ca9f88cf97d335435","La Esperanza": "a882411d4143d987c5d8ef3cc7f9ecde5949edcc6446886c628f021b4bf4b461","Santa Clara": "e763c722cc8f6a12de80efedc101f35ad6584277e98b04b8a74ef3eca1a0a5a8","Lusipar": "a13cb9998e0df05a6c08961ba9e83cad251d59322cb2a2ae606e3b23fcf1fa39","Oro Verde": "eea9512f7d9d18a08d1de370bf10efb6cb11367f16e1d84de97ed059385f562f","Santa Maria": "b664eec79fc4407f977e27fc4edefdfb86ab7a0e5a36c65c47a36ddf72714abf","Cielo Azul": "5f044008b9890e7e367cc9aabb757c398045ee6c6fc95db2c11dd3abd78014bc","Bella Vista": "335b4c6512a4da2822dadf6ee831af77789ce8ebe0070d5ce959e546cb5fcb74","*": "29be39bc8d05cb0b0e51e6e823400c42714577f0e3481ea4f30e2a7da94f2b5c"};
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2,'0');
@@ -827,6 +828,7 @@ const fmtBytes = b => b<1024? b+' B' : b<1048576 ? (b/1024).toFixed(0)+' KB' : (
 const CFG_KEY = 'manejo.config';
 let cfg = {respondente:'', estancia:'', lista:[], mail:DEFAULT_MAIL, endpoint:''};
 function loadCfg(){ try{ const s=localStorage.getItem(CFG_KEY); if(s) cfg=Object.assign(cfg,JSON.parse(s)); }catch(e){} if(!cfg.mail) cfg.mail=DEFAULT_MAIL; if(!cfg.endpoint && DEFAULT_ENDPOINT) cfg.endpoint=DEFAULT_ENDPOINT; }
+function endpointActual(){ return cfg.endpoint || DEFAULT_ENDPOINT; }
 function saveCfg(){ try{ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }catch(e){} }
 
 let dbp = null;
@@ -1229,20 +1231,20 @@ async function syncPendientes(){
 }
 
 async function sha256(str){ if(!(window.crypto&&crypto.subtle)) return null; const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str)); return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
-function pedirClave(){ return new Promise(res=>{ const m=$('pwd-modal'), inp=$('pwd-input'), err=$('pwd-err'); inp.value=''; err.classList.add('hidden'); m.classList.remove('hidden'); setTimeout(()=>inp.focus(),50);
+function pedirClave(estancia){ return new Promise(res=>{ const m=$('pwd-modal'), inp=$('pwd-input'), err=$('pwd-err'); inp.value=''; err.classList.add('hidden'); $('pwd-est').textContent=estancia; m.classList.remove('hidden'); setTimeout(()=>inp.focus(),50);
   const done=v=>{ m.classList.add('hidden'); $('pwd-ok').onclick=null; $('pwd-cancel').onclick=null; inp.onkeydown=null; res(v); };
   $('pwd-cancel').onclick=()=>done(null);
-  $('pwd-ok').onclick=async()=>{ const v=inp.value; if(!v){ err.textContent='Escriba la contraseña.'; err.classList.remove('hidden'); return; } const h=await sha256(v); if(h && h!==CLAVE_HASH){ err.textContent='Contraseña incorrecta.'; err.classList.remove('hidden'); inp.select(); return; } done(v); };
+  $('pwd-ok').onclick=async()=>{ const v=inp.value; if(!v){ err.textContent='Escriba la contraseña.'; err.classList.remove('hidden'); return; } const h=await sha256(v); if(h){ const esperado=CLAVES_HASH[estancia]; if(h!==esperado && h!==CLAVES_HASH['*']){ const otra=Object.keys(CLAVES_HASH).find(k=>k!=='*'&&CLAVES_HASH[k]===h); err.textContent= otra ? 'Esa contraseña es de la estancia '+otra+'; este registro es de '+estancia+'.' : 'Contraseña incorrecta.'; err.classList.remove('hidden'); inp.select(); return; } } done(v); };
   inp.onkeydown=e=>{ if(e.key==='Enter') $('pwd-ok').onclick(); if(e.key==='Escape') done(null); }; }); }
 async function publicarBD(w, files){
   const msg=$('done-msg'); msg.className='msg'; msg.classList.remove('hidden');
   if(w.estado==='enviado'){ msg.className='msg ok'; msg.textContent='Este registro ya está publicado en la base de datos.'; return; }
-  const clave=await pedirClave(); if(clave===null){ msg.classList.add('hidden'); return; }
+  const clave=await pedirClave(w.registro.estancia); if(clave===null){ msg.classList.add('hidden'); return; }
   const w2=await dbGet(w.id); w2.publicar=true; w2.clave=clave; w2.autorizado_en=new Date().toISOString(); await dbPut(w2); if(doneW&&doneW.id===w.id) doneW=w2;
   if(!cfg.endpoint){ msg.className='msg warn'; msg.textContent='Registro autorizado y en cola. La base de datos todavía no está configurada en este teléfono (Configuración › URL de envío automático); se publicará cuando lo esté.'; renderDoneStatus(w2); renderHome(); return; }
   if(!navigator.onLine){ msg.className='msg warn'; msg.textContent='Sin conexión: el registro quedó autorizado y en cola. Se publicará solo cuando el teléfono tenga señal.'; renderDoneStatus(w2); renderHome(); return; }
   try{ msg.textContent='Publicando en la base de datos…'; await postToEndpoint(w2,files); await markEnvio(w.id,'servidor'); msg.className='msg ok'; msg.textContent='Publicado en la base de datos. El servidor también lo envía a '+cfg.mail+'.'; }
-  catch(e){ const txt=String(e.message||e); if(/clave|contrase/i.test(txt)){ w2.publicar=false; w2.clave=null; await dbPut(w2); msg.className='msg bad'; msg.textContent='El servidor rechazó la contraseña. No se publicó.'; } else { msg.className='msg warn'; msg.textContent='El servidor no respondió ('+txt+'). El registro quedó en cola y se reintentará automáticamente.'; } }
+  catch(e){ const txt=String(e.message||e); if(/clave|contrase/i.test(txt)){ w2.publicar=false; w2.clave=null; await dbPut(w2); msg.className='msg bad'; msg.textContent='El servidor rechazó la contraseña para '+w.registro.estancia+'. No se publicó.'; } else { msg.className='msg warn'; msg.textContent='El servidor no respondió ('+txt+'). El registro quedó en cola y se reintentará automáticamente.'; } }
   renderDoneStatus(await dbGet(w.id)); renderHome();
 }
 async function shareFiles(files, text, title){
