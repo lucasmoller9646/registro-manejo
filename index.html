@@ -17,7 +17,7 @@
   --bg:#F2F4EF; --surface:#FFFFFF; --surface-2:#E9EDE4; --line:#C9D1C2; --line-strong:#9AA593;
   --ink:#182019; --ink-2:#4A5548; --ink-3:#77836F;
   --brand:#2F6B3A; --brand-ink:#FFFFFF; --brand-soft:#DDEBDF;
-  --entrada:#2F6B3A; --salida:#2B5D8C; --mortalidad:#A3341E; --nacimiento:#8A6A1F;
+  --entrada:#2F6B3A; --salida:#2B5D8C; --mortalidad:#A3341E; --nacimiento:#8A6A1F; --pesaje:#2F6470; --perdida_boton:#6B3F8C;
   --ok:#2F6B3A; --warn:#9A6A00; --bad:#A3341E; --warn-soft:#FBF0D3; --bad-soft:#F8E0DA; --ok-soft:#DDEBDF;
   --focus:#2B5D8C;
   --font-display:"Archivo","Arial Narrow",system-ui,sans-serif;
@@ -29,7 +29,7 @@
     --bg:#131813; --surface:#1C231D; --surface-2:#232C24; --line:#37423A; --line-strong:#546156;
     --ink:#EDF0E8; --ink-2:#BCC5B8; --ink-3:#8B9686;
     --brand:#5DA86B; --brand-ink:#0F1A11; --brand-soft:#243A28;
-    --entrada:#5DA86B; --salida:#6FA3D6; --mortalidad:#E07A63; --nacimiento:#D3AE55;
+    --entrada:#5DA86B; --salida:#6FA3D6; --mortalidad:#E07A63; --nacimiento:#D3AE55; --pesaje:#6FB7C4; --perdida_boton:#B48AD6;
     --ok:#5DA86B; --warn:#D3AE55; --bad:#E07A63; --warn-soft:#3A3117; --bad-soft:#3F211B; --ok-soft:#243A28;
     --focus:#6FA3D6; --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
   }
@@ -38,7 +38,7 @@
   --bg:#131813; --surface:#1C231D; --surface-2:#232C24; --line:#37423A; --line-strong:#546156;
   --ink:#EDF0E8; --ink-2:#BCC5B8; --ink-3:#8B9686;
   --brand:#5DA86B; --brand-ink:#0F1A11; --brand-soft:#243A28;
-  --entrada:#5DA86B; --salida:#6FA3D6; --mortalidad:#E07A63; --nacimiento:#D3AE55;
+  --entrada:#5DA86B; --salida:#6FA3D6; --mortalidad:#E07A63; --nacimiento:#D3AE55; --pesaje:#6FB7C4; --perdida_boton:#B48AD6;
   --ok:#5DA86B; --warn:#D3AE55; --bad:#E07A63; --warn-soft:#3A3117; --bad-soft:#3F211B; --ok-soft:#243A28;
   --focus:#6FA3D6; --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
 }
@@ -88,6 +88,8 @@ input.upper{text-transform:uppercase}
 .tile[data-tipo=salida]{border-left-color:var(--salida)}
 .tile[data-tipo=mortalidad]{border-left-color:var(--mortalidad)}
 .tile[data-tipo=nacimiento]{border-left-color:var(--nacimiento)}
+.tile[data-tipo=pesaje]{border-left-color:var(--pesaje)}
+.tile[data-tipo=perdida_boton]{border-left-color:var(--perdida_boton)}
 .tile.selected{border-color:var(--ink);background:var(--surface-2)}
 .tile.selected[data-tipo=entrada]{border-left-color:var(--entrada)}
 .tile.selected[data-tipo=salida]{border-left-color:var(--salida)}
@@ -107,6 +109,8 @@ input.upper{text-transform:uppercase}
 .tipo-salida .section-title .dot{background:var(--salida)}
 .tipo-mortalidad .section-title .dot{background:var(--mortalidad)}
 .tipo-nacimiento .section-title .dot{background:var(--nacimiento)}
+.tipo-pesaje .section-title .dot{background:var(--pesaje)}
+.tipo-perdida_boton .section-title .dot{background:var(--perdida_boton)}
 .scanrow{display:flex;gap:8px}
 .scanrow input{flex:1}
 .scanrow .btn{width:auto;flex:0 0 auto;padding:10px 14px}
@@ -118,6 +122,8 @@ input.upper{text-transform:uppercase}
 .badge.tipo-salida{background:color-mix(in srgb,var(--salida) 18%,transparent);color:var(--salida);border-color:transparent}
 .badge.tipo-mortalidad{background:var(--bad-soft);color:var(--mortalidad);border-color:transparent}
 .badge.tipo-nacimiento{background:var(--warn-soft);color:var(--nacimiento);border-color:transparent}
+.badge.tipo-pesaje{background:color-mix(in srgb,var(--pesaje) 18%,transparent);color:var(--pesaje);border-color:transparent}
+.badge.tipo-perdida_boton{background:color-mix(in srgb,var(--perdida_boton) 18%,transparent);color:var(--perdida_boton);border-color:transparent}
 .msg{padding:12px 14px;border-radius:8px;font-size:15px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2)}
 .msg.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
 .msg.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
@@ -136,6 +142,8 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
 .item.tipo-salida{border-left-color:var(--salida)}
 .item.tipo-mortalidad{border-left-color:var(--mortalidad)}
 .item.tipo-nacimiento{border-left-color:var(--nacimiento)}
+.item.tipo-pesaje{border-left-color:var(--pesaje)}
+.item.tipo-perdida_boton{border-left-color:var(--perdida_boton)}
 .item .main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .item .main b{font-family:var(--font-display);font-weight:600;font-size:17px}
 .item .main span{font-size:14px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -165,7 +173,14 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
 .btn.primary .ico{background:rgba(255,255,255,.18)}
 .status-line{font-size:14px;color:var(--ink-3);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .hidden{display:none !important}
-#pwd-modal.hidden{display:none !important}
+#pwd-modal.hidden,#imp-modal.hidden{display:none !important}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:25;display:flex;align-items:center;justify-content:center;padding:16px}
+.tiles .tile.small{min-height:78px;font-size:16px}
+.photo .row .btn{min-height:46px;font-size:15px}
+.item .badge.draft{background:var(--surface-2);color:var(--ink-2);border-color:var(--line-strong)}
+.actionbar .inner .btn.mid{flex:0 0 auto;width:auto;padding:14px 12px;font-weight:600}
+.btn.big.primary{min-height:66px;font-size:19px}
+.log{font-size:13px;color:var(--ink-3);line-height:1.5}
 @media (prefers-reduced-motion: reduce){*{transition:none !important}}
 @media (min-width:600px){body{font-size:16px}}
 </style>
@@ -192,13 +207,14 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
       <div class="empty" id="home-empty">
         Todavía no hay registros.
         <ol>
-          <li>Toque <b>Nuevo registro</b> y complete los datos.</li>
-          <li>Al terminar, el app genera el PDF y el archivo de datos.</li>
-          <li>Envíelos por correo y al grupo de WhatsApp con un toque. Si no hay señal, quedan guardados y se envían después.</li>
+          <li>Toque <b>Nuevo registro</b> y complete los datos. Puede guardar un borrador y seguir después.</li>
+          <li>Al terminar, guárdelo en la base de datos con la contraseña de su estancia.</li>
+          <li>Si no hay señal, queda en cola y se publica solo cuando vuelva la conexión.</li>
         </ol>
       </div>
       <div class="row" id="home-tools">
         <button class="btn ghost" id="btn-export-all">Exportar todos (JSON)</button>
+        <button class="btn ghost" id="btn-import-all">Importar varios (JSON)</button>
       </div>
     </div>
   </section>
@@ -206,6 +222,7 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
   <!-- FORM -->
   <section class="screen" id="scr-form">
     <div class="steps" id="steps"><span></span><span></span><span></span><b id="step-label">Paso 1 de 3</b></div>
+    <div class="msg hidden" id="edit-banner"></div>
 
     <div id="step1" class="stack">
       <div class="section-title"><span class="dot"></span><h3>Datos generales</h3></div>
@@ -222,6 +239,9 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
         <label class="f"><span class="req">Fecha del evento</span>
           <input type="date" id="f-fecha">
         </label>
+        <label class="f"><span>Lote ControlPasto</span>
+          <input type="text" id="f-lote" placeholder="Opcional" autocomplete="off">
+        </label>
       </div>
       <div class="section-title"><span class="dot"></span><h3>¿Qué pasó?</h3></div>
       <div class="tiles" id="tiles">
@@ -229,23 +249,25 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
         <button class="tile" data-tipo="salida">Salida de animales<small>Salió un camión</small></button>
         <button class="tile" data-tipo="mortalidad">Mortalidad<small>Un animal murió</small></button>
         <button class="tile" data-tipo="nacimiento">Nacimiento<small>Nació un ternero</small></button>
+        <button class="tile" data-tipo="pesaje">Pesaje de auditoría<small>Archivo de la balanza</small></button>
+        <button class="tile" data-tipo="perdida_boton">Pérdida de botón<small>Botón electrónico perdido</small></button>
       </div>
       <div class="msg bad hidden" id="err1"></div>
     </div>
 
     <div id="step2" class="stack" style="display:none">
-      <!-- ENTRADA / SALIDA shared -->
+      <!-- ENTRADA / SALIDA -->
       <div id="grp-camion" class="stack">
         <div class="section-title"><span class="dot"></span><h3 id="grp-camion-title">Datos del camión</h3></div>
         <div class="card stack">
           <label class="f"><span class="req">Chapa del camión</span>
             <input type="text" id="f-chapa" class="upper" placeholder="ABC 123" autocomplete="off" autocapitalize="characters">
           </label>
-          <div class="photo">
+          <div class="photo" data-foto="precinto">
             <span style="font-weight:600;font-size:15px;color:var(--ink-2)" class="req">Foto del precinto (lacre)</span>
             <img class="thumb" id="thumb-precinto" alt="Foto del precinto">
-            <button class="btn" type="button" id="btn-foto-precinto">📷 Tomar foto del precinto</button>
-            <input type="file" id="file-precinto" accept="image/*" capture="environment">
+            <div class="row"><button class="btn" type="button" data-cam="precinto">📷 Cámara</button><button class="btn" type="button" data-gal="precinto">🖼 Galería</button></div>
+            <input type="file" id="file-precinto" accept="image/*">
             <span class="hint">Que se lea bien el número del precinto en la foto.</span>
           </div>
           <label class="f"><span class="req">COTA (código QR)</span>
@@ -271,20 +293,22 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
             </div>
           </label>
         </div>
-        <div class="section-title"><span class="dot"></span><h3>Animales</h3></div>
+      </div>
+
+      <!-- ANIMALES / ARCHIVO DE LA BALANZA (entrada, salida, pesaje) -->
+      <div id="grp-animales" class="stack">
+        <div class="section-title"><span class="dot"></span><h3 id="grp-animales-title">Animales</h3></div>
         <div class="card stack">
-          <label class="f"><span class="req">Cantidad de animales (contados)</span>
+          <label class="f" id="wrap-cantidad"><span class="req">Cantidad de animales (contados)</span>
             <input type="number" id="f-cantidad" inputmode="numeric" min="1" step="1" placeholder="Ej.: 42">
           </label>
           <div class="stack" style="gap:8px">
             <span style="font-weight:600;font-size:15px;color:var(--ink-2)" class="req">Archivo de la balanza (CSV)</span>
             <button class="btn" type="button" id="btn-import-ids">📄 Cargar archivo de la balanza</button>
             <input type="file" id="file-ids" accept=".csv,.txt,text/csv,text/plain,text/comma-separated-values,application/vnd.ms-excel" class="hidden">
-            <span class="hint">El archivo exportado por la balanza (Tru-Test). Tiene que tener las columnas <b>IDE</b> y <b>Peso</b>; las demás pueden variar.</span>
+            <span class="hint">Se toman solo dos columnas: la identificación (IDE) y el peso. Las demás columnas se ignoran, así sirve cualquier balanza.</span>
             <div class="msg bad hidden" id="csv-err"></div>
-            <div class="card flat hidden" id="csv-panel">
-              <dl class="kv" id="csv-kv"></dl>
-            </div>
+            <div class="card flat hidden" id="csv-panel"><dl class="kv" id="csv-kv"></dl></div>
           </div>
           <div class="status-line"><span class="badge" id="ids-count">Sin archivo</span><span id="ids-check"></span></div>
         </div>
@@ -295,34 +319,23 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
         <div class="section-title"><span class="dot"></span><h3>Animal muerto</h3></div>
         <div class="card stack">
           <label class="f"><span class="req">Nº de botón (caravana)</span>
-            <div class="scanrow">
-              <input type="text" id="f-boton" placeholder="Número del botón" autocomplete="off">
-              <button class="btn" type="button" id="btn-scan-boton">Escanear</button>
-            </div>
+            <input type="text" id="f-boton" placeholder="Escriba el número del botón" autocomplete="off">
           </label>
-          <div class="photo">
+          <label class="f"><span class="req">Causa de muerte</span>
+            <select id="f-causa"></select>
+          </label>
+          <div class="photo" data-foto="animal">
             <span style="font-weight:600;font-size:15px;color:var(--ink-2)" class="req">Foto del animal muerto</span>
             <img class="thumb" id="thumb-animal" alt="Foto del animal">
-            <button class="btn" type="button" id="btn-foto-animal">📷 Tomar foto del animal</button>
-            <input type="file" id="file-animal" accept="image/*" capture="environment">
+            <div class="row"><button class="btn" type="button" data-cam="animal">📷 Cámara</button><button class="btn" type="button" data-gal="animal">🖼 Galería</button></div>
+            <input type="file" id="file-animal" accept="image/*">
           </div>
-          <div class="photo">
+          <div class="photo" data-foto="boton">
             <span style="font-weight:600;font-size:15px;color:var(--ink-2)" class="req">Foto del botón</span>
             <img class="thumb" id="thumb-boton" alt="Foto del botón">
-            <button class="btn" type="button" id="btn-foto-boton">📷 Tomar foto del botón</button>
-            <input type="file" id="file-boton" accept="image/*" capture="environment">
+            <div class="row"><button class="btn" type="button" data-cam="boton">📷 Cámara</button><button class="btn" type="button" data-gal="boton">🖼 Galería</button></div>
+            <input type="file" id="file-boton" accept="image/*">
           </div>
-          <label class="f"><span>Causa probable (opcional)</span>
-            <select id="f-causa">
-              <option value="">— No sé / no aplica —</option>
-              <option>Enfermedad</option>
-              <option>Accidente</option>
-              <option>Ataque de animal</option>
-              <option>Intoxicación</option>
-              <option>Parto</option>
-              <option>Otra</option>
-            </select>
-          </label>
         </div>
       </div>
 
@@ -345,6 +358,22 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
         </div>
       </div>
 
+      <!-- PÉRDIDA DE BOTÓN -->
+      <div id="grp-perdida" class="stack">
+        <div class="section-title"><span class="dot"></span><h3>Botón electrónico perdido</h3></div>
+        <div class="card stack">
+          <label class="f"><span class="req">Nº de botón (escrito a mano)</span>
+            <input type="text" id="f-perdida-boton" placeholder="Número del botón perdido" autocomplete="off">
+          </label>
+          <div class="photo" data-foto="perdida">
+            <span style="font-weight:600;font-size:15px;color:var(--ink-2)" class="req">Foto de lo ocurrido</span>
+            <img class="thumb" id="thumb-perdida" alt="Foto">
+            <div class="row"><button class="btn" type="button" data-cam="perdida">📷 Cámara</button><button class="btn" type="button" data-gal="perdida">🖼 Galería</button></div>
+            <input type="file" id="file-perdida" accept="image/*">
+          </div>
+        </div>
+      </div>
+
       <div class="card stack">
         <label class="f"><span>Observaciones (opcional)</span>
           <textarea id="f-obs" style="min-height:70px;font-family:var(--font-body);font-size:17px" placeholder="Algo más que deba saberse"></textarea>
@@ -356,7 +385,7 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
     <div id="step3" class="stack" style="display:none">
       <div class="section-title"><span class="dot"></span><h3>Revisar antes de guardar</h3></div>
       <div class="card"><dl class="kv" id="review"></dl></div>
-      <div class="msg" id="review-note">Al guardar, el registro queda en este teléfono y se generan el PDF y el archivo de datos. Después podrá enviarlos.</div>
+      <div class="msg" id="review-note">Al guardar, el registro queda en este teléfono. Después podrá guardarlo en la base de datos o compartir los archivos.</div>
     </div>
   </section>
 
@@ -370,19 +399,16 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
         </div>
         <dl class="kv" id="done-kv"></dl>
         <div class="status-line" id="done-status"></div>
+        <div class="log hidden" id="done-log"></div>
       </div>
-      <div class="section-title"><span class="dot"></span><h3>Archivos generados</h3></div>
-      <div class="files" id="done-files"></div>
-      <div class="section-title"><span class="dot"></span><h3>Enviar</h3></div>
-      <div class="sendgrid">
-        <button class="btn primary" id="btn-send-mail"><span class="ico">MAIL</span><span>Enviar a <span id="mail-to-label">trazabilidad@ypoti.com</span><span class="sub" id="mail-sub">PDF + datos por correo</span></span></button>
-        <button class="btn" id="btn-send-wa"><span class="ico">WA</span><span>Enviar al grupo de WhatsApp<span class="sub">Se abre WhatsApp; elija el grupo</span></span></button>
-        <button class="btn" id="btn-publish-db" style="border-color:var(--brand);color:var(--brand)"><span class="ico">BD</span><span>Publicar en la base de datos<span class="sub" id="db-sub">Requiere contraseña</span></span></button>
-        <button class="btn ghost" id="btn-share-both"><span class="ico">…</span><span>Compartir con otra app</span></button>
-      </div>
+      <button class="btn primary big" id="btn-publish-db">Guardar en Banco de Datos<span class="sub" id="db-sub">Requiere la contraseña de la estancia</span></button>
+      <button class="btn ghost" id="btn-share-both">Generar archivos y compartir<span class="sub">PDF + datos, a WhatsApp, correo u otra app</span></button>
       <div class="msg hidden" id="done-msg"></div>
+      <div class="section-title"><span class="dot"></span><h3>Archivos</h3></div>
+      <div class="files" id="done-files"></div>
       <div class="row">
-        <button class="btn ghost" id="btn-delete-rec">Borrar este registro</button>
+        <button class="btn ghost" id="btn-edit-rec">✎ Editar registro</button>
+        <button class="btn ghost" id="btn-delete-rec">Borrar</button>
       </div>
     </div>
   </section>
@@ -402,17 +428,22 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
           <textarea id="c-lista" style="font-family:var(--font-body);font-size:16px;min-height:90px" placeholder="Un nombre por línea"></textarea>
         </label>
       </div>
-      <div class="section-title"><span class="dot"></span><h3>Envío</h3></div>
+      <div class="section-title"><span class="dot"></span><h3>Servidor (ya configurado)</h3></div>
       <div class="card stack">
-        <label class="f"><span>Correo de destino</span>
-          <input type="text" id="c-mail" placeholder="trazabilidad@ypoti.com" inputmode="email" autocapitalize="off">
-        </label>
-        <label class="f"><span>URL del servidor (base de datos)</span>
-          <input type="text" id="c-endpoint" placeholder="https://script.google.com/macros/s/…/exec" autocapitalize="off" autocomplete="off">
-          <span class="hint">Ya viene configurada. Solo cámbiela si le indican un servidor nuevo.</span>
-        </label>
-        <button class="btn" id="btn-test-endpoint">Probar conexión</button>
-        <div class="msg hidden" id="c-msg"></div>
+        <div class="msg" id="c-server-info">La base de datos y el correo de destino ya vienen configurados en el app; no hace falta tocar nada.</div>
+        <details>
+          <summary style="cursor:pointer;color:var(--ink-3);font-size:14px">Ajustes avanzados</summary>
+          <div class="stack" style="margin-top:10px">
+            <label class="f"><span>Correo de destino</span>
+              <input type="text" id="c-mail" inputmode="email" autocapitalize="off">
+            </label>
+            <label class="f"><span>URL del servidor (base de datos)</span>
+              <input type="text" id="c-endpoint" autocapitalize="off" autocomplete="off">
+            </label>
+            <div class="row"><button class="btn" id="btn-test-endpoint">Probar conexión</button><button class="btn ghost" id="btn-reset-server">Restablecer valores</button></div>
+            <div class="msg hidden" id="c-msg"></div>
+          </div>
+        </details>
       </div>
       <div class="section-title"><span class="dot"></span><h3>Acerca de</h3></div>
       <div class="card flat" style="font-size:14px;color:var(--ink-3)">
@@ -425,6 +456,7 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
 <div class="actionbar" id="actionbar" style="display:none">
   <div class="inner">
     <button class="btn back" id="ab-back">‹ Atrás</button>
+    <button class="btn mid" id="ab-draft">Borrador</button>
     <button class="btn primary" id="ab-next">Continuar ›</button>
   </div>
 </div>
@@ -437,13 +469,23 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
     <button class="btn" id="scan-cancel">Cancelar</button>
   </div>
 </div>
-<div id="pwd-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:25;display:flex;align-items:center;justify-content:center;padding:16px">
+<div id="pwd-modal" class="modal hidden">
   <div class="card stack" style="max-width:380px;width:100%">
-    <h2>Publicar en la base de datos</h2>
+    <h2>Guardar en Banco de Datos</h2>
     <p style="font-size:15px;color:var(--ink-2)">Escriba la contraseña de la estancia <b id="pwd-est"></b> para autorizar la publicación de este registro.</p>
     <label class="f"><span class="req">Contraseña</span><input type="password" id="pwd-input" autocomplete="off" autocapitalize="off" inputmode="text"></label>
     <div class="msg bad hidden" id="pwd-err"></div>
     <div class="row"><button class="btn ghost" id="pwd-cancel">Cancelar</button><button class="btn primary" id="pwd-ok">Publicar</button></div>
+  </div>
+</div>
+<div id="imp-modal" class="modal hidden">
+  <div class="card stack" style="max-width:420px;width:100%">
+    <h2>Importar registros</h2>
+    <p style="font-size:15px;color:var(--ink-2)" id="imp-info"></p>
+    <button class="btn primary" id="imp-merge">Agregar nuevos y reemplazar los repetidos<span class="sub">Recomendado</span></button>
+    <button class="btn" id="imp-new">Agregar solo los nuevos<span class="sub">Los que ya existen aquí no se tocan</span></button>
+    <button class="btn danger" id="imp-replace">Reemplazar todo<span class="sub">Borra los registros de este teléfono y deja solo los importados</span></button>
+    <button class="btn ghost" id="imp-cancel">Cancelar</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -805,12 +847,13 @@ if(typeof module!=='undefined'&&module.exports) module.exports=api; else root.Ma
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '1.6.0';
-const ESQUEMA = 'manejo-ypoti/1.2';
+const APP_VERSION = '2.0.0';
+const ESQUEMA = 'manejo-ypoti/2.0';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista'];
 const ORIGENES_EXTRA = ['Compra externa (proveedor)'];
 const DESTINOS_EXTRA = ['Frigorífico / Venta','Otro'];
-const TIPO_LABEL = {entrada:'Entrada de animales', salida:'Salida de animales', mortalidad:'Mortalidad', nacimiento:'Nacimiento'};
+const TIPO_LABEL = {entrada:'Entrada de animales', salida:'Salida de animales', mortalidad:'Mortalidad', nacimiento:'Nacimiento', pesaje:'Pesaje de auditoría', perdida_boton:'Pérdida de botón electrónico'};
+const CAUSAS_MUERTE = ['Abigeo','Accidente','Afogamento','Anemia','Atolado','Atolado/trancado erosion','Atrapado por el alambrado','Carbunco','Cayo en la Baleta','Cobra','Debilitado','Desconocido','Enfermedad','Enpantanado o Atascado','Enroscado','Faena Interna','Flaco','Fractura','Fraqueza','Hipotermia','Intoxicacion','Jaguarete/león','Lesion','Machucado','Machucadura no chifre','Muerte Súbita','Neumonia','No identificado','Otros','Poleo','Rayo','Requema','Toxico','Trauma','Tristeza','Tristeza Parasitaria','Vibora'];
 const DEFAULT_MAIL = 'trazabilidad@ypoti.com';
 const DEFAULT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwnmB0MXm7Wrt7dQEIU9oN7oy1j2XjQ_7HfZkpsn-5rkaWApoBWYv40J-zo7BAanuzIdg/exec'; // servidor (Apps Script) de la base de datos
 // SHA-256 de la contraseña de publicación de cada estancia ('*' = clave maestra, válida para todas)
@@ -820,17 +863,21 @@ const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2,'0');
 const todayISO = () => { const d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); };
 const fmtDate = iso => iso ? iso.split('-').reverse().join('/') : '';
+const fmtDT = iso => { try{ return new Date(iso).toLocaleString('es-PY',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(e){ return iso; } };
 const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16);}));
 const slug = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_|_$/g,'');
 const fmtBytes = b => b<1024? b+' B' : b<1048576 ? (b/1024).toFixed(0)+' KB' : (b/1048576).toFixed(1)+' MB';
+const esCamion = t => t==='entrada'||t==='salida';
+const usaBalanza = t => t==='entrada'||t==='salida'||t==='pesaje';
 
-/* ---------- storage ---------- */
+/* ---------- configuración (servidor y correo vienen fijos en el app) ---------- */
 const CFG_KEY = 'manejo.config';
-let cfg = {respondente:'', estancia:'', lista:[], mail:DEFAULT_MAIL, endpoint:''};
-function loadCfg(){ try{ const s=localStorage.getItem(CFG_KEY); if(s) cfg=Object.assign(cfg,JSON.parse(s)); }catch(e){} if(!cfg.mail) cfg.mail=DEFAULT_MAIL; if(!cfg.endpoint && DEFAULT_ENDPOINT) cfg.endpoint=DEFAULT_ENDPOINT; }
-function endpointActual(){ return cfg.endpoint || DEFAULT_ENDPOINT; }
+let cfg = {respondente:'', estancia:'', lista:[], mail:DEFAULT_MAIL, endpoint:DEFAULT_ENDPOINT, mail_custom:false, endpoint_custom:false};
+function loadCfg(){ try{ const s=localStorage.getItem(CFG_KEY); if(s) cfg=Object.assign(cfg,JSON.parse(s)); }catch(e){}
+  if(!cfg.endpoint_custom || !cfg.endpoint) cfg.endpoint=DEFAULT_ENDPOINT; if(!cfg.mail_custom || !cfg.mail) cfg.mail=DEFAULT_MAIL; }
 function saveCfg(){ try{ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }catch(e){} }
 
+/* ---------- almacenamiento local (IndexedDB) ---------- */
 let dbp = null;
 function db(){
   if(dbp) return dbp;
@@ -847,62 +894,68 @@ async function dbPut(rec){ const d=await db(); return new Promise((res,rej)=>{ c
 async function dbGet(id){ const d=await db(); return new Promise((res,rej)=>{ const r=d.transaction('registros').objectStore('registros').get(id); r.onsuccess=()=>res(r.result); r.onerror=e=>rej(e.target.error); }); }
 async function dbAll(){ const d=await db(); return new Promise((res,rej)=>{ const r=d.transaction('registros').objectStore('registros').getAll(); r.onsuccess=()=>res(r.result||[]); r.onerror=e=>rej(e.target.error); }); }
 async function dbDel(id){ const d=await db(); return new Promise((res,rej)=>{ const t=d.transaction('registros','readwrite'); t.objectStore('registros').delete(id); t.oncomplete=()=>res(); t.onerror=e=>rej(e.target.error); }); }
+async function dbClear(){ const d=await db(); return new Promise((res,rej)=>{ const t=d.transaction('registros','readwrite'); t.objectStore('registros').clear(); t.oncomplete=()=>res(); t.onerror=e=>rej(e.target.error); }); }
+function logEntry(w, accion, detalle){ w.historial=w.historial||[]; w.historial.push({fecha:new Date().toISOString(), accion, version:w.version||1, detalle:detalle||null, app_version:APP_VERSION}); }
 
 /* ---------- ui helpers ---------- */
 let toastT;
-function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600); }
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2800); }
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id)); window.scrollTo(0,0); $('actionbar').style.display = (id==='scr-form')?'block':'none'; $('hdr-title').textContent = id==='scr-config' ? 'Configuración' : id==='scr-done' ? 'Registro guardado' : 'Registro de manejo'; $('btn-config').textContent = id==='scr-home' ? '⚙' : '⌂'; }
 function fillSelect(sel, opts, placeholder){ sel.innerHTML=''; if(placeholder){ const o=document.createElement('option'); o.value=''; o.textContent=placeholder; sel.appendChild(o);} opts.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); }); }
 function setSeg(seg, v){ seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.v===v)); seg.dataset.value=v||''; }
 function updateNet(){ const p=$('netpill'); const on=navigator.onLine; p.textContent = on?'Con conexión':'Sin conexión'; p.classList.toggle('online',on); p.classList.toggle('offline',!on); }
 window.addEventListener('online',()=>{updateNet(); syncPendientes();}); window.addEventListener('offline',updateNet);
 
-/* ---------- form state ---------- */
-let step=1, tipo=null, fotos={animal:null, boton:null, precinto:null}, balanza=null, cotaInfo=null, current=null;
+/* ---------- estado del formulario ---------- */
+let step=1, tipo=null, fotos={animal:null, boton:null, precinto:null, perdida:null}, balanza=null, cotaInfo=null;
+let formId=null;       // id del borrador / registro en edición
+let editing=null;      // wrapper original cuando se edita un registro existente
+let dirty=false;
 
-/* ---------- archivo de la balanza (CSV Tru-Test) ---------- */
+/* ---------- archivo de la balanza: solo IDE y peso ---------- */
 const norm = s => String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/\s+/g,' ').trim();
-const COL_IDE=['IDE','ID','EID','RFID','VID','CARAVANA','BOTON','IDENTIFICACION','ID ANIMAL','ANIMAL ID'];
-const COL_PESO=['PESO','PESO (KG)','PESO KG','WEIGHT','WEIGHT (KG)','KG'];
-const COL_COTA=['NRO DE COTA','NRO COTA','COTA','N COTA'];
-const COL_GUIA=['NRO DE GUIA','NRO GUIA','GUIA','N GUIA'];
-const COL_RAZA=['RAZA','BREED'];
-const COL_FECHA=['FECHA','DATE'], COL_HORA=['HORA','TIME'];
 function splitLine(line, delim){ const out=[]; let cur='', q=false; for(let i=0;i<line.length;i++){ const ch=line[i]; if(q){ if(ch==='"'){ if(line[i+1]==='"'){ cur+='"'; i++; } else q=false; } else cur+=ch; } else { if(ch==='"') q=true; else if(ch===delim){ out.push(cur); cur=''; } else cur+=ch; } } out.push(cur); return out; }
 function decodeText(buf){ try{ return new TextDecoder('utf-8',{fatal:true}).decode(buf); }catch(e){ return new TextDecoder('windows-1252').decode(buf); } }
-function findCol(cols, names){ const n=cols.map(norm); for(const c of names){ const i=n.indexOf(c); if(i>=0) return i; } return -1; }
+const esIde = v => /^\d{8,20}$/.test(String(v||'').replace(/\s+/g,''));
+const esPeso = v => { const n=Number(String(v||'').replace(',','.')); return v!=='' && !isNaN(n) && n>=1 && n<=3000; };
 function parseBalanza(text, nombre){
   text=text.replace(/^﻿/,''); const lines=text.split(/\r\n|\n|\r/).filter(l=>l.trim().length);
-  if(lines.length<2) throw new Error('El archivo está vacío o no tiene filas de animales.');
+  if(lines.length<1) throw new Error('El archivo está vacío.');
   const head=lines[0]; const delim=[';',',','\t','|'].map(d=>({d,n:(head.match(new RegExp(d==='|'?'\\|':d,'g'))||[]).length})).sort((a,b)=>b.n-a.n)[0].d;
-  const cols=splitLine(head,delim).map(s=>s.trim());
-  const iIde=findCol(cols,COL_IDE), iPeso=findCol(cols,COL_PESO);
-  if(iIde<0||iPeso<0) throw new Error('No encuentro las columnas IDE y Peso. Columnas del archivo: '+cols.filter(Boolean).join(', '));
-  const iCota=findCol(cols,COL_COTA), iGuia=findCol(cols,COL_GUIA), iRaza=findCol(cols,COL_RAZA), iFecha=findCol(cols,COL_FECHA), iHora=findCol(cols,COL_HORA);
-  const animales=[], invalidos=[], duplicados=[], seen=new Set(); const cotas=new Set(), guias=new Set(), razas=new Set(), fechas=new Set();
-  for(let r=1;r<lines.length;r++){
+  const cols=splitLine(head,delim).map(s=>s.trim()); const ncols=cols.map(norm);
+  // 1) por nombre de columna
+  const idNames=['IDE','ID','EID','RFID','VID','TAG','CARAVANA','BOTON','IDENTIFICACION','ID ANIMAL','ANIMAL ID','ELECTRONIC ID','EID (ELECTRONIC ID)'];
+  let iIde=ncols.findIndex(c=>idNames.includes(c)); if(iIde<0) iIde=ncols.findIndex(c=>/\b(IDE|EID|RFID)\b/.test(c));
+  let iPeso=ncols.findIndex(c=>['PESO','PESO (KG)','PESO KG','WEIGHT','WEIGHT (KG)','KG','LIVE WEIGHT','PESO VIVO'].includes(c)); if(iPeso<0) iPeso=ncols.findIndex(c=>/PESO|WEIGHT/.test(c) && !/ANT|PREV|GAN|DIF|PROM/.test(c));
+  let hasHeader = iIde>=0 || iPeso>=0 || !cols.some(esIde);
+  // 2) por contenido (si el encabezado no ayuda o no existe)
+  const dataStart = hasHeader?1:0; const sample=lines.slice(dataStart, dataStart+40).map(l=>splitLine(l,delim).map(s=>s.trim()));
+  const score=(fn)=>cols.map((_,i)=>sample.filter(f=>fn(f[i])).length);
+  if(iIde<0){ const sc=score(esIde); const best=Math.max(...sc); if(best>0) iIde=sc.indexOf(best); }
+  if(iPeso<0){ const sc=score(esPeso).map((n,i)=>i===iIde?-1:n); const best=Math.max(...sc); if(best>0) iPeso=sc.indexOf(best); }
+  if(iIde<0) throw new Error('No encuentro una columna con identificaciones (IDE de 8 a 20 dígitos). Columnas: '+cols.filter(Boolean).join(', '));
+  // columnas auxiliares (si existen): COTA, guía, fecha
+  const iCota=ncols.findIndex(c=>/COTA/.test(c)), iGuia=ncols.findIndex(c=>/GUIA/.test(c)), iFecha=ncols.findIndex(c=>c==='FECHA'||c==='DATE');
+  const animales=[], invalidos=[], duplicados=[], seen=new Set(); const cotas=new Set(), guias=new Set(), fechas=new Set();
+  for(let r=dataStart;r<lines.length;r++){
     const f=splitLine(lines[r],delim).map(s=>s.trim()); if(f.every(x=>!x)) continue;
-    const rawIde=f[iIde]||''; const ide=rawIde.replace(/\s+/g,''); const pesoTxt=(f[iPeso]||'').replace(',','.'); const peso=pesoTxt===''?null:Number(pesoTxt);
-    const datos={}; cols.forEach((c,i)=>{ if(c && i!==iIde && i!==iPeso && f[i]!==undefined && f[i]!=='') datos[c]=f[i]; });
-    if(iCota>=0&&f[iCota]) cotas.add(f[iCota]); if(iGuia>=0&&f[iGuia]) guias.add(f[iGuia]); if(iRaza>=0&&f[iRaza]) razas.add(f[iRaza]); if(iFecha>=0&&f[iFecha]) fechas.add(f[iFecha]);
-    if(!/^\d{8,20}$/.test(ide)){ invalidos.push({fila:r+1, ide:rawIde}); continue; }
+    const rawIde=f[iIde]||''; const ide=rawIde.replace(/\s+/g,''); const pesoTxt=iPeso>=0?(f[iPeso]||'').replace(',','.'):''; const peso=pesoTxt===''?null:Number(pesoTxt);
+    if(iCota>=0&&f[iCota]) cotas.add(f[iCota]); if(iGuia>=0&&f[iGuia]) guias.add(f[iGuia]); if(iFecha>=0&&f[iFecha]) fechas.add(f[iFecha]);
+    if(!esIde(ide)){ invalidos.push({fila:r+1, ide:rawIde}); continue; }
     if(seen.has(ide)){ duplicados.push({fila:r+1, ide}); continue; } seen.add(ide);
-    animales.push({ ide, peso_kg:(peso===null||isNaN(peso))?null:peso, fila:r+1, fecha_pesaje:iFecha>=0?(f[iFecha]||null):null, hora_pesaje:iHora>=0?(f[iHora]||null):null, datos });
+    animales.push({ ide, peso_kg:(peso===null||isNaN(peso))?null:peso });
   }
-  if(!animales.length) throw new Error('El archivo no tiene ninguna identificación válida en la columna IDE.');
+  if(!animales.length) throw new Error('El archivo no tiene ninguna identificación válida.');
   const pesos=animales.map(a=>a.peso_kg).filter(p=>p!==null);
-  return { nombre, delimitador:delim, columnas:cols, filas:lines.length-1, columna_ide:cols[iIde], columna_peso:cols[iPeso], animales, invalidos, duplicados,
-    cota_archivo:cotas.size===1?[...cotas][0]:(cotas.size?[...cotas].join(' / '):null), guia_archivo:guias.size===1?[...guias][0]:(guias.size?[...guias].join(' / '):null),
-    razas:[...razas], fecha_pesaje:fechas.size===1?[...fechas][0]:null, peso_total_kg:pesos.length?+pesos.reduce((a,b)=>a+b,0).toFixed(1):null, peso_promedio_kg:pesos.length?+(pesos.reduce((a,b)=>a+b,0)/pesos.length).toFixed(1):null, sin_peso:animales.length-pesos.length, contenido:text };
+  return { nombre, columna_ide:cols[iIde]||('columna '+(iIde+1)), columna_peso:iPeso>=0?(cols[iPeso]||('columna '+(iPeso+1))):null, filas:lines.length-dataStart, animales, invalidos, duplicados,
+    cota_archivo:cotas.size===1?[...cotas][0]:null, guia_archivo:guias.size===1?[...guias][0]:null, fecha_pesaje:fechas.size===1?[...fechas][0]:null,
+    peso_total_kg:pesos.length?+pesos.reduce((a,b)=>a+b,0).toFixed(1):null, peso_promedio_kg:pesos.length?+(pesos.reduce((a,b)=>a+b,0)/pesos.length).toFixed(1):null, sin_peso:animales.length-pesos.length };
 }
-function razaDesdeArchivo(razas){ if(razas.length!==1) return ''; const r=norm(razas[0]); if(/CEBU|ZEBU|NELORE|BRAHMAN/.test(r)) return 'Cebú'; if(/HIBRID|CRUZA|MESTIZ/.test(r)) return 'Híbrido'; return ''; }
 function renderCsv(){
   const p=$('csv-panel'), kv=$('csv-kv'); if(!balanza){ p.classList.add('hidden'); return; }
-  const rows=[['Archivo',balanza.nombre],['Animales',balanza.animales.length+' con IDE válida'+(balanza.sin_peso?' ('+balanza.sin_peso+' sin peso)':'')],['Peso',balanza.peso_promedio_kg!==null?balanza.peso_promedio_kg+' kg promedio · '+balanza.peso_total_kg+' kg total':'—']];
-  if(balanza.cota_archivo) rows.push(['COTA en archivo',balanza.cota_archivo]); if(balanza.guia_archivo) rows.push(['Guía en archivo',balanza.guia_archivo]);
-  if(balanza.fecha_pesaje) rows.push(['Fecha pesaje',balanza.fecha_pesaje]); if(balanza.razas.length) rows.push(['Raza en archivo',balanza.razas.join(', ')]);
-  if(balanza.invalidos.length) rows.push(['Filas sin IDE',balanza.invalidos.length+' (fila '+balanza.invalidos.slice(0,5).map(x=>x.fila).join(', ')+(balanza.invalidos.length>5?'…':'')+')']);
-  if(balanza.duplicados.length) rows.push(['IDE repetidas',balanza.duplicados.length+' (se cuentan una vez)']);
+  const rows=[['Archivo',balanza.nombre],['Columnas usadas','ID: '+balanza.columna_ide+' · Peso: '+(balanza.columna_peso||'no encontrada')],['Animales',balanza.animales.length+' con identificación válida'+(balanza.sin_peso?' ('+balanza.sin_peso+' sin peso)':'')],['Peso',balanza.peso_promedio_kg!==null?balanza.peso_promedio_kg+' kg promedio · '+balanza.peso_total_kg+' kg total':'—']];
+  if(balanza.cota_archivo) rows.push(['COTA en archivo',balanza.cota_archivo]); if(balanza.guia_archivo) rows.push(['Guía en archivo',balanza.guia_archivo]); if(balanza.fecha_pesaje) rows.push(['Fecha en archivo',balanza.fecha_pesaje]);
+  if(balanza.invalidos.length) rows.push(['Filas sin ID',balanza.invalidos.length]); if(balanza.duplicados.length) rows.push(['ID repetidas',balanza.duplicados.length+' (se cuentan una vez)']);
   kv.innerHTML=''; rows.forEach(([k,v])=>{ const dt=document.createElement('dt'); dt.textContent=k; const dd=document.createElement('dd'); dd.textContent=v; kv.appendChild(dt); kv.appendChild(dd); });
   const dt=document.createElement('dt'); dt.textContent='Lista'; const dd=document.createElement('dd'); dd.className='mono'; dd.textContent=balanza.animales.slice(0,300).map(a=>a.ide+(a.peso_kg!==null?'  '+a.peso_kg+' kg':'')).join('\n')+(balanza.animales.length>300?'\n…':''); kv.appendChild(dt); kv.appendChild(dd);
   p.classList.remove('hidden');
@@ -911,7 +964,7 @@ function refreshIds(){
   const n=balanza?balanza.animales.length:0, q=parseInt($('f-cantidad').value,10);
   $('ids-count').textContent = balanza ? n+(n===1?' animal en el archivo':' animales en el archivo') : 'Sin archivo';
   const chk=$('ids-check'); chk.className='badge';
-  if(!n){ chk.textContent=''; chk.className=''; return; }
+  if(!n || tipo==='pesaje'){ chk.textContent=''; chk.className=''; return; }
   if(!isNaN(q)){ if(q===n){ chk.classList.add('ok'); chk.textContent='Coincide con la cantidad contada'; } else { chk.classList.add('bad'); chk.textContent='No coincide: '+q+' contados, '+n+' en el archivo'; } }
   else { chk.textContent=''; chk.className=''; }
 }
@@ -924,7 +977,7 @@ function renderCotaPanel(){
   ok.className='msg ok'; ok.innerHTML='<b>QR de la COTA leído</b><dl class="kv" style="margin-top:6px;font-size:14px">'+rows.map(()=>'<dt></dt><dd></dd>').join('')+'</dl>';
   ok.querySelectorAll('dt').forEach((dt,i)=>dt.textContent=rows[i][0]); ok.querySelectorAll('dd').forEach((dd,i)=>dd.textContent=rows[i][1]); ok.classList.remove('hidden');
 }
-function setCota(v, origen){ $('f-cota').value=v; checkCota(); }
+function setCota(v){ $('f-cota').value=v; checkCota(); dirty=true; }
 function checkCota(){ renderCotaPanel(); const v=$('f-cota').value.trim(); const hint=$('cota-hint'); hint.style.color='';
   if(!v){ hint.className='hint'; hint.textContent='Apunte la cámara al QR de la COTA y espere el aviso. Si hay poca luz, use “Sacar foto del QR”.'; return; }
   const msgs=[]; const c=cotaInfo; const q=parseInt($('f-cantidad').value,10); let bad=false, warn=false;
@@ -933,64 +986,104 @@ function checkCota(){ renderCotaPanel(); const v=$('f-cota').value.trim(); const
   if(c&&c.total_declarado!==null&&!isNaN(q)){ if(c.total_declarado===q) msgs.push('Los '+q+' contados coinciden con los declarados en la COTA.'); else { msgs.push('ATENCIÓN: la COTA declara '+c.total_declarado+' animales y se contaron '+q+'.'); warn=true; } }
   hint.className='hint'; hint.style.color = bad?'var(--bad)':warn?'var(--warn)':'var(--ok)'; hint.textContent = msgs.length?msgs.join(' '):'COTA cargada.'; }
 
+/* ---------- formulario: reset, estado, borradores ---------- */
+function setTipo(t){ tipo=t; document.querySelectorAll('.tile').forEach(x=>x.classList.toggle('selected',x.dataset.tipo===t)); document.body.className=t?'tipo-'+t:''; dirty=true; }
+function setFoto(key, dataUrl){ fotos[key]=dataUrl||null; const th=$('thumb-'+key); if(dataUrl){ th.src=dataUrl; th.classList.add('has'); } else { th.classList.remove('has'); th.removeAttribute('src'); } }
 function resetForm(){
-  step=1; tipo=null; fotos={animal:null,boton:null,precinto:null}; balanza=null; current=null;
+  step=1; tipo=null; fotos={animal:null,boton:null,precinto:null,perdida:null}; balanza=null; cotaInfo=null; formId=uuid(); editing=null; dirty=false;
   const listaNames = cfg.lista.length?cfg.lista:(cfg.respondente?[cfg.respondente]:[]);
   fillSelect($('f-respondente'), listaNames.concat(['Otro…']), '— Elegir —');
   if(cfg.respondente && listaNames.includes(cfg.respondente)) $('f-respondente').value=cfg.respondente;
   $('wrap-respondente-otro').style.display='none'; $('f-respondente-otro').value='';
   fillSelect($('f-estancia'), ESTANCIAS, '— Elegir estancia —'); if(cfg.estancia) $('f-estancia').value=cfg.estancia;
-  $('f-fecha').value=todayISO(); $('f-fecha').max=todayISO();
-  document.querySelectorAll('.tile').forEach(t=>t.classList.remove('selected'));
-  ['f-chapa','f-cota','f-cantidad','f-boton','f-madre','f-cria-boton','f-obs'].forEach(id=>$(id).value=''); $('cota-ok').classList.add('hidden'); $('csv-err').classList.add('hidden'); cotaInfo=null; renderCsv(); checkCota();
-  $('f-causa').value='';
+  $('f-fecha').value=todayISO(); $('f-fecha').max=todayISO(); $('f-lote').value='';
+  document.querySelectorAll('.tile').forEach(t=>t.classList.remove('selected')); document.body.className='';
+  ['f-chapa','f-cota','f-cantidad','f-boton','f-madre','f-cria-boton','f-obs','f-perdida-boton'].forEach(id=>$(id).value='');
+  $('cota-ok').classList.add('hidden'); $('csv-err').classList.add('hidden'); renderCsv(); checkCota();
+  fillSelect($('f-causa'), CAUSAS_MUERTE, '— Elegir causa —');
   fillSelect($('f-origen'), ORIGENES_EXTRA.concat(ESTANCIAS), '— Elegir origen —');
   fillSelect($('f-destino'), ESTANCIAS.concat(DESTINOS_EXTRA), '— Elegir destino —');
   setSeg($('seg-raza'),''); setSeg($('seg-sexo'),'');
-  ['thumb-animal','thumb-boton','thumb-precinto'].forEach(id=>{ $(id).classList.remove('has'); $(id).removeAttribute('src'); });
-  $('btn-foto-animal').textContent='📷 Tomar foto del animal'; $('btn-foto-boton').textContent='📷 Tomar foto del botón'; $('btn-foto-precinto').textContent='📷 Tomar foto del precinto';
-  $('err1').classList.add('hidden'); $('err2').classList.add('hidden');
-  refreshIds(); renderStep();
+  ['animal','boton','precinto','perdida'].forEach(k=>setFoto(k,null));
+  $('err1').classList.add('hidden'); $('err2').classList.add('hidden'); $('edit-banner').classList.add('hidden');
+  refreshIds(); renderStep(); dirty=false;
 }
+function respondenteValue(){ const v=$('f-respondente').value; return v==='Otro…' ? $('f-respondente-otro').value.trim() : v; }
+function collectForm(){ // DOM -> estado serializable (borrador)
+  return { step, tipo, respondente:respondenteValue(), estancia:$('f-estancia').value, fecha:$('f-fecha').value, lote:$('f-lote').value.trim(),
+    chapa:$('f-chapa').value, cota:$('f-cota').value, origen:$('f-origen').value, destino:$('f-destino').value, raza:$('seg-raza').dataset.value||'', cantidad:$('f-cantidad').value,
+    boton:$('f-boton').value, causa:$('f-causa').value, madre:$('f-madre').value, sexo:$('seg-sexo').dataset.value||'', cria_boton:$('f-cria-boton').value, perdida_boton:$('f-perdida-boton').value, obs:$('f-obs').value,
+    fotos:Object.assign({},fotos), balanza }; }
+function applyForm(s){ // estado -> DOM
+  if(s.tipo) setTipo(s.tipo);
+  const names=Array.from($('f-respondente').options).map(o=>o.value); if(s.respondente){ if(names.includes(s.respondente)) $('f-respondente').value=s.respondente; else { $('f-respondente').value='Otro…'; $('f-respondente-otro').value=s.respondente; $('wrap-respondente-otro').style.display='flex'; } }
+  if(s.estancia) $('f-estancia').value=s.estancia; if(s.fecha) $('f-fecha').value=s.fecha; $('f-lote').value=s.lote||'';
+  $('f-chapa').value=s.chapa||''; $('f-cota').value=s.cota||''; if(s.origen) $('f-origen').value=s.origen; if(s.destino) $('f-destino').value=s.destino; setSeg($('seg-raza'),s.raza||''); $('f-cantidad').value=s.cantidad||'';
+  $('f-boton').value=s.boton||''; $('f-causa').value=s.causa||''; $('f-madre').value=s.madre||''; setSeg($('seg-sexo'),s.sexo||''); $('f-cria-boton').value=s.cria_boton||''; $('f-perdida-boton').value=s.perdida_boton||''; $('f-obs').value=s.obs||'';
+  fotos={animal:null,boton:null,precinto:null,perdida:null}; Object.keys(s.fotos||{}).forEach(k=>setFoto(k,s.fotos[k]));
+  balanza=s.balanza||null; renderCsv(); refreshIds(); checkCota();
+  step=Math.min(Math.max(s.step||1,1),2); renderStep(); dirty=false;
+}
+function recordToForm(r){ // registro guardado -> estado del formulario (para editar)
+  const d=r.datos||{}; let b=null;
+  if(d.animales&&d.animales.length){ const pesos=d.animales.map(a=>a.peso_kg).filter(p=>p!==null&&p!==undefined); b={ nombre:(r.archivo_balanza&&r.archivo_balanza.nombre)||'archivo anterior', columna_ide:'IDE', columna_peso:'Peso', filas:d.animales.length, animales:d.animales.map(a=>({ide:a.ide,peso_kg:a.peso_kg===undefined?null:a.peso_kg})), invalidos:[], duplicados:[], cota_archivo:d.cota_archivo||null, guia_archivo:d.guia_archivo||null, fecha_pesaje:d.fecha_pesaje||null, peso_total_kg:pesos.length?+pesos.reduce((x,y)=>x+y,0).toFixed(1):null, peso_promedio_kg:pesos.length?+(pesos.reduce((x,y)=>x+y,0)/pesos.length).toFixed(1):null, sin_peso:d.animales.length-pesos.length }; }
+  const a=r.adjuntos||{};
+  return { step:1, tipo:r.tipo_evento, respondente:r.respondente, estancia:r.estancia, fecha:r.fecha_evento, lote:r.lote_controlpasto||'', chapa:d.chapa_camion||'', cota:d.cota_qr||d.cota_nro||'', origen:d.origen||'', destino:d.destino||'', raza:d.raza||'', cantidad:d.cantidad_animales!=null?String(d.cantidad_animales):'',
+    boton:d.nro_boton||'', causa:d.causa_probable||'', madre:d.madre||'', sexo:d.sexo_cria||'', cria_boton:d.nro_boton_cria||'', perdida_boton:r.tipo_evento==='perdida_boton'?(d.nro_boton||''):'', obs:r.observaciones||'',
+    fotos:{ precinto:a.foto_precinto||null, animal:a.foto_animal||null, boton:a.foto_boton||null, perdida:a.foto_ocurrido||null }, balanza:b };
+}
+async function saveDraft(silent){
+  const s=collectForm(); if(!s.tipo && !s.chapa && !s.cota && !s.boton && !s.madre && !s.perdida_boton && !s.balanza && !Object.values(s.fotos).some(Boolean) && !s.lote && !s.obs){ if(!silent) toast('No hay nada que guardar todavía.'); return false; }
+  const prev=await dbGet(formId);
+  if(prev && prev.estado!=='borrador'){ return false; } // un registro real en edición no se convierte en borrador
+  const w=prev||{id:formId, creado_en:new Date().toISOString(), estado:'borrador', envios:[], historial:[], version:0};
+  w.estado='borrador'; w.borrador=s; w.actualizado_en=new Date().toISOString(); w.resumen={tipo:s.tipo, estancia:s.estancia, fecha:s.fecha, respondente:s.respondente};
+  if(!w.historial.length) logEntry(w,'borrador creado');
+  await dbPut(w); dirty=false; if(!silent) toast('Borrador guardado'); return true;
+}
+async function openDraft(w){ resetForm(); formId=w.id; applyForm(w.borrador||{}); show('scr-form'); }
+async function openEdit(w){ resetForm(); formId=w.id; editing=w; applyForm(recordToForm(w.registro)); $('edit-banner').className='msg warn'; $('edit-banner').textContent='Editando el registro '+w.id.slice(0,8)+' (versión '+(w.version||1)+'). Al guardar, deberá volver a publicarlo en la base de datos.'; $('edit-banner').classList.remove('hidden'); show('scr-form'); }
 
 function renderStep(){
   ['step1','step2','step3'].forEach((id,i)=>$(id).style.display = (i+1===step)?'flex':'none');
   const spans=$('steps').querySelectorAll('span'); spans.forEach((s,i)=>s.classList.toggle('done', i<step));
   $('step-label').textContent='Paso '+step+' de 3';
-  $('ab-back').textContent = step===1 ? '✕ Cancelar' : '‹ Atrás';
-  $('ab-next').textContent = step===3 ? '✓ Guardar y generar' : 'Continuar ›';
+  $('ab-back').textContent = step===1 ? '✕ Salir' : '‹ Atrás';
+  $('ab-next').textContent = step===3 ? '✓ Guardar' : 'Continuar ›';
+  $('ab-draft').style.display = (step<3 && !editing) ? '' : 'none';
   document.body.className = tipo ? 'tipo-'+tipo : '';
   if(step===2){
-    const es = tipo==='entrada'||tipo==='salida';
-    $('grp-camion').style.display = es?'flex':'none';
+    $('grp-camion').style.display = esCamion(tipo)?'flex':'none';
+    $('grp-animales').style.display = usaBalanza(tipo)?'flex':'none';
+    $('wrap-cantidad').style.display = esCamion(tipo)?'flex':'none';
+    $('grp-animales-title').textContent = tipo==='pesaje' ? 'Pesaje' : 'Animales';
     $('grp-muerte').style.display = tipo==='mortalidad'?'flex':'none';
     $('grp-nac').style.display = tipo==='nacimiento'?'flex':'none';
+    $('grp-perdida').style.display = tipo==='perdida_boton'?'flex':'none';
     $('wrap-origen').style.display = tipo==='entrada'?'flex':'none';
     $('wrap-destino').style.display = tipo==='salida'?'flex':'none';
     $('wrap-raza').style.display = tipo==='entrada'?'flex':'none';
     $('grp-camion-title').textContent = tipo==='entrada' ? 'Camión que llegó' : 'Camión que salió';
+    refreshIds();
   }
   if(step===3) renderReview();
   window.scrollTo(0,0);
 }
-
-function respondenteValue(){ const v=$('f-respondente').value; return v==='Otro…' ? $('f-respondente-otro').value.trim() : v; }
 
 function validate1(){
   const e=[];
   if(!respondenteValue()) e.push('Indique quién registra.');
   if(!$('f-estancia').value) e.push('Elija la estancia.');
   if(!$('f-fecha').value) e.push('Indique la fecha.'); else if($('f-fecha').value>todayISO()) e.push('La fecha no puede ser futura.');
-  if(!tipo) e.push('Elija qué pasó (entrada, salida, mortalidad o nacimiento).');
+  if(!tipo) e.push('Elija qué pasó.');
   return e;
 }
 function validate2(){
   const e=[];
-  if(tipo==='entrada'||tipo==='salida'){
+  if(esCamion(tipo)){
     if(!$('f-chapa').value.trim()) e.push('Falta la chapa del camión.');
     if(!fotos.precinto) e.push('Falta la foto del precinto.');
     if(!$('f-cota').value.trim()) e.push('Falta la COTA: escanee el QR o escriba el número.');
-    if(!balanza) e.push('Falta cargar el archivo de la balanza con las identificaciones.');
     if(tipo==='entrada' && !$('f-origen').value) e.push('Indique de dónde vienen los animales.');
     if(tipo==='salida' && !$('f-destino').value) e.push('Indique a dónde van los animales.');
     if(tipo==='salida' && $('f-destino').value===$('f-estancia').value) e.push('El destino no puede ser la misma estancia.');
@@ -998,65 +1091,78 @@ function validate2(){
     if(tipo==='entrada' && !$('seg-raza').dataset.value) e.push('Elija la raza.');
     const q=parseInt($('f-cantidad').value,10); if(isNaN(q)||q<1) e.push('Indique la cantidad de animales contados.');
   }
+  if(usaBalanza(tipo) && !balanza) e.push('Falta cargar el archivo de la balanza.');
   if(tipo==='mortalidad'){
     if(!$('f-boton').value.trim()) e.push('Falta el número de botón.');
+    if(!$('f-causa').value) e.push('Elija la causa de muerte.');
     if(!fotos.animal) e.push('Falta la foto del animal.');
     if(!fotos.boton) e.push('Falta la foto del botón.');
   }
   if(tipo==='nacimiento'){ if(!$('f-madre').value.trim()) e.push('Indique la madre.'); }
+  if(tipo==='perdida_boton'){ if(!$('f-perdida-boton').value.trim()) e.push('Escriba el número del botón perdido.'); if(!fotos.perdida) e.push('Falta la foto de lo ocurrido.'); }
   return e;
 }
 function showErr(id, list){ const el=$(id); if(!list.length){ el.classList.add('hidden'); return; } el.innerHTML=list.map(x=>'• '+x).join('<br>'); el.classList.remove('hidden'); el.scrollIntoView({block:'center'}); }
 
 function buildRecord(){
-  const r={ esquema:ESQUEMA, id:uuid(), tipo_evento:tipo, respondente:respondenteValue(), estancia:$('f-estancia').value, fecha_evento:$('f-fecha').value,
-    creado_en:new Date().toISOString(), app_version:APP_VERSION, dispositivo:{plataforma:navigator.platform||'', agente:navigator.userAgent}, geo:null, datos:{}, control:null, observaciones:$('f-obs').value.trim(), adjuntos:{} };
-  if(tipo==='entrada'||tipo==='salida'){
-    const q=parseInt($('f-cantidad').value,10); const b=balanza; const ids=b?b.animales.map(a=>a.ide):[]; const cq=$('f-cota').value.trim();
-    const cp=cq?window.CotaParser.parseCota(cq):null;
+  const base=editing?editing.registro:null;
+  const r={ esquema:ESQUEMA, id:formId, tipo_evento:tipo, respondente:respondenteValue(), estancia:$('f-estancia').value, fecha_evento:$('f-fecha').value, lote_controlpasto:$('f-lote').value.trim()||null,
+    creado_en:base?base.creado_en:new Date().toISOString(), modificado_en:base?new Date().toISOString():null, version:base?(base.version||1)+1:1, app_version:APP_VERSION, dispositivo:{plataforma:navigator.platform||'', agente:navigator.userAgent}, geo:base?base.geo:null, datos:{}, control:null, observaciones:$('f-obs').value.trim(), adjuntos:{} };
+  const b=balanza; const animales=b?b.animales.map(a=>({ide:a.ide, peso_kg:a.peso_kg})):[]; const ids=animales.map(a=>a.ide);
+  if(esCamion(tipo)){
+    const q=parseInt($('f-cantidad').value,10); const cq=$('f-cota').value.trim(); const cp=cq?window.CotaParser.parseCota(cq):null;
     r.datos={ chapa_camion:$('f-chapa').value.trim().toUpperCase().replace(/\s+/g,' '), cota_qr:cq||null, cota_nro:(cp&&cp.nro_cota)||(b?b.cota_archivo:null), cota:cp, cota_archivo:b?b.cota_archivo:null, guia_archivo:b?b.guia_archivo:null,
-      cantidad_animales:q, cantidad_archivo:ids.length, peso_total_kg:b?b.peso_total_kg:null, peso_promedio_kg:b?b.peso_promedio_kg:null, fecha_pesaje:b?b.fecha_pesaje:null, ids_individuales:ids,
-      animales:b?b.animales.map(a=>({ide:a.ide, peso_kg:a.peso_kg, fecha_pesaje:a.fecha_pesaje, hora_pesaje:a.hora_pesaje, fila:a.fila, datos:a.datos})):[] };
-    if(tipo==='entrada'){ r.datos.origen=$('f-origen').value; r.datos.raza=$('seg-raza').dataset.value; }
-    else { r.datos.destino=$('f-destino').value; }
-    r.control={ cantidad_declarada:q, cantidad_ids:ids.length, coincide: ids.length===0 ? null : ids.length===q, ide_invalidas:b?b.invalidos.length:0, ide_repetidas:b?b.duplicados.length:0, cota_coincide: (cp&&cp.nro_cota&&b&&b.cota_archivo) ? (cp.nro_cota.replace(/^0+/,'')===b.cota_archivo.replace(/^0+/,'')) : null,
-      guia_coincide: (cp&&cp.nro_guia&&b&&b.guia_archivo) ? (cp.nro_guia.replace(/^0+/,'')===b.guia_archivo.replace(/^0+/,'')) : null,
-      declarado_coincide: (cp&&cp.total_declarado!==null&&!isNaN(q)) ? (cp.total_declarado===q) : null };
-    r.archivo_balanza = b ? { nombre:b.nombre, delimitador:b.delimitador, columnas:b.columnas, filas:b.filas, columna_ide:b.columna_ide, columna_peso:b.columna_peso, contenido:b.contenido } : null;
+      cantidad_animales:q, cantidad_archivo:ids.length, peso_total_kg:b?b.peso_total_kg:null, peso_promedio_kg:b?b.peso_promedio_kg:null, fecha_pesaje:b?b.fecha_pesaje:null, ids_individuales:ids, animales };
+    if(tipo==='entrada'){ r.datos.origen=$('f-origen').value; r.datos.raza=$('seg-raza').dataset.value; } else { r.datos.destino=$('f-destino').value; }
+    r.control={ cantidad_declarada:q, cantidad_ids:ids.length, coincide: ids.length===0 ? null : ids.length===q, ide_invalidas:b?b.invalidos.length:0, ide_repetidas:b?b.duplicados.length:0,
+      cota_coincide:(cp&&cp.nro_cota&&b&&b.cota_archivo)?(cp.nro_cota.replace(/^0+/,'')===b.cota_archivo.replace(/^0+/,'')):null, guia_coincide:(cp&&cp.nro_guia&&b&&b.guia_archivo)?(cp.nro_guia.replace(/^0+/,'')===b.guia_archivo.replace(/^0+/,'')):null, declarado_coincide:(cp&&cp.total_declarado!==null&&!isNaN(q))?(cp.total_declarado===q):null };
+    r.archivo_balanza = b ? { nombre:b.nombre, columna_ide:b.columna_ide, columna_peso:b.columna_peso, filas:b.filas } : null;
     r.adjuntos={ foto_precinto:fotos.precinto };
   }
+  if(tipo==='pesaje'){ r.datos={ cantidad_archivo:ids.length, peso_total_kg:b?b.peso_total_kg:null, peso_promedio_kg:b?b.peso_promedio_kg:null, fecha_pesaje:b?b.fecha_pesaje:null, ids_individuales:ids, animales }; r.archivo_balanza=b?{ nombre:b.nombre, columna_ide:b.columna_ide, columna_peso:b.columna_peso, filas:b.filas }:null; }
   if(tipo==='mortalidad'){ r.datos={ nro_boton:$('f-boton').value.trim(), causa_probable:$('f-causa').value||null }; r.adjuntos={ foto_animal:fotos.animal, foto_boton:fotos.boton }; }
   if(tipo==='nacimiento'){ r.datos={ madre:$('f-madre').value.trim(), sexo_cria:$('seg-sexo').dataset.value||null, nro_boton_cria:$('f-cria-boton').value.trim()||null }; }
+  if(tipo==='perdida_boton'){ r.datos={ nro_boton:$('f-perdida-boton').value.trim() }; r.adjuntos={ foto_ocurrido:fotos.perdida }; }
   return r;
+}
+function diffRecords(a,b){ // campos que cambiaron entre dos registros (para el log)
+  const out=[]; const top=['respondente','estancia','fecha_evento','lote_controlpasto','observaciones','tipo_evento'];
+  top.forEach(k=>{ if(JSON.stringify(a[k]||null)!==JSON.stringify(b[k]||null)) out.push(k); });
+  const da=a.datos||{}, dbb=b.datos||{}; new Set([...Object.keys(da),...Object.keys(dbb)]).forEach(k=>{ if(k==='cota') return; if(JSON.stringify(da[k]===undefined?null:da[k])!==JSON.stringify(dbb[k]===undefined?null:dbb[k])) out.push('datos.'+k); });
+  const aa=a.adjuntos||{}, ab=b.adjuntos||{}; new Set([...Object.keys(aa),...Object.keys(ab)]).forEach(k=>{ if((aa[k]||null)!==(ab[k]||null)) out.push('foto '+k.replace('foto_','')); });
+  return out;
 }
 
 function kvRows(r){
   const rows=[['Tipo',TIPO_LABEL[r.tipo_evento]],['Estancia',r.estancia],['Fecha',fmtDate(r.fecha_evento)],['Registra',r.respondente]];
-  const d=r.datos;
-  if(r.tipo_evento==='entrada'||r.tipo_evento==='salida'){
+  if(r.lote_controlpasto) rows.push(['Lote ControlPasto',r.lote_controlpasto]);
+  const d=r.datos||{};
+  if(esCamion(r.tipo_evento)){
     const c=d.cota; rows.push(['Chapa',d.chapa_camion],['Precinto',r.adjuntos&&r.adjuntos.foto_precinto?'foto adjunta':'sin foto'],['COTA',(d.cota_nro||d.cota_qr||'—')+(d.cota_archivo&&r.control&&r.control.cota_coincide===false?' (≠ archivo: '+d.cota_archivo+')':'')]);
     if(c&&c.parse_ok){ rows.push(['Guía',(c.nro_guia||'—')+(r.control&&r.control.guia_coincide===false?' (≠ archivo: '+d.guia_archivo+')':'')],['COTA emitida',c.fecha_emision?fmtDate(c.fecha_emision):'—'],['Est. origen',c.establecimiento_origen||'—'],['Est. destino',c.establecimiento_destino||'—'],['Finalidad',c.finalidad||'—'],['Declarados',c.total_declarado!==null?c.animales_declarados.map(x=>x.categoria+' '+x.cantidad).join(', ')+' = '+c.total_declarado+(r.control&&r.control.declarado_coincide===false?' (≠ contados)':''):'—']); }
     if(r.tipo_evento==='entrada') rows.push(['Origen',d.origen],['Raza',d.raza]); else rows.push(['Destino',d.destino]);
     rows.push(['Contados',String(d.cantidad_animales)+' animales']);
-    rows.push(['Archivo', d.ids_individuales.length ? d.ids_individuales.length+' animales · '+(d.peso_promedio_kg!==null?d.peso_promedio_kg+' kg prom.':'sin pesos') : 'Sin archivo']);
-    if(r.archivo_balanza) rows.push(['CSV', r.archivo_balanza.nombre]);
   }
-  if(r.tipo_evento==='mortalidad'){ rows.push(['Botón',d.nro_boton],['Causa',d.causa_probable||'—'],['Fotos', (r.adjuntos.foto_animal?'animal ':'')+(r.adjuntos.foto_boton?'botón':'')]); }
+  if(usaBalanza(r.tipo_evento)) rows.push(['Archivo', (d.ids_individuales||[]).length ? d.ids_individuales.length+' animales · '+(d.peso_promedio_kg!=null?d.peso_promedio_kg+' kg prom. · '+d.peso_total_kg+' kg total':'sin pesos') : 'Sin archivo']);
+  if(r.tipo_evento==='mortalidad'){ rows.push(['Botón',d.nro_boton],['Causa',d.causa_probable||'—'],['Fotos', ((r.adjuntos||{}).foto_animal?'animal ':'')+((r.adjuntos||{}).foto_boton?'botón':'')]); }
   if(r.tipo_evento==='nacimiento'){ rows.push(['Madre',d.madre],['Sexo',d.sexo_cria||'—'],['Botón cría',d.nro_boton_cria||'—']); }
+  if(r.tipo_evento==='perdida_boton'){ rows.push(['Botón perdido',d.nro_boton],['Foto',(r.adjuntos||{}).foto_ocurrido?'adjunta':'sin foto']); }
   if(r.observaciones) rows.push(['Obs.',r.observaciones]);
+  if(r.version&&r.version>1) rows.push(['Versión',String(r.version)+' (editado '+fmtDT(r.modificado_en)+')']);
   return rows;
 }
 function renderKv(el, r, withIds){
   el.innerHTML=''; kvRows(r).forEach(([k,v])=>{ const dt=document.createElement('dt'); dt.textContent=k; const dd=document.createElement('dd'); dd.textContent=v; el.appendChild(dt); el.appendChild(dd); });
-  if(withIds && r.datos.animales && r.datos.animales.length){ const dt=document.createElement('dt'); dt.textContent='Lista'; const dd=document.createElement('dd'); dd.className='mono'; dd.textContent=r.datos.animales.map(a=>a.ide+(a.peso_kg!==null?'  '+a.peso_kg+' kg':'')).join('\n'); el.appendChild(dt); el.appendChild(dd); }
+  if(withIds && r.datos.animales && r.datos.animales.length){ const dt=document.createElement('dt'); dt.textContent='Lista'; const dd=document.createElement('dd'); dd.className='mono'; dd.textContent=r.datos.animales.map(a=>a.ide+(a.peso_kg!==null&&a.peso_kg!==undefined?'  '+a.peso_kg+' kg':'')).join('\n'); el.appendChild(dt); el.appendChild(dd); }
 }
 function renderReview(){ const r=buildRecord(); renderKv($('review'), r, true);
   const note=$('review-note'); note.className='msg';
   if(r.control && r.control.coincide===false){ note.className='msg warn'; note.textContent='Atención: la cantidad contada ('+r.control.cantidad_declarada+') no coincide con las identificaciones cargadas ('+r.control.cantidad_ids+'). Puede guardar igual; quedará marcado para revisión.'; }
-  else note.textContent='Al guardar, el registro queda en este teléfono y se generan el PDF y el archivo de datos. Después podrá enviarlos.';
+  else if(editing){ const ch=diffRecords(editing.registro,r); note.textContent= ch.length ? 'Cambios respecto a la versión anterior: '+ch.join(', ')+'. Quedarán anotados en el historial.' : 'No hay cambios respecto a la versión anterior.'; }
+  else note.textContent='Al guardar, el registro queda en este teléfono. Después podrá guardarlo en la base de datos o compartir los archivos.';
 }
 
-/* ---------- photos ---------- */
+/* ---------- fotos (cámara o galería) ---------- */
 function compressImage(file, maxSide, quality){
   return new Promise((res,rej)=>{
     const url=URL.createObjectURL(file); const img=new Image();
@@ -1066,28 +1172,20 @@ function compressImage(file, maxSide, quality){
     img.src=url;
   });
 }
-function bindPhoto(inputId, btnId, thumbId, key, label){
-  $(btnId).addEventListener('click',()=>$(inputId).click());
-  $(inputId).addEventListener('change', async e=>{ const f=e.target.files[0]; if(!f) return;
-    try{ fotos[key]=await compressImage(f,1280,0.72); $(thumbId).src=fotos[key]; $(thumbId).classList.add('has'); $(btnId).textContent='📷 Repetir '+label; }catch(err){ toast(err.message); }
-    e.target.value=''; });
-}
-bindPhoto('file-animal','btn-foto-animal','thumb-animal','animal','foto del animal');
-bindPhoto('file-boton','btn-foto-boton','thumb-boton','boton','foto del botón');
-bindPhoto('file-precinto','btn-foto-precinto','thumb-precinto','precinto','foto del precinto');
+document.querySelectorAll('[data-cam],[data-gal]').forEach(btn=>{ btn.addEventListener('click',()=>{ const key=btn.dataset.cam||btn.dataset.gal; const inp=$('file-'+key); if(btn.dataset.cam!==undefined) inp.setAttribute('capture','environment'); else inp.removeAttribute('capture'); inp.click(); }); });
+['animal','boton','precinto','perdida'].forEach(key=>{ $('file-'+key).addEventListener('change', async e=>{ const f=e.target.files[0]; if(!f) return; try{ setFoto(key, await compressImage(f,1280,0.72)); dirty=true; toast('Foto cargada'); }catch(err){ toast(err.message); } e.target.value=''; }); });
 
-/* ---------- scanner (QR propio + BarcodeDetector si existe) ---------- */
+/* ---------- lector de QR (propio + BarcodeDetector si existe) ---------- */
 let scanStream=null, scanTimer=null, scanBusy=false;
 const scanCanvas=document.createElement('canvas');
 function decodeCanvas(src, sw, sh, maxSide){
   const sc=Math.min(1, maxSide/Math.max(sw,sh)); const w=Math.max(1,Math.round(sw*sc)), h=Math.max(1,Math.round(sh*sc));
   scanCanvas.width=w; scanCanvas.height=h; const ctx=scanCanvas.getContext('2d',{willReadFrequently:true}); ctx.drawImage(src,0,0,w,h);
   const r=window.QRDecoder.decodeImageData(ctx.getImageData(0,0,w,h)); if(r) return r.text;
-  // segundo intento: recorte central a mayor resolución (códigos chicos)
   if(sc<1){ const cw=Math.round(sw*0.6), ch=Math.round(sh*0.6), cx=Math.round(sw*0.2), cy=Math.round(sh*0.2); const sc2=Math.min(1, maxSide/Math.max(cw,ch)); const w2=Math.round(cw*sc2), h2=Math.round(ch*sc2); scanCanvas.width=w2; scanCanvas.height=h2; ctx.drawImage(src,cx,cy,cw,ch,0,0,w2,h2); const r2=window.QRDecoder.decodeImageData(ctx.getImageData(0,0,w2,h2)); if(r2) return r2.text; }
   return null;
 }
-let detector=null; try{ if('BarcodeDetector' in window) detector=new BarcodeDetector({formats:['qr_code','code_128','code_39','ean_13','ean_8','data_matrix','pdf417']}); }catch(e){ detector=null; }
+let detector=null; try{ if('BarcodeDetector' in window) detector=new BarcodeDetector({formats:['qr_code']}); }catch(e){ detector=null; }
 async function openScanner(onResult){
   const sc=$('scanner'); sc.classList.add('on'); $('scan-msg').textContent='Apunte al código y manténgalo dentro del recuadro…';
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ closeScanner(); toast('Este navegador no permite usar la cámara aquí. Use “Sacar foto del QR”.'); return; }
@@ -1115,13 +1213,13 @@ function decodeFromFile(file){
     img.onerror=()=>{ URL.revokeObjectURL(url); rej(new Error('No se pudo leer la foto')); }; img.src=url; });
 }
 $('scan-cancel').addEventListener('click',closeScanner);
-$('btn-scan-cota').addEventListener('click',()=>openScanner(v=>{ setCota(v,'cámara'); toast('COTA leída'); }));
-$('btn-scan-boton').addEventListener('click',()=>openScanner(v=>{ $('f-boton').value=v; toast('Botón leído'); }));
+$('btn-scan-cota').addEventListener('click',()=>openScanner(v=>{ setCota(v); toast('COTA leída'); }));
 $('btn-import-ids').addEventListener('click',()=>$('file-ids').click());
-$('file-ids').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>{ const err=$('csv-err'); try{ balanza=parseBalanza(decodeText(rd.result), f.name); err.classList.add('hidden'); if(tipo==='entrada' && !$('seg-raza').dataset.value){ const rz=razaDesdeArchivo(balanza.razas); if(rz) setSeg($('seg-raza'),rz); } toast(balanza.animales.length+' animales cargados'); }catch(ex){ balanza=null; err.textContent=ex.message; err.classList.remove('hidden'); } renderCsv(); refreshIds(); checkCota(); }; rd.readAsArrayBuffer(f); e.target.value=''; });
-$('f-cantidad').addEventListener('input',()=>{ refreshIds(); checkCota(); }); $('f-cota').addEventListener('input',checkCota);
+$('file-ids').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>{ const err=$('csv-err'); try{ balanza=parseBalanza(decodeText(rd.result), f.name); err.classList.add('hidden'); dirty=true; toast(balanza.animales.length+' animales cargados'); }catch(ex){ balanza=null; err.textContent=ex.message; err.classList.remove('hidden'); } renderCsv(); refreshIds(); checkCota(); }; rd.readAsArrayBuffer(f); e.target.value=''; });
+$('f-cantidad').addEventListener('input',()=>{ refreshIds(); checkCota(); dirty=true; }); $('f-cota').addEventListener('input',()=>{ checkCota(); dirty=true; });
 $('btn-foto-cota').addEventListener('click',()=>$('file-cota').click());
-$('file-cota').addEventListener('change',async e=>{ const f=e.target.files[0]; if(!f) return; e.target.value=''; toast('Leyendo el QR de la foto…'); try{ const v=await decodeFromFile(f); if(v) setCota(v,'foto'); else toast('No se pudo leer el QR en la foto. Acérquese más y evite reflejos, o escriba el número.'); }catch(ex){ toast('No se pudo leer la foto'); } });
+$('file-cota').addEventListener('change',async e=>{ const f=e.target.files[0]; if(!f) return; e.target.value=''; toast('Leyendo el QR de la foto…'); try{ const v=await decodeFromFile(f); if(v) setCota(v); else toast('No se pudo leer el QR en la foto. Acérquese más y evite reflejos, o escriba el número.'); }catch(ex){ toast('No se pudo leer la foto'); } });
+document.querySelectorAll('#scr-form input, #scr-form select, #scr-form textarea').forEach(el=>el.addEventListener('input',()=>{ dirty=true; }));
 
 /* ---------- PDF ---------- */
 function ansi(s){ return String(s==null?'':s).replace(/[^\x20-\x7E\xA0-\xFF€]/g,'?'); }
@@ -1129,37 +1227,38 @@ async function makePdf(r){
   const {PDFDocument, StandardFonts, rgb} = window.PDFLib;
   const pdf=await PDFDocument.create(); pdf.setTitle('Registro de manejo '+r.estancia+' '+r.fecha_evento); pdf.setAuthor('App Registro de manejo · Rural Bioenergía');
   const font=await pdf.embedFont(StandardFonts.Helvetica), bold=await pdf.embedFont(StandardFonts.HelveticaBold);
-  const W=595.28,H=841.89,M=48; const colors={entrada:rgb(.18,.42,.23),salida:rgb(.17,.36,.55),mortalidad:rgb(.64,.2,.12),nacimiento:rgb(.54,.42,.12)};
+  const W=595.28,H=841.89,M=48; const colors={entrada:rgb(.18,.42,.23),salida:rgb(.17,.36,.55),mortalidad:rgb(.64,.2,.12),nacimiento:rgb(.54,.42,.12),pesaje:rgb(.18,.39,.44),perdida_boton:rgb(.42,.25,.55)};
   const ink=rgb(.09,.13,.1), grey=rgb(.45,.5,.44), line=rgb(.78,.82,.76);
   let page, y, pageNo=0; const pages=[];
   const header=()=>{ page=pdf.addPage([W,H]); pages.push(page); pageNo++; y=H-M;
-    page.drawRectangle({x:0,y:H-30,width:W,height:30,color:colors[r.tipo_evento]});
+    page.drawRectangle({x:0,y:H-30,width:W,height:30,color:colors[r.tipo_evento]||colors.entrada});
     page.drawText(ansi('REGISTRO DE MANEJO  ·  '+TIPO_LABEL[r.tipo_evento].toUpperCase()),{x:M,y:H-20,size:11,font:bold,color:rgb(1,1,1)});
     page.drawText(ansi('Rural Bioenergía S.A. · Ypoti'),{x:W-M-font.widthOfTextAtSize('Rural Bioenergía S.A. · Ypoti',9),y:H-20,size:9,font,color:rgb(1,1,1)});
     y=H-58; };
-  const footer=()=>{ pages.forEach((p,i)=>{ p.drawLine({start:{x:M,y:M-14},end:{x:W-M,y:M-14},thickness:.5,color:line}); p.drawText(ansi('ID '+r.id+'  ·  generado '+new Date(r.creado_en).toLocaleString('es-PY')+'  ·  app v'+r.app_version),{x:M,y:M-26,size:7.5,font,color:grey}); const t='Página '+(i+1)+' de '+pages.length; p.drawText(ansi(t),{x:W-M-font.widthOfTextAtSize(t,7.5),y:M-26,size:7.5,font,color:grey}); }); };
+  const footer=()=>{ pages.forEach((p,i)=>{ p.drawLine({start:{x:M,y:M-14},end:{x:W-M,y:M-14},thickness:.5,color:line}); p.drawText(ansi('ID '+r.id+'  ·  versión '+(r.version||1)+'  ·  generado '+new Date().toLocaleString('es-PY')+'  ·  app v'+r.app_version),{x:M,y:M-26,size:7.5,font,color:grey}); const t='Página '+(i+1)+' de '+pages.length; p.drawText(ansi(t),{x:W-M-font.widthOfTextAtSize(t,7.5),y:M-26,size:7.5,font,color:grey}); }); };
   const need=h=>{ if(y-h<M+10) header(); };
   const title=(t)=>{ need(30); page.drawText(ansi(t.toUpperCase()),{x:M,y,size:9,font:bold,color:grey}); y-=6; page.drawLine({start:{x:M,y},end:{x:W-M,y},thickness:.6,color:line}); y-=16; };
   const wrap=(t,size,f,maxW)=>{ const words=ansi(t).split(/\s+/); const lines=[]; let cur=''; words.forEach(w=>{ const test=cur?cur+' '+w:w; if(f.widthOfTextAtSize(test,size)>maxW && cur){ lines.push(cur); cur=w; } else cur=test; }); if(cur) lines.push(cur); return lines; };
-  let kvRight=0; // ancho reservado a la derecha (columna de mapa/foto)
+  let kvRight=0; const RIGHT_W=165;
   const kv=(k,v)=>{ const lines=wrap(v||'—',10.5,bold,W-M*2-150-kvRight); need(lines.length*14+6); page.drawText(ansi(k),{x:M,y,size:9,font,color:grey}); lines.forEach((l,i)=>page.drawText(l,{x:M+150,y:y-i*14,size:10.5,font:bold,color:ink})); y-=lines.length*14+6; };
-  const RIGHT_W=165; // columna derecha
   const embedDataUrl=async(du)=>{ const bytes=Uint8Array.from(atob(du.split(',')[1]),ch=>ch.charCodeAt(0)); return await pdf.embedJpg(bytes); };
+  const fotoDerecha=async(du,label)=>{ try{ const img=await embedDataUrl(du); const pw=RIGHT_W-15, ph=Math.min(pw*img.height/img.width, 110); const iw=img.width*(ph/img.height)>pw? pw : img.width*(ph/img.height), ih=iw*img.height/img.width; need(ih+22); const px=W-M-iw, py=y-ih+4; page.drawImage(img,{x:px,y:py,width:iw,height:ih}); page.drawRectangle({x:px,y:py,width:iw,height:ih,borderColor:line,borderWidth:.5}); page.drawText(ansi(label),{x:px,y:py-10,size:7,font:bold,color:grey}); kvRight=RIGHT_W; return py-16; }catch(e){ return y; } };
+  const tablaAnimales=(an)=>{ if(!an||!an.length) return; y-=6; title('Identificaciones y pesos ('+an.length+')'); const cols=3, cw=(W-M*2)/cols, rowH=12.5;
+    for(let i=0;i<an.length;i+=cols){ need(rowH); for(let c=0;c<cols&&i+c<an.length;c++){ const a=an[i+c]; const x0=M+c*cw; page.drawText(ansi(String(i+c+1).padStart(3,' ')),{x:x0,y,size:8.5,font,color:grey}); page.drawText(ansi(a.ide),{x:x0+18,y,size:9,font,color:ink}); if(a.peso_kg!==null&&a.peso_kg!==undefined){ const t=a.peso_kg+' kg'; page.drawText(ansi(t),{x:x0+cw-14-font.widthOfTextAtSize(t,9),y,size:9,font:bold,color:ink}); } } y-=rowH; } };
   header();
   page.drawText(ansi(r.estancia),{x:M,y,size:26,font:bold,color:ink});
   page.drawText(ansi(fmtDate(r.fecha_evento)),{x:W-M-bold.widthOfTextAtSize(fmtDate(r.fecha_evento),18),y:y+3,size:18,font:bold,color:ink}); y-=18;
-  page.drawText(ansi('Registrado por '+r.respondente),{x:M,y,size:10.5,font,color:grey}); y-=28;
-  const d=r.datos;
-  if(r.tipo_evento==='entrada'||r.tipo_evento==='salida'){
+  page.drawText(ansi('Registrado por '+r.respondente+(r.lote_controlpasto?'  ·  Lote ControlPasto '+r.lote_controlpasto:'')),{x:M,y,size:10.5,font,color:grey}); y-=28;
+  const d=r.datos||{};
+  if(esCamion(r.tipo_evento)){
     title(r.tipo_evento==='entrada'?'Camión que llegó':'Camión que salió');
-    // Foto del precinto, pequeña, en la columna derecha
     let rightBottom=y, rightPage=pageNo; kvRight=0;
-    if(r.adjuntos&&r.adjuntos.foto_precinto){ try{ const img=await embedDataUrl(r.adjuntos.foto_precinto); const pw=RIGHT_W-15, ph=Math.min(pw*img.height/img.width, 110); const iw=img.width*(ph/img.height)>pw? pw : img.width*(ph/img.height), ih=iw*img.height/img.width; need(ih+22); const px=W-M-iw, py=y-ih+4; page.drawImage(img,{x:px,y:py,width:iw,height:ih}); page.drawRectangle({x:px,y:py,width:iw,height:ih,borderColor:line,borderWidth:.5}); page.drawText(ansi('FOTO DEL PRECINTO'),{x:px,y:py-10,size:7,font:bold,color:grey}); rightBottom=py-16; kvRight=RIGHT_W; }catch(e){} }
+    if(r.adjuntos&&r.adjuntos.foto_precinto){ rightBottom=await fotoDerecha(r.adjuntos.foto_precinto,'FOTO DEL PRECINTO'); }
     kv('Chapa del camión',d.chapa_camion); kv('Precinto',r.adjuntos&&r.adjuntos.foto_precinto?'foto a la derecha':'sin foto');
     if(r.tipo_evento==='entrada'){ kv('Origen',d.origen); kv('Raza',d.raza); } else kv('Destino',d.destino);
+    if(r.lote_controlpasto) kv('Lote ControlPasto',r.lote_controlpasto);
     if(pageNo===rightPage && y>rightBottom) y=rightBottom; kvRight=0;
     y-=8; title('COTA (SENACSA)'); const c=d.cota;
-    // Mapa en la columna derecha, alineado con el inicio de la sección
     rightBottom=y; rightPage=pageNo;
     if(c&&(c.coord_origen||c.coord_destino)){ const mw=RIGHT_W-15, mh=mw*((-19.15+27.75)/((62.8-54.15)*Math.cos(23.5*Math.PI/180))); need(mh+60); const mx=W-M-mw, my=y-mh+4;
       window.MapaPY.drawMap(page,{x:mx,y:my,width:mw,origen:c.coord_origen,destino:c.coord_destino,rgb,font,bold});
@@ -1173,51 +1272,51 @@ async function makePdf(r){
     if(d.cota_archivo) kv('COTA en archivo balanza',d.cota_archivo+(r.control&&r.control.cota_coincide===false?'  (NO COINCIDE)':'  (coincide)')); if(d.guia_archivo) kv('Guía en archivo balanza',d.guia_archivo+(r.control&&r.control.guia_coincide===false?'  (NO COINCIDE)':''));
     if(pageNo===rightPage && y>rightBottom) y=rightBottom; kvRight=0;
     y-=8; title('Animales');
-    kv('Cantidad contada',String(d.cantidad_animales)+' animales'); kv('Animales en archivo',String(d.ids_individuales.length)+(r.archivo_balanza?'  ('+r.archivo_balanza.nombre+')':''));
-    if(d.peso_promedio_kg!==null&&d.peso_promedio_kg!==undefined){ kv('Peso promedio',d.peso_promedio_kg+' kg'); kv('Peso total',d.peso_total_kg+' kg'); } if(d.fecha_pesaje) kv('Fecha de pesaje',d.fecha_pesaje);
+    kv('Cantidad contada',String(d.cantidad_animales)+' animales'); kv('Animales en archivo',String((d.ids_individuales||[]).length)+(r.archivo_balanza?'  ('+r.archivo_balanza.nombre+')':''));
+    if(d.peso_promedio_kg!=null){ kv('Peso promedio',d.peso_promedio_kg+' kg'); kv('Peso total',d.peso_total_kg+' kg'); } if(d.fecha_pesaje) kv('Fecha de pesaje',d.fecha_pesaje);
     const avisos=[]; if(r.control){ if(r.control.coincide===false) avisos.push('la cantidad contada no coincide con el archivo de la balanza'); if(r.control.declarado_coincide===false) avisos.push('la cantidad contada no coincide con los animales declarados en la COTA'); if(r.control.cota_coincide===false) avisos.push('la COTA del QR no coincide con la del archivo de la balanza'); if(r.control.guia_coincide===false) avisos.push('la guía del QR no coincide con la del archivo'); }
     for(const av of avisos){ need(24); page.drawRectangle({x:M,y:y-6,width:W-M*2,height:22,color:rgb(.98,.92,.84)}); page.drawText(ansi('ATENCIÓN: '+av+'. Revisar.'),{x:M+8,y:y+1,size:9.5,font:bold,color:rgb(.6,.4,0)}); y-=30; }
-    if(d.animales && d.animales.length){ y-=6; title('Identificaciones y pesos ('+d.animales.length+')'); const cols=3, cw=(W-M*2)/cols, rowH=12.5; const an=d.animales;
-      for(let i=0;i<an.length;i+=cols){ need(rowH); for(let c=0;c<cols&&i+c<an.length;c++){ const a=an[i+c]; const x0=M+c*cw; page.drawText(ansi(String(i+c+1).padStart(3,' ')),{x:x0,y,size:8.5,font,color:grey}); page.drawText(ansi(a.ide),{x:x0+18,y,size:9,font,color:ink}); if(a.peso_kg!==null){ const t=a.peso_kg+' kg'; page.drawText(ansi(t),{x:x0+cw-14-font.widthOfTextAtSize(t,9),y,size:9,font:bold,color:ink}); } } y-=rowH; } }
+    tablaAnimales(d.animales);
   }
-  if(r.tipo_evento==='mortalidad'){ title('Animal muerto'); kv('Nº de botón',d.nro_boton); kv('Causa probable',d.causa_probable||'no indicada'); }
-  if(r.tipo_evento==='nacimiento'){ title('Nacimiento'); kv('Madre',d.madre); kv('Sexo del ternero',d.sexo_cria||'no indicado'); kv('Botón del ternero',d.nro_boton_cria||'todavía sin botón'); }
+  if(r.tipo_evento==='pesaje'){ title('Pesaje de auditoría'); if(r.lote_controlpasto) kv('Lote ControlPasto',r.lote_controlpasto); kv('Archivo',r.archivo_balanza?r.archivo_balanza.nombre:'—'); kv('Animales pesados',String((d.ids_individuales||[]).length)); if(d.peso_promedio_kg!=null){ kv('Peso promedio',d.peso_promedio_kg+' kg'); kv('Peso total',d.peso_total_kg+' kg'); } if(d.fecha_pesaje) kv('Fecha en archivo',d.fecha_pesaje); tablaAnimales(d.animales); }
+  if(r.tipo_evento==='mortalidad'){ title('Animal muerto'); if(r.lote_controlpasto) kv('Lote ControlPasto',r.lote_controlpasto); kv('Nº de botón',d.nro_boton); kv('Causa de muerte',d.causa_probable||'no indicada'); }
+  if(r.tipo_evento==='nacimiento'){ title('Nacimiento'); if(r.lote_controlpasto) kv('Lote ControlPasto',r.lote_controlpasto); kv('Madre',d.madre); kv('Sexo del ternero',d.sexo_cria||'no indicado'); kv('Botón del ternero',d.nro_boton_cria||'todavía sin botón'); }
+  if(r.tipo_evento==='perdida_boton'){ title('Pérdida de botón electrónico'); if(r.lote_controlpasto) kv('Lote ControlPasto',r.lote_controlpasto); kv('Nº de botón (a mano)',d.nro_boton); }
   if(r.observaciones){ y-=8; title('Observaciones'); wrap(r.observaciones,10.5,font,W-M*2).forEach(l=>{ need(14); page.drawText(l,{x:M,y,size:10.5,font,color:ink}); y-=14; }); }
   if(r.adjuntos){
-    for(const [key,label] of [['foto_animal','Foto del animal'],['foto_boton','Foto del botón']]){
+    for(const [key,label] of [['foto_animal','Foto del animal'],['foto_boton','Foto del botón'],['foto_ocurrido','Foto de lo ocurrido']]){
       const du=r.adjuntos[key]; if(!du) continue;
-      const bytes=Uint8Array.from(atob(du.split(',')[1]),c=>c.charCodeAt(0)); const img=await pdf.embedJpg(bytes);
-      const maxW=W-M*2, maxH=280; const s=Math.min(maxW/img.width, maxH/img.height); const iw=img.width*s, ih=img.height*s;
-      need(ih+34); page.drawText(ansi(label.toUpperCase()),{x:M,y,size:9,font:bold,color:grey}); y-=ih+8; page.drawImage(img,{x:M,y,width:iw,height:ih}); y-=18;
+      try{ const img=await embedDataUrl(du); const maxW=W-M*2, maxH=280; const s=Math.min(maxW/img.width, maxH/img.height); const iw=img.width*s, ih=img.height*s;
+      need(ih+34); page.drawText(ansi(label.toUpperCase()),{x:M,y,size:9,font:bold,color:grey}); y-=ih+8; page.drawImage(img,{x:M,y,width:iw,height:ih}); y-=18; }catch(e){}
     }
   }
   footer();
   return await pdf.save();
 }
 
-/* ---------- files ---------- */
-function fileNames(r){ const base='manejo_'+slug(r.estancia)+'_'+r.fecha_evento+'_'+r.tipo_evento+'_'+r.id.slice(0,8); return {json:base+'.json', pdf:base+'.pdf'}; }
-function jsonBlob(r){ return new Blob([JSON.stringify(r,null,2)],{type:'application/json'}); }
-async function buildFiles(r){ const n=fileNames(r); const pdfBytes=await makePdf(r); return { jsonFile:new File([jsonBlob(r)],n.json,{type:'application/json'}), pdfFile:new File([pdfBytes],n.pdf,{type:'application/pdf'}), pdfBytes }; }
+/* ---------- archivos ---------- */
+function fileNames(r){ const base='manejo_'+slug(r.estancia)+'_'+r.fecha_evento+'_'+r.tipo_evento+'_'+r.id.slice(0,8)+(r.version&&r.version>1?'_v'+r.version:''); return {json:base+'.json', pdf:base+'.pdf'}; }
+function exportRecord(w){ return Object.assign({}, w.registro, {historial:w.historial||[], estado_local:w.estado}); }
+async function buildFiles(w){ const r=w.registro; const n=fileNames(r); const pdfBytes=await makePdf(r); return { jsonFile:new File([new Blob([JSON.stringify(exportRecord(w),null,2)],{type:'application/json'})],n.json,{type:'application/json'}), pdfFile:new File([pdfBytes],n.pdf,{type:'application/pdf'}), pdfBytes }; }
 function b64(bytes){ let s=''; const chunk=0x8000; for(let i=0;i<bytes.length;i+=chunk) s+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk)); return btoa(s); }
 function download(file){ const a=document.createElement('a'); a.href=URL.createObjectURL(file); a.download=file.name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},4000); }
-/* En la página publicada en claude.ai las descargas pasan por la capacidad "downloads" del visor; en el app instalado se descarga directo. */
 let dlCap; async function getDownloads(){ if(dlCap!==undefined) return dlCap; try{ dlCap=(window.claude&&typeof window.claude.use==='function') ? await window.claude.use('downloads') : null; }catch(e){ dlCap=null; } return dlCap; }
 async function saveFile(file){ const d=await getDownloads(); if(d){ try{ await d.save({filename:file.name, data:file}); return 'saved'; }catch(e){ const code=e&&e.code; if(code==='declined') return 'declined'; if(code==='rate_limited'){ toast('Espere un momento y vuelva a intentar.'); return 'retry'; } toast('No se pudo guardar el archivo ('+(code||'error')+').'); return 'error'; } } download(file); return 'saved'; }
 async function openPdf(file){ const d=await getDownloads(); if(d) return saveFile(file); const u=URL.createObjectURL(file); const w=window.open(u,'_blank'); if(!w) return saveFile(file); return 'opened'; }
-function resumen(r){ const d=r.datos; let s='*'+TIPO_LABEL[r.tipo_evento]+'* · '+r.estancia+' · '+fmtDate(r.fecha_evento)+'\nRegistra: '+r.respondente+'\n';
-  if(r.tipo_evento==='entrada'||r.tipo_evento==='salida'){ s+='Chapa '+d.chapa_camion+' · COTA '+(d.cota_nro||d.cota_qr||'—')+'\n'+(r.tipo_evento==='entrada'?'Origen: '+d.origen+' · Raza: '+d.raza:'Destino: '+d.destino)+'\n'+d.cantidad_animales+' animales contados · '+d.ids_individuales.length+' en el archivo de balanza'+(d.peso_promedio_kg!==null&&d.peso_promedio_kg!==undefined?' · '+d.peso_promedio_kg+' kg prom.':'')+'\n'; }
+function resumen(r){ const d=r.datos||{}; let s='*'+TIPO_LABEL[r.tipo_evento]+'* · '+r.estancia+' · '+fmtDate(r.fecha_evento)+'\nRegistra: '+r.respondente+(r.lote_controlpasto?' · Lote '+r.lote_controlpasto:'')+'\n';
+  if(esCamion(r.tipo_evento)){ s+='Chapa '+d.chapa_camion+' · COTA '+(d.cota_nro||d.cota_qr||'—')+'\n'+(r.tipo_evento==='entrada'?'Origen: '+d.origen+' · Raza: '+d.raza:'Destino: '+d.destino)+'\n'+d.cantidad_animales+' animales contados · '+(d.ids_individuales||[]).length+' en el archivo de balanza'+(d.peso_promedio_kg!=null?' · '+d.peso_promedio_kg+' kg prom.':'')+'\n'; }
+  if(r.tipo_evento==='pesaje') s+=(d.ids_individuales||[]).length+' animales pesados'+(d.peso_promedio_kg!=null?' · '+d.peso_promedio_kg+' kg prom.':'')+'\n';
   if(r.tipo_evento==='mortalidad') s+='Botón '+d.nro_boton+(d.causa_probable?' · '+d.causa_probable:'')+'\n';
   if(r.tipo_evento==='nacimiento') s+='Madre: '+d.madre+(d.sexo_cria?' · '+d.sexo_cria:'')+'\n';
+  if(r.tipo_evento==='perdida_boton') s+='Botón perdido: '+d.nro_boton+'\n';
   if(r.observaciones) s+='Obs.: '+r.observaciones+'\n';
-  return s+'ID '+r.id.slice(0,8); }
+  return s+'ID '+r.id.slice(0,8)+(r.version&&r.version>1?' v'+r.version:''); }
 
-/* ---------- sending ---------- */
-async function markEnvio(id, canal, detalle){ const w=await dbGet(id); if(!w) return; w.envios=w.envios||[]; w.envios.push({canal, fecha:new Date().toISOString(), detalle:detalle||null}); if(canal==='servidor') w.estado='enviado'; else if(w.estado!=='enviado') w.estado='compartido'; await dbPut(w); return w; }
-
+/* ---------- publicación en la base de datos ---------- */
+async function markEnvio(id, canal, detalle){ const w=await dbGet(id); if(!w) return; w.envios=w.envios||[]; w.envios.push({canal, fecha:new Date().toISOString(), detalle:detalle||null, version:w.version||1}); if(canal==='servidor'){ w.estado='enviado'; logEntry(w,'publicado en la base de datos'); } else if(w.estado!=='enviado'){ w.estado='compartido'; logEntry(w,'compartido ('+canal+')'); } await dbPut(w); return w; }
 async function postToEndpoint(w, files){
   if(!cfg.endpoint) return {ok:false, skipped:true};
-  const payload={ tipo:'registro', clave:w.clave||null, registro:w.registro, nombre_csv: w.registro.archivo_balanza?w.registro.archivo_balanza.nombre:null, destinatario:cfg.mail, nombre_pdf:files.pdfFile.name, nombre_json:files.jsonFile.name, pdf_base64:b64(files.pdfBytes) };
+  const payload={ tipo:'registro', clave:w.clave||null, registro:exportRecord(w), destinatario:cfg.mail, nombre_pdf:files.pdfFile.name, nombre_json:files.jsonFile.name, pdf_base64:b64(files.pdfBytes) };
   const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify(payload), redirect:'follow'});
   const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){}
   if(!res.ok || j.ok===false) throw new Error(j.error||('HTTP '+res.status));
@@ -1226,10 +1325,9 @@ async function postToEndpoint(w, files){
 let syncing=false;
 async function syncPendientes(){
   if(syncing || !cfg.endpoint || !navigator.onLine) return; syncing=true;
-  try{ const all=(await dbAll()).filter(w=>w.publicar && w.estado!=='enviado'); for(const w of all){ try{ const files=await buildFiles(w.registro); await postToEndpoint(w,files); await markEnvio(w.id,'servidor'); }catch(e){ console.warn('sync',w.id,e); } } }
+  try{ const all=(await dbAll()).filter(w=>w.publicar && w.estado!=='enviado' && w.estado!=='borrador'); for(const w of all){ try{ const files=await buildFiles(w); await postToEndpoint(w,files); await markEnvio(w.id,'servidor'); }catch(e){ console.warn('sync',w.id,e); } } }
   finally{ syncing=false; renderHome(); }
 }
-
 async function sha256(str){ if(!(window.crypto&&crypto.subtle)) return null; const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str)); return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
 function pedirClave(estancia){ return new Promise(res=>{ const m=$('pwd-modal'), inp=$('pwd-input'), err=$('pwd-err'); inp.value=''; err.classList.add('hidden'); $('pwd-est').textContent=estancia; m.classList.remove('hidden'); setTimeout(()=>inp.focus(),50);
   const done=v=>{ m.classList.add('hidden'); $('pwd-ok').onclick=null; $('pwd-cancel').onclick=null; inp.onkeydown=null; res(v); };
@@ -1238,115 +1336,119 @@ function pedirClave(estancia){ return new Promise(res=>{ const m=$('pwd-modal'),
   inp.onkeydown=e=>{ if(e.key==='Enter') $('pwd-ok').onclick(); if(e.key==='Escape') done(null); }; }); }
 async function publicarBD(w, files){
   const msg=$('done-msg'); msg.className='msg'; msg.classList.remove('hidden');
-  if(w.estado==='enviado'){ msg.className='msg ok'; msg.textContent='Este registro ya está publicado en la base de datos.'; return; }
+  if(w.estado==='enviado'){ msg.className='msg ok'; msg.textContent='Este registro ya está publicado en la base de datos (versión '+(w.version||1)+').'; return; }
   const clave=await pedirClave(w.registro.estancia); if(clave===null){ msg.classList.add('hidden'); return; }
-  const w2=await dbGet(w.id); w2.publicar=true; w2.clave=clave; w2.autorizado_en=new Date().toISOString(); await dbPut(w2); if(doneW&&doneW.id===w.id) doneW=w2;
-  if(!cfg.endpoint){ msg.className='msg warn'; msg.textContent='Registro autorizado y en cola. La base de datos todavía no está configurada en este teléfono (Configuración › URL de envío automático); se publicará cuando lo esté.'; renderDoneStatus(w2); renderHome(); return; }
+  const w2=await dbGet(w.id); w2.publicar=true; w2.clave=clave; w2.autorizado_en=new Date().toISOString(); logEntry(w2,'autorizado para publicar'); await dbPut(w2); if(doneW&&doneW.id===w.id) doneW=w2;
   if(!navigator.onLine){ msg.className='msg warn'; msg.textContent='Sin conexión: el registro quedó autorizado y en cola. Se publicará solo cuando el teléfono tenga señal.'; renderDoneStatus(w2); renderHome(); return; }
-  try{ msg.textContent='Publicando en la base de datos…'; await postToEndpoint(w2,files); await markEnvio(w.id,'servidor'); msg.className='msg ok'; msg.textContent='Publicado en la base de datos. El servidor también lo envía a '+cfg.mail+'.'; }
-  catch(e){ const txt=String(e.message||e); if(/clave|contrase/i.test(txt)){ w2.publicar=false; w2.clave=null; await dbPut(w2); msg.className='msg bad'; msg.textContent='El servidor rechazó la contraseña para '+w.registro.estancia+'. No se publicó.'; } else { msg.className='msg warn'; msg.textContent='El servidor no respondió ('+txt+'). El registro quedó en cola y se reintentará automáticamente.'; } }
+  try{ msg.textContent='Guardando en la base de datos…'; await postToEndpoint(w2,files); await markEnvio(w.id,'servidor'); msg.className='msg ok'; msg.textContent='Guardado en la base de datos. El servidor también lo envía a '+cfg.mail+'.'; }
+  catch(e){ const txt=String(e.message||e); if(/clave|contrase/i.test(txt)){ w2.publicar=false; w2.clave=null; logEntry(w2,'contraseña rechazada por el servidor'); await dbPut(w2); msg.className='msg bad'; msg.textContent='El servidor rechazó la contraseña para '+w.registro.estancia+'. No se publicó.'; } else { msg.className='msg warn'; msg.textContent='El servidor no respondió ('+txt+'). El registro quedó en cola y se reintentará automáticamente.'; } }
   renderDoneStatus(await dbGet(w.id)); renderHome();
 }
-async function shareFiles(files, text, title){
-  const data={files:[files.pdfFile, files.jsonFile], title, text};
-  if(navigator.share && navigator.canShare && navigator.canShare(data)){ await navigator.share(data); return true; }
-  return false;
-}
-async function sendMail(w, files){
-  const r=w.registro; const subj='['+TIPO_LABEL[r.tipo_evento]+'] '+r.estancia+' '+fmtDate(r.fecha_evento)+' · '+r.respondente;
-  const msg=$('done-msg'); msg.className='msg'; msg.classList.remove('hidden');
-  const text='Para: '+cfg.mail+'\n\n'+resumen(r).replace(/\*/g,'');
-  try{
-    if(await shareFiles(files, text, subj)){ await markEnvio(w.id,'correo'); msg.className='msg ok'; msg.textContent='Se abrió el menú para compartir. Elija su app de correo y envíe a '+cfg.mail+'.'; renderDoneStatus(await dbGet(w.id)); return; }
-  }catch(e){ if(e.name==='AbortError'){ msg.classList.add('hidden'); return; } }
-  msg.className='msg'; msg.textContent='Guarde los dos archivos y después adjúntelos al correo.';
-  const r1=await saveFile(files.pdfFile); if(r1==='declined'){ msg.classList.add('hidden'); return; } await saveFile(files.jsonFile);
-  const body=text+'\n\n(Adjunte los dos archivos guardados: '+files.pdfFile.name+' y '+files.jsonFile.name+')';
-  const mailto='mailto:'+encodeURIComponent(cfg.mail)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
-  let opened=false; try{ const w2=window.open(mailto,'_blank'); opened=!!w2; }catch(e){} if(!opened){ try{ window.location.href=mailto; opened=true; }catch(e){} }
-  await markEnvio(w.id,'correo','mailto'); msg.className='msg warn'; msg.textContent='Aquí no se puede adjuntar automáticamente: se guardaron el PDF y el archivo de datos. Envíelos por correo a '+cfg.mail+(opened?' (se abrió el correo con el asunto listo).':'.'); renderDoneStatus(await dbGet(w.id));
-}
-async function sendWhatsApp(w, files){
-  const r=w.registro; const msg=$('done-msg'); msg.className='msg'; msg.classList.remove('hidden');
-  try{
-    if(await shareFiles(files, resumen(r), TIPO_LABEL[r.tipo_evento]+' '+r.estancia)){ await markEnvio(w.id,'whatsapp'); msg.className='msg ok'; msg.textContent='Se abrió el menú para compartir. Elija WhatsApp y después el grupo.'; renderDoneStatus(await dbGet(w.id)); return; }
-  }catch(e){ if(e.name==='AbortError'){ msg.classList.add('hidden'); return; } }
-  msg.className='msg'; msg.textContent='Guarde el PDF y después adjúntelo en el grupo.';
-  const r1=await saveFile(files.pdfFile); if(r1==='declined'){ msg.classList.add('hidden'); return; }
-  try{ window.open('https://wa.me/?text='+encodeURIComponent(resumen(r)+'\n(PDF guardado en el teléfono: '+files.pdfFile.name+')'),'_blank'); }catch(e){}
-  await markEnvio(w.id,'whatsapp','texto'); msg.className='msg warn'; msg.textContent='Aquí no se puede adjuntar automáticamente: se guardó el PDF y se abrió WhatsApp con el resumen. Adjunte el PDF en el grupo.'; renderDoneStatus(await dbGet(w.id));
+async function compartir(w, files){
+  const msg=$('done-msg'); msg.className='msg'; msg.classList.remove('hidden'); const r=w.registro;
+  const data={files:[files.pdfFile, files.jsonFile], title:TIPO_LABEL[r.tipo_evento]+' '+r.estancia, text:resumen(r)};
+  try{ if(navigator.share && navigator.canShare && navigator.canShare(data)){ await navigator.share(data); await markEnvio(w.id,'compartido'); msg.className='msg ok'; msg.textContent='Se abrió el menú para compartir: elija WhatsApp, el correo u otra app.'; renderDoneStatus(await dbGet(w.id)); return; } }
+  catch(e){ if(e.name==='AbortError'){ msg.classList.add('hidden'); return; } }
+  msg.textContent='Este navegador no abre el menú de compartir: se guardan los dos archivos para que los adjunte donde quiera.';
+  const r1=await saveFile(files.pdfFile); if(r1==='declined'){ msg.classList.add('hidden'); return; } await saveFile(files.jsonFile); await markEnvio(w.id,'archivos guardados'); renderDoneStatus(await dbGet(w.id));
 }
 
-/* ---------- done screen ---------- */
+/* ---------- pantalla del registro guardado ---------- */
 let doneFiles=null, doneW=null;
-function estadoLabel(w){ if(w.estado==='enviado') return ['ok','Publicado en la base de datos']; if(w.publicar) return ['warn','Autorizado · en cola para publicar']; if(w.estado==='compartido') return ['warn','Compartido desde el teléfono']; return ['','Guardado, sin enviar']; }
+function estadoLabel(w){ if(w.estado==='borrador') return ['draft','Borrador']; if(w.estado==='enviado') return ['ok','Guardado en la base de datos']; if(w.publicar) return ['warn','Autorizado · en cola para publicar']; if(w.estado==='compartido') return ['warn','Compartido, sin guardar en la base']; return ['','Guardado en el teléfono, sin publicar']; }
 function renderDoneStatus(w){ const st=$('done-status'); st.innerHTML=''; const b=document.createElement('span'); const [cls,txt]=estadoLabel(w); b.className='badge '+cls; b.textContent=txt; st.appendChild(b);
-  (w.envios||[]).forEach(e=>{ const s=document.createElement('span'); s.textContent=e.canal+' '+new Date(e.fecha).toLocaleString('es-PY',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); st.appendChild(s); }); }
+  const lg=$('done-log'); const h=w.historial||[]; if(h.length){ lg.classList.remove('hidden'); lg.innerHTML=''; h.slice(-8).forEach(e=>{ const div=document.createElement('div'); div.textContent=fmtDT(e.fecha)+' · v'+(e.version||1)+' · '+e.accion+(e.detalle?' — '+e.detalle:''); lg.appendChild(div); }); } else lg.classList.add('hidden'); }
 async function openDone(w){
   doneW=w; const r=w.registro; show('scr-done');
   $('done-tipo').className='badge tipo-'+r.tipo_evento; $('done-tipo').textContent=TIPO_LABEL[r.tipo_evento];
-  renderKv($('done-kv'), r, false); renderDoneStatus(w); $('done-msg').classList.add('hidden'); $('mail-to-label').textContent=cfg.mail;
-  $('mail-sub').textContent = 'PDF + datos por correo'; $('db-sub').textContent = cfg.endpoint ? 'Requiere contraseña' : 'Requiere contraseña · base de datos sin configurar';
+  renderKv($('done-kv'), r, false); renderDoneStatus(w); $('done-msg').classList.add('hidden');
+  $('db-sub').textContent = w.estado==='enviado' ? 'Ya está guardado (versión '+(w.version||1)+')' : 'Requiere la contraseña de la estancia';
   const fl=$('done-files'); fl.innerHTML='<div class="msg">Generando PDF…</div>';
-  ['btn-send-mail','btn-send-wa','btn-share-both','btn-publish-db'].forEach(id=>$(id).disabled=true);
-  try{ doneFiles=await buildFiles(r); }catch(e){ fl.innerHTML='<div class="msg bad">No se pudo generar el PDF: '+e.message+'</div>'; return; }
+  ['btn-share-both','btn-publish-db'].forEach(id=>$(id).disabled=true);
+  try{ doneFiles=await buildFiles(w); }catch(e){ fl.innerHTML='<div class="msg bad">No se pudo generar el PDF: '+e.message+'</div>'; return; }
   fl.innerHTML='';
   [['PDF',doneFiles.pdfFile],['JSON',doneFiles.jsonFile]].forEach(([k,f])=>{ const d=document.createElement('div'); d.className='file'; d.innerHTML='<span class="ico">'+k+'</span><span class="name"></span><span class="size">'+fmtBytes(f.size)+'</span>'; d.querySelector('.name').textContent=f.name; const a=document.createElement('a'); a.href='#'; a.textContent= k==='PDF'?'Ver':'Guardar'; a.addEventListener('click',ev=>{ ev.preventDefault(); if(k==='PDF') openPdf(f); else saveFile(f); }); d.appendChild(a); fl.appendChild(d); });
-  ['btn-send-mail','btn-send-wa','btn-share-both','btn-publish-db'].forEach(id=>$(id).disabled=false);
+  ['btn-share-both','btn-publish-db'].forEach(id=>$(id).disabled=false);
 }
-$('btn-send-mail').addEventListener('click',()=>sendMail(doneW,doneFiles));
-$('btn-send-wa').addEventListener('click',()=>sendWhatsApp(doneW,doneFiles));
 $('btn-publish-db').addEventListener('click',()=>publicarBD(doneW,doneFiles));
-$('btn-share-both').addEventListener('click',async()=>{ try{ let ok=false; try{ ok=await shareFiles(doneFiles, resumen(doneW.registro), 'Registro de manejo'); }catch(e){ if(e.name==='AbortError') return; } if(!ok){ const r1=await saveFile(doneFiles.pdfFile); if(r1!=='declined') await saveFile(doneFiles.jsonFile); } else await markEnvio(doneW.id,'otro'); renderDoneStatus(await dbGet(doneW.id)); }catch(e){} });
-$('btn-delete-rec').addEventListener('click',async()=>{ if(doneW.estado!=='enviado' && !(doneW.envios||[]).length){ toast('Este registro todavía no fue publicado ni enviado. Publíquelo antes de borrarlo.'); $('btn-delete-rec').textContent='Borrar igual (no fue publicado)'; $('btn-delete-rec').classList.add('danger'); $('btn-delete-rec').onclick=async()=>{ await dbDel(doneW.id); toast('Registro borrado'); renderHome(); show('scr-home'); }; return; } await dbDel(doneW.id); toast('Registro borrado'); renderHome(); show('scr-home'); });
+$('btn-share-both').addEventListener('click',()=>compartir(doneW,doneFiles));
+$('btn-edit-rec').addEventListener('click',()=>openEdit(doneW));
+$('btn-delete-rec').addEventListener('click',async()=>{ if(doneW.estado!=='enviado' && !$('btn-delete-rec').classList.contains('danger')){ toast('Este registro todavía no fue guardado en la base de datos. Toque de nuevo para borrarlo igual.'); $('btn-delete-rec').textContent='Borrar igual'; $('btn-delete-rec').classList.add('danger'); return; } await dbDel(doneW.id); $('btn-delete-rec').textContent='Borrar'; $('btn-delete-rec').classList.remove('danger'); toast('Registro borrado'); renderHome(); show('scr-home'); });
 
-/* ---------- home ---------- */
+/* ---------- inicio ---------- */
 async function renderHome(){
   let all=[]; try{ all=await dbAll(); }catch(e){}
-  all.sort((a,b)=>b.creado_en.localeCompare(a.creado_en));
+  all.sort((a,b)=>(b.actualizado_en||b.creado_en).localeCompare(a.actualizado_en||a.creado_en));
   const list=$('home-list'); list.innerHTML='';
-  $('home-empty').style.display = all.length?'none':'block'; $('home-tools').style.display = all.length?'flex':'none';
-  const cola=all.filter(w=>w.publicar && w.estado!=='enviado').length, sin=all.filter(w=>!w.publicar && w.estado!=='enviado').length; const pm=$('pend-msg'); const partes=[];
-  if(cola) partes.push(cola+(cola===1?' registro en cola':' registros en cola')+(cfg.endpoint?' (se publica solo al tener señal)':' (falta configurar la base de datos)'));
-  if(sin) partes.push(sin+(sin===1?' registro sin publicar':' registros sin publicar'));
+  $('home-empty').style.display = all.length?'none':'block'; $('home-tools').style.display = 'flex';
+  const cola=all.filter(w=>w.publicar && w.estado!=='enviado' && w.estado!=='borrador').length, sin=all.filter(w=>!w.publicar && w.estado!=='enviado' && w.estado!=='borrador').length, bor=all.filter(w=>w.estado==='borrador').length; const pm=$('pend-msg'); const partes=[];
+  if(bor) partes.push(bor+(bor===1?' borrador':' borradores'));
+  if(cola) partes.push(cola+(cola===1?' registro en cola':' registros en cola')+' (se publica solo al tener señal)');
+  if(sin) partes.push(sin+(sin===1?' registro sin guardar en la base':' registros sin guardar en la base'));
   if(partes.length){ pm.classList.remove('hidden'); pm.textContent=partes.join(' · ')+'.'; } else pm.classList.add('hidden');
-  all.forEach(w=>{ const r=w.registro; const b=document.createElement('button'); b.className='item tipo-'+r.tipo_evento; const d=r.datos;
-    const det = (r.tipo_evento==='entrada'||r.tipo_evento==='salida') ? d.cantidad_animales+' animales · '+(r.tipo_evento==='entrada'?'de '+d.origen:'a '+d.destino)+' · chapa '+d.chapa_camion : r.tipo_evento==='mortalidad' ? 'botón '+d.nro_boton : 'madre '+d.madre;
-    b.innerHTML='<div class="main"><b></b><span></span></div><span class="badge"></span>'; b.querySelector('b').textContent=TIPO_LABEL[r.tipo_evento]+' · '+r.estancia; b.querySelector('span').textContent=fmtDate(r.fecha_evento)+' · '+det;
-    const bd=b.querySelector('.badge'); bd.textContent = w.estado==='enviado'?'Publicado':w.publicar?'En cola':w.estado==='compartido'?'Compartido':'Sin publicar'; bd.classList.add(w.estado==='enviado'?'ok':(w.publicar||w.estado==='compartido')?'warn':'bad');
+  all.forEach(w=>{ const b=document.createElement('button');
+    if(w.estado==='borrador'){ const s=w.borrador||{}; b.className='item'+(s.tipo?' tipo-'+s.tipo:''); b.innerHTML='<div class="main"><b></b><span></span></div><span class="badge draft">Borrador</span>'; b.querySelector('b').textContent=(s.tipo?TIPO_LABEL[s.tipo]:'Sin tipo')+(s.estancia?' · '+s.estancia:''); b.querySelector('span').textContent='guardado '+fmtDT(w.actualizado_en||w.creado_en)+(s.fecha?' · evento '+fmtDate(s.fecha):''); b.addEventListener('click',()=>openDraft(w)); list.appendChild(b); return; }
+    const r=w.registro; const d=r.datos||{}; b.className='item tipo-'+r.tipo_evento;
+    const det = esCamion(r.tipo_evento) ? d.cantidad_animales+' animales · '+(r.tipo_evento==='entrada'?'de '+d.origen:'a '+d.destino)+' · chapa '+d.chapa_camion : r.tipo_evento==='mortalidad' ? 'botón '+d.nro_boton : r.tipo_evento==='nacimiento' ? 'madre '+d.madre : r.tipo_evento==='pesaje' ? (d.ids_individuales||[]).length+' animales pesados' : 'botón '+d.nro_boton;
+    b.innerHTML='<div class="main"><b></b><span></span></div><span class="badge"></span>'; b.querySelector('b').textContent=TIPO_LABEL[r.tipo_evento]+' · '+r.estancia+(r.version>1?' · v'+r.version:''); b.querySelector('span').textContent=fmtDate(r.fecha_evento)+' · '+det+(r.lote_controlpasto?' · lote '+r.lote_controlpasto:'');
+    const bd=b.querySelector('.badge'); bd.textContent = w.estado==='enviado'?'En la base':w.publicar?'En cola':w.estado==='compartido'?'Compartido':'Sin guardar en la base'; bd.classList.add(w.estado==='enviado'?'ok':(w.publicar||w.estado==='compartido')?'warn':'bad');
     b.addEventListener('click',()=>openDone(w)); list.appendChild(b); });
 }
-$('btn-export-all').addEventListener('click',async()=>{ const all=await dbAll(); const out=all.map(w=>Object.assign({estado:w.estado, envios:w.envios||[]}, w.registro)); const f=new File([JSON.stringify(out,null,2)],'manejo_export_'+todayISO()+'.json',{type:'application/json'}); if(!(navigator.share && navigator.canShare && navigator.canShare({files:[f]}) && await navigator.share({files:[f],title:'Exportación de registros'}).then(()=>true).catch(()=>false))) await saveFile(f); });
+$('btn-export-all').addEventListener('click',async()=>{ const all=(await dbAll()).filter(w=>w.estado!=='borrador'); const out={formato:'manejo-ypoti/export-2', exportado_en:new Date().toISOString(), app_version:APP_VERSION, registros:all.map(w=>({id:w.id, estado:w.estado, publicar:!!w.publicar, envios:w.envios||[], historial:w.historial||[], version:w.version||1, registro:w.registro}))}; const f=new File([JSON.stringify(out,null,2)],'manejo_export_'+todayISO()+'.json',{type:'application/json'}); if(!(navigator.share && navigator.canShare && navigator.canShare({files:[f]}) && await navigator.share({files:[f],title:'Exportación de registros'}).then(()=>true).catch(()=>false))) await saveFile(f); });
+/* importar varios (desde otro teléfono) */
+let importBatch=null;
+function normalizeImport(obj){ // acepta export-2, lista de wrappers, lista de registros sueltos o un registro
+  let items=[]; if(obj && Array.isArray(obj.registros)) items=obj.registros; else if(Array.isArray(obj)) items=obj; else if(obj && obj.id) items=[obj];
+  return items.map(it=>{ if(it.registro && it.registro.id) return {id:it.registro.id, estado:it.estado||'pendiente', publicar:false, envios:it.envios||[], historial:it.historial||[], version:it.version||it.registro.version||1, registro:it.registro, creado_en:it.registro.creado_en};
+    if(it.tipo_evento && it.id){ const r=Object.assign({},it); const estado=r.estado_local||r.estado||'pendiente'; delete r.estado_local; delete r.estado; const hist=r.historial||[]; delete r.historial; delete r.envios; return {id:r.id, estado:estado==='enviado'?'enviado':'pendiente', publicar:false, envios:it.envios||[], historial:hist, version:r.version||1, registro:r, creado_en:r.creado_en}; }
+    return null; }).filter(Boolean).filter(w=>w.registro && w.registro.tipo_evento && w.registro.estancia);
+}
+$('btn-import-all').addEventListener('click',()=>$('file-import').click());
+$('file-import').addEventListener('change',async e=>{ const f=e.target.files[0]; e.target.value=''; if(!f) return; try{ const txt=await f.text(); const items=normalizeImport(JSON.parse(txt)); if(!items.length){ toast('El archivo no tiene registros reconocibles.'); return; } const all=await dbAll(); const ids=new Set(all.map(w=>w.id)); const dup=items.filter(w=>ids.has(w.id)).length; importBatch=items; $('imp-info').textContent='El archivo trae '+items.length+' registro(s); '+dup+' ya existe(n) en este teléfono y '+(items.length-dup)+' son nuevos. ¿Cómo quiere importarlos?'; $('imp-modal').classList.remove('hidden'); }catch(ex){ toast('No se pudo leer el archivo: '+ex.message); } });
+async function doImport(modo){ const items=importBatch||[]; $('imp-modal').classList.add('hidden'); if(!items.length) return; let n=0, s=0;
+  if(modo==='replace'){ await dbClear(); }
+  const existentes=new Set((await dbAll()).map(w=>w.id));
+  for(const w of items){ const existe=existentes.has(w.id); if(modo==='new' && existe){ s++; continue; } logEntry(w, existe?'reemplazado por importación':'importado', 'archivo: '+(modo==='replace'?'reemplazo total':modo)); w.actualizado_en=new Date().toISOString(); await dbPut(w); n++; }
+  importBatch=null; toast(n+' importado(s)'+(s?', '+s+' omitido(s)':'')); renderHome(); }
+$('imp-merge').addEventListener('click',()=>doImport('merge')); $('imp-new').addEventListener('click',()=>doImport('new')); $('imp-replace').addEventListener('click',()=>doImport('replace')); $('imp-cancel').addEventListener('click',()=>{ importBatch=null; $('imp-modal').classList.add('hidden'); });
 
-/* ---------- navigation ---------- */
+/* ---------- navegación del formulario ---------- */
 $('btn-new').addEventListener('click',()=>{ resetForm(); show('scr-form'); });
 $('btn-config').addEventListener('click',()=>{ if($('scr-home').classList.contains('active')) openConfig(); else { renderHome(); show('scr-home'); } });
-$('ab-back').addEventListener('click',()=>{ if(step===1){ show('scr-home'); return; } step--; renderStep(); });
+$('ab-draft').addEventListener('click',async()=>{ if(await saveDraft(false)){ renderHome(); show('scr-home'); } });
+$('ab-back').addEventListener('click',async()=>{ if(step===1){ if(dirty && !editing){ await saveDraft(true); toast('Se guardó como borrador'); } renderHome(); show('scr-home'); return; } step--; renderStep(); });
 $('ab-next').addEventListener('click',async()=>{
-  if(step===1){ const e=validate1(); showErr('err1',e); if(e.length) return; step=2; renderStep(); return; }
-  if(step===2){ const e=validate2(); showErr('err2',e); if(e.length) return; step=3; renderStep(); return; }
-  const r=buildRecord(); const w={id:r.id, creado_en:r.creado_en, estado:'pendiente', envios:[], registro:r};
+  if(step===1){ const e=validate1(); showErr('err1',e); if(e.length) return; step=2; renderStep(); if(!editing) saveDraft(true); return; }
+  if(step===2){ const e=validate2(); showErr('err2',e); if(e.length) return; step=3; renderStep(); if(!editing) saveDraft(true); return; }
+  const r=buildRecord(); const prev=await dbGet(r.id);
+  let w;
+  if(editing){ w=Object.assign({}, editing); const cambios=diffRecords(editing.registro, r); w.registro=r; w.version=r.version; w.estado='pendiente'; w.publicar=false; w.clave=null; w.actualizado_en=new Date().toISOString(); logEntry(w,'editado', cambios.length?('cambió: '+cambios.join(', ')):'sin cambios de contenido'); }
+  else { w={id:r.id, creado_en:r.creado_en, actualizado_en:new Date().toISOString(), estado:'pendiente', publicar:false, envios:[], historial:(prev&&prev.historial)||[], version:1, registro:r}; delete w.borrador; logEntry(w,'creado'); }
   $('ab-next').disabled=true;
   try{ await dbPut(w); }catch(e){ toast('No se pudo guardar: '+e.message); $('ab-next').disabled=false; return; }
-  $('ab-next').disabled=false;
+  $('ab-next').disabled=false; dirty=false;
   if(respondenteValue() && !cfg.lista.includes(respondenteValue())){ cfg.lista.push(respondenteValue()); }
   cfg.respondente=respondenteValue(); cfg.estancia=r.estancia; saveCfg();
-  if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(async p=>{ try{ const w2=await dbGet(r.id); if(w2){ w2.registro.geo={lat:+p.coords.latitude.toFixed(6), lon:+p.coords.longitude.toFixed(6), precision_m:Math.round(p.coords.accuracy)}; await dbPut(w2); if(doneW && doneW.id===r.id) doneW=w2; } }catch(e){} }, ()=>{}, {timeout:8000, maximumAge:60000}); }
-  toast('Registro guardado'); await openDone(w); renderHome(); syncPendientes();
+  if(!editing && navigator.geolocation){ navigator.geolocation.getCurrentPosition(async p=>{ try{ const w2=await dbGet(r.id); if(w2&&w2.registro){ w2.registro.geo={lat:+p.coords.latitude.toFixed(6), lon:+p.coords.longitude.toFixed(6), precision_m:Math.round(p.coords.accuracy)}; await dbPut(w2); if(doneW && doneW.id===r.id) doneW=w2; } }catch(e){} }, ()=>{}, {timeout:8000, maximumAge:60000}); }
+  editing=null; toast('Registro guardado'); await openDone(w); renderHome();
 });
-document.querySelectorAll('.tile').forEach(t=>t.addEventListener('click',()=>{ tipo=t.dataset.tipo; document.querySelectorAll('.tile').forEach(x=>x.classList.toggle('selected',x===t)); document.body.className='tipo-'+tipo; }));
+document.querySelectorAll('.tile').forEach(t=>t.addEventListener('click',()=>setTipo(t.dataset.tipo)));
 $('f-respondente').addEventListener('change',()=>{ $('wrap-respondente-otro').style.display = $('f-respondente').value==='Otro…' ? 'flex':'none'; if($('f-respondente').value==='Otro…') $('f-respondente-otro').focus(); });
-document.querySelectorAll('.seg').forEach(seg=>seg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>setSeg(seg,b.dataset.v))));
+document.querySelectorAll('.seg').forEach(seg=>seg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ setSeg(seg,b.dataset.v); dirty=true; })));
 $('f-chapa').addEventListener('input',e=>{ const p=e.target.selectionStart; e.target.value=e.target.value.toUpperCase(); try{e.target.setSelectionRange(p,p);}catch(x){} });
 
-/* ---------- config ---------- */
-function openConfig(){ $('c-respondente').value=cfg.respondente||''; fillSelect($('c-estancia'),ESTANCIAS,'— Sin estancia habitual —'); $('c-estancia').value=cfg.estancia||''; $('c-lista').value=(cfg.lista||[]).join('\n'); $('c-mail').value=cfg.mail||DEFAULT_MAIL; $('c-endpoint').value=cfg.endpoint||''; $('c-msg').classList.add('hidden'); $('c-version').textContent=APP_VERSION; show('scr-config'); }
-function saveConfigFromForm(){ cfg.respondente=$('c-respondente').value.trim(); cfg.estancia=$('c-estancia').value; cfg.lista=$('c-lista').value.split('\n').map(s=>s.trim()).filter(Boolean); if(cfg.respondente && !cfg.lista.includes(cfg.respondente)) cfg.lista.unshift(cfg.respondente); cfg.mail=$('c-mail').value.trim()||DEFAULT_MAIL; cfg.endpoint=$('c-endpoint').value.trim(); saveCfg(); }
+/* ---------- configuración ---------- */
+function openConfig(){ $('c-respondente').value=cfg.respondente||''; fillSelect($('c-estancia'),ESTANCIAS,'— Sin estancia habitual —'); $('c-estancia').value=cfg.estancia||''; $('c-lista').value=(cfg.lista||[]).join('\n'); $('c-mail').value=cfg.mail||DEFAULT_MAIL; $('c-endpoint').value=cfg.endpoint||DEFAULT_ENDPOINT; $('c-msg').classList.add('hidden'); $('c-version').textContent=APP_VERSION; show('scr-config'); }
+function saveConfigFromForm(){ cfg.respondente=$('c-respondente').value.trim(); cfg.estancia=$('c-estancia').value; cfg.lista=$('c-lista').value.split('\n').map(s=>s.trim()).filter(Boolean); if(cfg.respondente && !cfg.lista.includes(cfg.respondente)) cfg.lista.unshift(cfg.respondente);
+  const m=$('c-mail').value.trim(), ep=$('c-endpoint').value.trim(); cfg.mail=m||DEFAULT_MAIL; cfg.mail_custom = cfg.mail!==DEFAULT_MAIL; cfg.endpoint=ep||DEFAULT_ENDPOINT; cfg.endpoint_custom = cfg.endpoint!==DEFAULT_ENDPOINT; saveCfg(); }
 ['c-respondente','c-estancia','c-lista','c-mail','c-endpoint'].forEach(id=>$(id).addEventListener('change',()=>{ saveConfigFromForm(); toast('Configuración guardada'); }));
-$('btn-test-endpoint').addEventListener('click',async()=>{ saveConfigFromForm(); const m=$('c-msg'); m.classList.remove('hidden'); m.className='msg'; if(!cfg.endpoint){ m.className='msg warn'; m.textContent='No hay URL configurada.'; return; } m.textContent='Probando…'; try{ const res=await fetch(cfg.endpoint,{method:'POST',body:JSON.stringify({tipo:'ping'}),redirect:'follow'}); const t=await res.text(); let j={}; try{j=JSON.parse(t);}catch(e){} if(res.ok && j.ok){ m.className='msg ok'; m.textContent='Conexión correcta'+(j.mensaje?': '+j.mensaje:'.'); syncPendientes(); } else throw new Error(j.error||('HTTP '+res.status)); }catch(e){ m.className='msg bad'; m.textContent='No responde: '+e.message; } });
+$('btn-reset-server').addEventListener('click',()=>{ $('c-mail').value=DEFAULT_MAIL; $('c-endpoint').value=DEFAULT_ENDPOINT; saveConfigFromForm(); toast('Servidor y correo restablecidos'); });
+$('btn-test-endpoint').addEventListener('click',async()=>{ saveConfigFromForm(); const m=$('c-msg'); m.classList.remove('hidden'); m.className='msg'; m.textContent='Probando…'; try{ const res=await fetch(cfg.endpoint,{method:'POST',body:JSON.stringify({tipo:'ping'}),redirect:'follow'}); const t=await res.text(); let j={}; try{j=JSON.parse(t);}catch(e){} if(res.ok && j.ok){ m.className='msg ok'; m.textContent='Conexión correcta'+(j.mensaje?': '+j.mensaje:'.'); syncPendientes(); } else throw new Error(j.error||('HTTP '+res.status)); }catch(e){ m.className='msg bad'; m.textContent='No responde: '+e.message; } });
 
-/* ---------- boot ---------- */
-loadCfg(); updateNet(); renderHome(); syncPendientes();
+/* ---------- arranque ---------- */
+loadCfg(); saveCfg(); updateNet(); renderHome(); syncPendientes();
+try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist().then(ok=>console.log('almacenamiento persistente:',ok)); }catch(e){}
+setInterval(()=>{ if(navigator.onLine) syncPendientes(); }, 5*60*1000);
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
 })();
 </script>
