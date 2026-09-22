@@ -1,9 +1,23 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 2.1
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 3.0
 
-App offline para el registro diario de manejo: entrada y salida de animales, mortalidad, nacimiento, pesaje de auditoría y pérdida de botón electrónico.
+App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP y entrada confinamiento.
 
 Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 3.0.1
+
+- Lector del archivo de la balanza probado con exportaciones reales de Tru-Test (`;` y `,`), XR5000 (líneas terminadas en CR), archivos con columna `IDV` antes de `IDE`, IDE con espacio ("600 010001073200" → 600010001073200), encabezados con acentos mal codificados, pesos con coma decimal, tabulaciones, archivos solo con IDE y archivos sin encabezado. Solo la IDE es obligatoria: si el archivo no trae columna de peso, o si algunos animales vienen sin peso (vacío o 0), el app lo carga igual y muestra un aviso en rojo con las IDE sin peso; el promedio y el total se calculan solo con los pesados; el JSON lleva `datos.cantidad_sin_peso` y `control.sin_peso`, el PDF marca "sin peso" en la lista y agrega un aviso, y la planilla tiene la columna `cantidad_sin_peso`.
+- La COTA y la guía "del archivo" se toman solo cuando la columna trae un único número (las balanzas suelen guardarlo en la primera fila); si cada animal trae un número distinto (historial de compras), no se usan para el cruce con el QR.
+
+## Novedades 3.0
+
+- "Lote (como en ControlPasto)" y "Piquete (nombre de la pastura)" salen de los datos generales y se preguntan al inicio de cada módulo de pasto (en el JSON: `lote_controlpasto` y `piquete`; en la planilla, columna `piquete`).
+- Entrada y salida ya no preguntan origen ni destino (están en la guía). Cada COTA lleva, además del QR, una foto de la primera página de la guía (`adjuntos.fotos_guia[]`, columna `foto_guia` en la hoja `cotas`). "Entrada de animales" pasa a llamarse "Entrada pasto" (la clave `entrada` no cambia).
+- Nacimiento pide foto del nacimiento (`adjuntos.foto_nacimiento`).
+- Mortalidad pide la ubicación de lo ocurrido: ubicación del teléfono (GPS), punto elegido en el mapa (mapa de OpenStreetMap si hay señal; sin señal se pueden escribir las coordenadas). En el JSON `datos.ubicacion {lat, lon, precision_m, fuente}`; en la planilla `ubic_lat`, `ubic_lon`, `ubic_precision_m`, `ubic_fuente`; en el PDF y en el correo va el punto en el mapa y el enlace a Google Maps.
+- Pesaje de auditoría pide la cantidad contada a mano y la compara con el archivo (igual que entrada/salida).
+- Los módulos se separan en "Pasto" e "Intensivo · solo Ypoti" (el segundo grupo aparece solo con la estancia Ypoti). Nuevos: **Entrada RIP** (origen misma propiedad → lote ControlPasto + piquete; otra propiedad → camiones + guías; conteo + pesaje; destino Lote BovinOS + Piquete) y **Entrada confinamiento** (animal propio o boitel; propio → misma propiedad [recría tradicional → lote ControlPasto + piquete; RIP → lote BovinOS + piquete] u otra propiedad; boitel → propietario; boitel u otra propiedad → camiones + guías; conteo + pesaje; destino Lote Confinamiento BovinOS + Piquete Confinamiento). En el JSON: `grupo` ('pasto'/'intensivo'), `datos.propiedad`, `propietario`, `origen_tipo`, `origen_sistema`, `origen_lote`, `origen_piquete`, `destino_lote`, `destino_piquete` (y `lote_controlpasto`/`piquete` = destino). Mismas columnas en la planilla.
 
 ## Novedades 2.1
 

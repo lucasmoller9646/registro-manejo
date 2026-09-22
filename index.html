@@ -17,7 +17,7 @@
   --bg:#F2F4EF; --surface:#FFFFFF; --surface-2:#E9EDE4; --line:#C9D1C2; --line-strong:#9AA593;
   --ink:#182019; --ink-2:#4A5548; --ink-3:#77836F;
   --brand:#2F6B3A; --brand-ink:#FFFFFF; --brand-soft:#DDEBDF;
-  --entrada:#2F6B3A; --salida:#2B5D8C; --mortalidad:#A3341E; --nacimiento:#8A6A1F; --pesaje:#2F6470; --perdida_boton:#6B3F8C;
+  --entrada:#2F6B3A; --salida:#2B5D8C; --mortalidad:#A3341E; --nacimiento:#8A6A1F; --pesaje:#2F6470; --perdida_boton:#6B3F8C; --entrada_rip:#7A4E1F; --entrada_confinamiento:#4A4A8C;
   --ok:#2F6B3A; --warn:#9A6A00; --bad:#A3341E; --warn-soft:#FBF0D3; --bad-soft:#F8E0DA; --ok-soft:#DDEBDF;
   --focus:#2B5D8C;
   --font-display:"Archivo","Arial Narrow",system-ui,sans-serif;
@@ -29,7 +29,7 @@
     --bg:#131813; --surface:#1C231D; --surface-2:#232C24; --line:#37423A; --line-strong:#546156;
     --ink:#EDF0E8; --ink-2:#BCC5B8; --ink-3:#8B9686;
     --brand:#5DA86B; --brand-ink:#0F1A11; --brand-soft:#243A28;
-    --entrada:#5DA86B; --salida:#6FA3D6; --mortalidad:#E07A63; --nacimiento:#D3AE55; --pesaje:#6FB7C4; --perdida_boton:#B48AD6;
+    --entrada:#5DA86B; --salida:#6FA3D6; --mortalidad:#E07A63; --nacimiento:#D3AE55; --pesaje:#6FB7C4; --perdida_boton:#B48AD6; --entrada_rip:#D9A066; --entrada_confinamiento:#9C9CE0;
     --ok:#5DA86B; --warn:#D3AE55; --bad:#E07A63; --warn-soft:#3A3117; --bad-soft:#3F211B; --ok-soft:#243A28;
     --focus:#6FA3D6; --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
   }
@@ -38,7 +38,7 @@
   --bg:#131813; --surface:#1C231D; --surface-2:#232C24; --line:#37423A; --line-strong:#546156;
   --ink:#EDF0E8; --ink-2:#BCC5B8; --ink-3:#8B9686;
   --brand:#5DA86B; --brand-ink:#0F1A11; --brand-soft:#243A28;
-  --entrada:#5DA86B; --salida:#6FA3D6; --mortalidad:#E07A63; --nacimiento:#D3AE55; --pesaje:#6FB7C4; --perdida_boton:#B48AD6;
+  --entrada:#5DA86B; --salida:#6FA3D6; --mortalidad:#E07A63; --nacimiento:#D3AE55; --pesaje:#6FB7C4; --perdida_boton:#B48AD6; --entrada_rip:#D9A066; --entrada_confinamiento:#9C9CE0;
   --ok:#5DA86B; --warn:#D3AE55; --bad:#E07A63; --warn-soft:#3A3117; --bad-soft:#3F211B; --ok-soft:#243A28;
   --focus:#6FA3D6; --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
 }
@@ -90,6 +90,9 @@ input.upper{text-transform:uppercase}
 .tile[data-tipo=nacimiento]{border-left-color:var(--nacimiento)}
 .tile[data-tipo=pesaje]{border-left-color:var(--pesaje)}
 .tile[data-tipo=perdida_boton]{border-left-color:var(--perdida_boton)}
+.tile[data-tipo=entrada_rip]{border-left-color:var(--entrada_rip)}
+.tile[data-tipo=entrada_confinamiento]{border-left-color:var(--entrada_confinamiento)}
+.tiles-title{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:6px 0 -2px}
 .tile.selected{border-color:var(--ink);background:var(--surface-2)}
 .tile.selected[data-tipo=entrada]{border-left-color:var(--entrada)}
 .tile.selected[data-tipo=salida]{border-left-color:var(--salida)}
@@ -111,6 +114,8 @@ input.upper{text-transform:uppercase}
 .tipo-nacimiento .section-title .dot{background:var(--nacimiento)}
 .tipo-pesaje .section-title .dot{background:var(--pesaje)}
 .tipo-perdida_boton .section-title .dot{background:var(--perdida_boton)}
+.tipo-entrada_rip .section-title .dot{background:var(--entrada_rip)}
+.tipo-entrada_confinamiento .section-title .dot{background:var(--entrada_confinamiento)}
 .scanrow{display:flex;gap:8px}
 .scanrow input{flex:1}
 .scanrow .btn{width:auto;flex:0 0 auto;padding:10px 14px}
@@ -124,6 +129,8 @@ input.upper{text-transform:uppercase}
 .badge.tipo-nacimiento{background:var(--warn-soft);color:var(--nacimiento);border-color:transparent}
 .badge.tipo-pesaje{background:color-mix(in srgb,var(--pesaje) 18%,transparent);color:var(--pesaje);border-color:transparent}
 .badge.tipo-perdida_boton{background:color-mix(in srgb,var(--perdida_boton) 18%,transparent);color:var(--perdida_boton);border-color:transparent}
+.badge.tipo-entrada_rip{background:color-mix(in srgb,var(--entrada_rip) 18%,transparent);color:var(--entrada_rip);border-color:transparent}
+.badge.tipo-entrada_confinamiento{background:color-mix(in srgb,var(--entrada_confinamiento) 18%,transparent);color:var(--entrada_confinamiento);border-color:transparent}
 .msg{padding:12px 14px;border-radius:8px;font-size:15px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2)}
 .msg.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
 .msg.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
@@ -147,6 +154,8 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
 .item.tipo-nacimiento{border-left-color:var(--nacimiento)}
 .item.tipo-pesaje{border-left-color:var(--pesaje)}
 .item.tipo-perdida_boton{border-left-color:var(--perdida_boton)}
+.item.tipo-entrada_rip{border-left-color:var(--entrada_rip)}
+.item.tipo-entrada_confinamiento{border-left-color:var(--entrada_confinamiento)}
 .item .main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .item .main b{font-family:var(--font-display);font-weight:600;font-size:17px}
 .item .main span{font-size:14px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -162,6 +171,21 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
 .actionbar .inner{max-width:560px;margin:0 auto;display:flex;gap:10px}
 .actionbar .inner .btn{flex:1}
 .actionbar .inner .btn.back{flex:0 0 auto;width:auto;padding:14px 16px}
+#mapa-modal{position:fixed;inset:0;background:#000;z-index:21;display:none;flex-direction:column}
+#mapa-modal.on{display:flex}
+#mapa-modal canvas{flex:1;width:100%;height:100%;touch-action:none;cursor:grab;background:#1d2520}
+#mapa-modal .cross{position:absolute;left:50%;top:calc(50% - 32px);width:28px;height:28px;transform:translate(-50%,-50%);pointer-events:none}
+#mapa-modal .cross:before,#mapa-modal .cross:after{content:'';position:absolute;background:#E03A2A;left:50%;top:50%}
+#mapa-modal .cross:before{width:2px;height:28px;transform:translate(-50%,-50%)}
+#mapa-modal .cross:after{width:28px;height:2px;transform:translate(-50%,-50%)}
+#mapa-modal .cross i{position:absolute;left:50%;top:50%;width:10px;height:10px;border:2px solid #E03A2A;border-radius:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,.6)}
+#mapa-modal .bar{padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));background:#111;color:#fff;display:flex;flex-direction:column;gap:8px}
+#mapa-modal .bar .row .btn{background:#222;color:#fff;border-color:#444;width:auto;flex:1;min-height:44px}
+#mapa-modal .bar .btn.ok{background:var(--brand);border-color:var(--brand)}
+#mapa-modal .zoom{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:6px}
+#mapa-modal .zoom button,#mapa-modal .loc{width:44px;height:44px;border-radius:8px;border:1px solid #444;background:rgba(17,17,17,.9);color:#fff;font-size:22px;font-weight:700}
+#mapa-modal .loc{position:absolute;left:12px;top:12px;font-size:20px}
+#mapa-modal .attr{position:absolute;left:0;bottom:0;font-size:9px;color:#eee;background:rgba(0,0,0,.5);padding:2px 5px}
 #scanner{position:fixed;inset:0;background:#000;z-index:20;display:none;flex-direction:column}
 #scanner.on{display:flex}
 #scanner video{flex:1;width:100%;object-fit:cover}
@@ -242,23 +266,76 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
         <label class="f"><span class="req">Fecha del evento</span>
           <input type="date" id="f-fecha">
         </label>
-        <label class="f"><span>Lote ControlPasto</span>
-          <input type="text" id="f-lote" placeholder="Opcional" autocomplete="off">
-        </label>
       </div>
       <div class="section-title"><span class="dot"></span><h3>¿Qué pasó?</h3></div>
+      <div class="tiles-title">Pasto</div>
       <div class="tiles" id="tiles">
-        <button class="tile" data-tipo="entrada">Entrada de animales<small>Llegó un camión</small></button>
+        <button class="tile" data-tipo="entrada">Entrada pasto<small>Llegó un camión al pasto</small></button>
         <button class="tile" data-tipo="salida">Salida de animales<small>Salió un camión</small></button>
         <button class="tile" data-tipo="mortalidad">Mortalidad<small>Un animal murió</small></button>
         <button class="tile" data-tipo="nacimiento">Nacimiento<small>Nació un ternero</small></button>
         <button class="tile" data-tipo="pesaje">Pesaje de auditoría<small>Archivo de la balanza</small></button>
         <button class="tile" data-tipo="perdida_boton">Pérdida de botón<small>Botón electrónico perdido</small></button>
       </div>
+      <div id="tiles-int-wrap" class="stack" style="gap:10px">
+        <div class="tiles-title">Intensivo · solo Ypoti</div>
+        <div class="tiles" id="tiles-int">
+          <button class="tile" data-tipo="entrada_rip">Entrada RIP<small>Recría intensiva a pasto</small></button>
+          <button class="tile" data-tipo="entrada_confinamiento">Entrada confinamiento<small>Propio o boitel</small></button>
+        </div>
+        <span class="hint" id="tiles-int-hint">Estos registros son solo para la estancia Ypoti.</span>
+      </div>
       <div class="msg bad hidden" id="err1"></div>
     </div>
 
     <div id="step2" class="stack" style="display:none">
+      <!-- LOTE Y PIQUETE (módulos de pasto) -->
+      <div id="grp-lote" class="stack">
+        <div class="section-title"><span class="dot"></span><h3 id="grp-lote-title">Lote y piquete</h3></div>
+        <div class="card stack">
+          <label class="f"><span>Lote (como en ControlPasto)</span>
+            <input type="text" id="f-lote" placeholder="Nombre del lote" autocomplete="off">
+          </label>
+          <label class="f"><span>Piquete (nombre de la pastura)</span>
+            <input type="text" id="f-piquete" placeholder="Nombre del piquete" autocomplete="off">
+          </label>
+        </div>
+      </div>
+
+      <!-- ORIGEN (entrada RIP / confinamiento) -->
+      <div id="grp-origen-int" class="stack">
+        <div class="section-title"><span class="dot"></span><h3>Origen de los animales</h3></div>
+        <div class="card stack">
+          <label class="f" id="wrap-propiedad"><span class="req">Los animales son</span>
+            <div class="seg" id="seg-propiedad">
+              <button type="button" data-v="propio">Animal propio</button>
+              <button type="button" data-v="boitel">Boitel</button>
+            </div>
+          </label>
+          <label class="f" id="wrap-propietario"><span class="req">Propietario (boitel)</span>
+            <input type="text" id="f-propietario" placeholder="Nombre del propietario" autocomplete="off">
+          </label>
+          <label class="f" id="wrap-origen-tipo"><span class="req">Vienen de</span>
+            <div class="seg" id="seg-origen">
+              <button type="button" data-v="misma_propiedad">Misma propiedad</button>
+              <button type="button" data-v="otra_propiedad">Otra propiedad</button>
+            </div>
+          </label>
+          <label class="f" id="wrap-sistema"><span class="req">Sistema de origen</span>
+            <div class="seg" id="seg-sistema">
+              <button type="button" data-v="recria_tradicional">Recría tradicional</button>
+              <button type="button" data-v="rip">RIP</button>
+            </div>
+          </label>
+          <label class="f" id="wrap-origen-lote"><span class="req" id="lbl-origen-lote">Lote ControlPasto de origen</span>
+            <input type="text" id="f-origen-lote" placeholder="Lote de origen" autocomplete="off">
+          </label>
+          <label class="f" id="wrap-origen-piquete"><span class="req" id="lbl-origen-piquete">Piquete de origen</span>
+            <input type="text" id="f-origen-piquete" placeholder="Piquete de origen" autocomplete="off">
+          </label>
+        </div>
+      </div>
+
       <!-- ENTRADA / SALIDA -->
       <div id="grp-camion" class="stack">
         <div class="section-title"><span class="dot"></span><h3 id="grp-camion-title">Datos del camión</h3></div>
@@ -271,13 +348,8 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
           <div id="cotas-list" class="stack"></div>
           <button class="btn" type="button" id="btn-add-cota">+ Agregar otra COTA</button>
           <input type="file" id="file-cota" accept="image/*" capture="environment" class="hidden">
+          <input type="file" id="file-guia" accept="image/*" class="hidden">
           <span class="hint" id="cota-hint">Apunte la cámara al QR de la COTA y espere el aviso. Si hay poca luz, use “Foto del QR”. Si la subida tiene varias guías, agregue una COTA por cada una.</span>
-          <label class="f" id="wrap-origen"><span class="req">De dónde vienen</span>
-            <select id="f-origen"></select>
-          </label>
-          <label class="f" id="wrap-destino"><span class="req">A dónde van</span>
-            <select id="f-destino"></select>
-          </label>
           <label class="f" id="wrap-raza"><span class="req">Raza</span>
             <div class="seg" id="seg-raza">
               <button type="button" data-v="Cebú">Cebú</button>
@@ -298,11 +370,25 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
             <span style="font-weight:600;font-size:15px;color:var(--ink-2)" class="req">Archivo de la balanza (CSV)</span>
             <button class="btn" type="button" id="btn-import-ids">📄 Cargar archivo de la balanza</button>
             <input type="file" id="file-ids" accept=".csv,.txt,text/csv,text/plain,text/comma-separated-values,application/vnd.ms-excel" class="hidden">
-            <span class="hint">Se toman solo dos columnas: la identificación (IDE) y el peso. Las demás columnas se ignoran, así sirve cualquier balanza.</span>
+            <span class="hint">Se toman solo dos columnas: la identificación (IDE, obligatoria) y el peso (si el archivo lo trae). Las demás columnas se ignoran, así sirve cualquier balanza (Tru-Test, XR5000, exportaciones con ; o ,).</span>
             <div class="msg bad hidden" id="csv-err"></div>
+            <div class="msg bad hidden" id="csv-warn"></div>
             <div class="card flat hidden" id="csv-panel"><dl class="kv" id="csv-kv"></dl></div>
           </div>
           <div class="status-line"><span class="badge" id="ids-count">Sin archivo</span><span id="ids-check"></span></div>
+        </div>
+      </div>
+
+      <!-- DESTINO (entrada RIP / confinamiento) -->
+      <div id="grp-destino-int" class="stack">
+        <div class="section-title"><span class="dot"></span><h3>Destino de los animales</h3></div>
+        <div class="card stack">
+          <label class="f"><span class="req" id="lbl-destino-lote">Lote BovinOS</span>
+            <input type="text" id="f-destino-lote" placeholder="Lote de destino" autocomplete="off">
+          </label>
+          <label class="f"><span class="req" id="lbl-destino-piquete">Piquete</span>
+            <input type="text" id="f-destino-piquete" placeholder="Piquete de destino" autocomplete="off">
+          </label>
         </div>
       </div>
 
@@ -328,6 +414,12 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
             <div class="row"><button class="btn" type="button" data-cam="boton">📷 Cámara</button><button class="btn" type="button" data-gal="boton">🖼 Galería</button></div>
             <input type="file" id="file-boton" accept="image/*">
           </div>
+          <div class="stack" style="gap:8px">
+            <span style="font-weight:600;font-size:15px;color:var(--ink-2)" class="req">Ubicación de lo ocurrido</span>
+            <div class="row"><button class="btn" type="button" id="btn-ubic-gps">📍 Ubicación del teléfono</button><button class="btn" type="button" id="btn-ubic-mapa">🗺 Elegir en el mapa</button></div>
+            <div class="status-line"><span class="badge" id="ubic-badge">Sin ubicación</span></div>
+            <span class="hint">Si está parado junto al animal, use la ubicación del teléfono. Si no, elija el punto en el mapa (o escriba las coordenadas dentro del mapa).</span>
+          </div>
         </div>
       </div>
 
@@ -347,6 +439,12 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
           <label class="f"><span>Nº de botón del ternero (si ya tiene)</span>
             <input type="text" id="f-cria-boton" placeholder="Opcional" autocomplete="off">
           </label>
+          <div class="photo" data-foto="nacimiento">
+            <span style="font-weight:600;font-size:15px;color:var(--ink-2)" class="req">Foto del nacimiento (madre y ternero)</span>
+            <img class="thumb" id="thumb-nacimiento" alt="Foto del nacimiento">
+            <div class="row"><button class="btn" type="button" data-cam="nacimiento">📷 Cámara</button><button class="btn" type="button" data-gal="nacimiento">🖼 Galería</button></div>
+            <input type="file" id="file-nacimiento" accept="image/*">
+          </div>
         </div>
       </div>
 
@@ -453,6 +551,18 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
   </div>
 </div>
 
+<div id="mapa-modal">
+  <canvas id="mapa-canvas"></canvas>
+  <div class="cross"><i></i></div>
+  <button class="loc" type="button" id="mapa-loc" title="Mi ubicación">◎</button>
+  <div class="zoom"><button type="button" id="mapa-zin">+</button><button type="button" id="mapa-zout">−</button></div>
+  <div class="attr">© OpenStreetMap</div>
+  <div class="bar">
+    <span id="mapa-msg" style="font-size:14px">Mueva el mapa hasta que la cruz quede sobre el lugar.</span>
+    <div class="row" style="align-items:center"><input type="text" id="mapa-coord" placeholder="o escriba: -23.3327, -56.7100" autocomplete="off" style="flex:2;min-height:44px;background:#222;color:#fff;border-color:#444"><button class="btn" type="button" id="mapa-ir">Ir</button></div>
+    <div class="row"><button class="btn" type="button" id="mapa-cancel">Cancelar</button><button class="btn ok" type="button" id="mapa-ok">✓ Usar este punto</button></div>
+  </div>
+</div>
 <div id="scanner">
   <video id="scan-video" playsinline muted autoplay></video>
   <div class="frame"></div>
@@ -839,12 +949,13 @@ if(typeof module!=='undefined'&&module.exports) module.exports=api; else root.Ma
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '2.1.0';
-const ESQUEMA = 'manejo-ypoti/2.1';
+const APP_VERSION = '3.0.1';
+const ESQUEMA = 'manejo-ypoti/3.0';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista'];
-const ORIGENES_EXTRA = ['Compra externa (proveedor)'];
-const DESTINOS_EXTRA = ['Frigorífico / Venta','Otro'];
-const TIPO_LABEL = {entrada:'Entrada de animales', salida:'Salida de animales', mortalidad:'Mortalidad', nacimiento:'Nacimiento', pesaje:'Pesaje de auditoría', perdida_boton:'Pérdida de botón electrónico'};
+const TIPO_LABEL = {entrada:'Entrada pasto', salida:'Salida de animales', mortalidad:'Mortalidad', nacimiento:'Nacimiento', pesaje:'Pesaje de auditoría', perdida_boton:'Pérdida de botón electrónico', entrada_rip:'Entrada RIP', entrada_confinamiento:'Entrada confinamiento'};
+const TIPOS_INTENSIVO = ['entrada_rip','entrada_confinamiento']; const ESTANCIA_INTENSIVO = 'Ypoti';
+const esIntensivo = t => TIPOS_INTENSIVO.includes(t);
+const SISTEMA_LABEL = {recria_tradicional:'Recría tradicional', rip:'RIP'}; const ORIGEN_LABEL = {misma_propiedad:'Misma propiedad', otra_propiedad:'Otra propiedad'}; const PROPIEDAD_LABEL = {propio:'Animal propio', boitel:'Boitel'};
 const CAUSAS_MUERTE = ['Abigeo','Accidente','Afogamento','Anemia','Atolado','Atolado/trancado erosion','Atrapado por el alambrado','Carbunco','Cayo en la Baleta','Cobra','Debilitado','Desconocido','Enfermedad','Enpantanado o Atascado','Enroscado','Faena Interna','Flaco','Fractura','Fraqueza','Hipotermia','Intoxicacion','Jaguarete/león','Lesion','Machucado','Machucadura no chifre','Muerte Súbita','Neumonia','No identificado','Otros','Poleo','Rayo','Requema','Toxico','Trauma','Tristeza','Tristeza Parasitaria','Vibora'];
 const DEFAULT_MAIL = 'trazabilidad@ypoti.com';
 const DEFAULT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwnmB0MXm7Wrt7dQEIU9oN7oy1j2XjQ_7HfZkpsn-5rkaWApoBWYv40J-zo7BAanuzIdg/exec'; // servidor (Apps Script) de la base de datos
@@ -860,7 +971,8 @@ const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xx
 const slug = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_|_$/g,'');
 const fmtBytes = b => b<1024? b+' B' : b<1048576 ? (b/1024).toFixed(0)+' KB' : (b/1048576).toFixed(1)+' MB';
 const esCamion = t => t==='entrada'||t==='salida';
-const usaBalanza = t => t==='entrada'||t==='salida'||t==='pesaje';
+const usaBalanza = t => t==='entrada'||t==='salida'||t==='pesaje'||esIntensivo(t);
+const recCamion = r => esCamion(r.tipo_evento) || !!(r.datos && r.datos.camiones && r.datos.camiones.length);
 
 /* ---------- configuración (servidor y correo vienen fijos en el app) ---------- */
 const CFG_KEY = 'manejo.config';
@@ -899,7 +1011,9 @@ function updateNet(){ const p=$('netpill'); const on=navigator.onLine; p.textCon
 window.addEventListener('online',()=>{updateNet(); syncPendientes();}); window.addEventListener('offline',updateNet);
 
 /* ---------- estado del formulario ---------- */
-let step=1, tipo=null, fotos={animal:null, boton:null, perdida:null}, balanza=null, camiones=[], cotas=[];
+let step=1, tipo=null, fotos={animal:null, boton:null, perdida:null, nacimiento:null}, balanza=null, camiones=[], cotas=[], ubicacion=null;
+function segVal(id){ return $(id).dataset.value||''; }
+function formUsaCamion(){ if(esCamion(tipo)) return true; if(tipo==='entrada_rip') return segVal('seg-origen')==='otra_propiedad'; if(tipo==='entrada_confinamiento'){ const p=segVal('seg-propiedad'); return p==='boitel' || (p==='propio' && segVal('seg-origen')==='otra_propiedad'); } return false; }
 let formId=null;       // id del borrador / registro en edición
 let editing=null;      // wrapper original cuando se edita un registro existente
 let dirty=false;
@@ -910,6 +1024,7 @@ function splitLine(line, delim){ const out=[]; let cur='', q=false; for(let i=0;
 function decodeText(buf){ try{ return new TextDecoder('utf-8',{fatal:true}).decode(buf); }catch(e){ return new TextDecoder('windows-1252').decode(buf); } }
 const esIde = v => /^\d{8,20}$/.test(String(v||'').replace(/\s+/g,''));
 const esPeso = v => { const n=Number(String(v||'').replace(',','.')); return v!=='' && !isNaN(n) && n>=1 && n<=3000; };
+const esNroDoc = v => /^\d{5,20}$/.test(String(v||'').trim());
 function parseBalanza(text, nombre){
   text=text.replace(/^﻿/,''); const lines=text.split(/\r\n|\n|\r/).filter(l=>l.trim().length);
   if(lines.length<1) throw new Error('El archivo está vacío.');
@@ -917,46 +1032,52 @@ function parseBalanza(text, nombre){
   const cols=splitLine(head,delim).map(s=>s.trim()); const ncols=cols.map(norm);
   // 1) por nombre de columna
   const idNames=['IDE','ID','EID','RFID','VID','TAG','CARAVANA','BOTON','IDENTIFICACION','ID ANIMAL','ANIMAL ID','ELECTRONIC ID','EID (ELECTRONIC ID)'];
-  let iIde=ncols.findIndex(c=>idNames.includes(c)); if(iIde<0) iIde=ncols.findIndex(c=>/\b(IDE|EID|RFID)\b/.test(c));
+  let iIde=ncols.findIndex(c=>['IDE','EID','RFID','ELECTRONIC ID','EID (ELECTRONIC ID)','ID ELECTRONICO','IDENTIFICACION ELECTRONICA'].includes(c)); if(iIde<0) iIde=ncols.findIndex(c=>idNames.includes(c)); if(iIde<0) iIde=ncols.findIndex(c=>/\b(IDE|EID|RFID)\b/.test(c));
   let iPeso=ncols.findIndex(c=>['PESO','PESO (KG)','PESO KG','WEIGHT','WEIGHT (KG)','KG','LIVE WEIGHT','PESO VIVO'].includes(c)); if(iPeso<0) iPeso=ncols.findIndex(c=>/PESO|WEIGHT/.test(c) && !/ANT|PREV|GAN|DIF|PROM/.test(c));
   let hasHeader = iIde>=0 || iPeso>=0 || !cols.some(esIde);
   // 2) por contenido (si el encabezado no ayuda o no existe)
   const dataStart = hasHeader?1:0; const sample=lines.slice(dataStart, dataStart+40).map(l=>splitLine(l,delim).map(s=>s.trim()));
   const score=(fn)=>cols.map((_,i)=>sample.filter(f=>fn(f[i])).length);
-  if(iIde<0){ const sc=score(esIde); const best=Math.max(...sc); if(best>0) iIde=sc.indexOf(best); }
+  { const sc=score(esIde); const best=Math.max(...sc); if(iIde<0 || (best>0 && sc[iIde]*2<best)) { if(best>0) iIde=sc.indexOf(best); } } // si la columna elegida por nombre casi no tiene IDE válidos, se usa la que sí los tiene
   if(iPeso<0){ const sc=score(esPeso).map((n,i)=>i===iIde?-1:n); const best=Math.max(...sc); if(best>0) iPeso=sc.indexOf(best); }
   if(iIde<0) throw new Error('No encuentro una columna con identificaciones (IDE de 8 a 20 dígitos). Columnas: '+cols.filter(Boolean).join(', '));
   // columnas auxiliares (si existen): COTA, guía, fecha
-  const iCota=ncols.findIndex(c=>/COTA/.test(c)), iGuia=ncols.findIndex(c=>/GUIA/.test(c)), iFecha=ncols.findIndex(c=>c==='FECHA'||c==='DATE');
-  const animales=[], invalidos=[], duplicados=[], seen=new Set(); const cotas=new Set(), guias=new Set(), fechas=new Set();
+  const iCota=ncols.findIndex(c=>/\bCOTA\b/.test(c)&&!/ARCHIVO/.test(c)); let iGuia=ncols.findIndex(c=>/GUIA/.test(c)&&!/COMPRA|VENTA|PROVEEDOR/.test(c)); if(iGuia<0) iGuia=ncols.findIndex(c=>/GUIA/.test(c)); const iFecha=ncols.findIndex(c=>c==='FECHA'||c==='DATE');
+  const animales=[], invalidos=[], duplicados=[], seen=new Set(); const cotas=new Map(), guias=new Map(), fechas=new Set(); const cuenta=(m,v)=>m.set(v,(m.get(v)||0)+1);
   for(let r=dataStart;r<lines.length;r++){
     const f=splitLine(lines[r],delim).map(s=>s.trim()); if(f.every(x=>!x)) continue;
     const rawIde=f[iIde]||''; const ide=rawIde.replace(/\s+/g,''); const pesoTxt=iPeso>=0?(f[iPeso]||'').replace(',','.'):''; const peso=pesoTxt===''?null:Number(pesoTxt);
-    if(iCota>=0&&f[iCota]) cotas.add(f[iCota]); if(iGuia>=0&&f[iGuia]) guias.add(f[iGuia]); if(iFecha>=0&&f[iFecha]) fechas.add(f[iFecha]);
     if(!esIde(ide)){ invalidos.push({fila:r+1, ide:rawIde}); continue; }
+    if(iCota>=0&&esNroDoc(f[iCota])) cuenta(cotas,f[iCota].trim()); if(iGuia>=0&&esNroDoc(f[iGuia])) cuenta(guias,f[iGuia].trim()); if(iFecha>=0&&f[iFecha]) fechas.add(f[iFecha]);
     if(seen.has(ide)){ duplicados.push({fila:r+1, ide}); continue; } seen.add(ide);
-    animales.push({ ide, peso_kg:(peso===null||isNaN(peso))?null:peso });
+    animales.push({ ide, peso_kg:(peso===null||isNaN(peso)||peso<=0)?null:peso });
   }
   if(!animales.length) throw new Error('El archivo no tiene ninguna identificación válida.');
   const pesos=animales.map(a=>a.peso_kg).filter(p=>p!==null);
-  return { nombre, columna_ide:cols[iIde]||('columna '+(iIde+1)), columna_peso:iPeso>=0?(cols[iPeso]||('columna '+(iPeso+1))):null, filas:lines.length-dataStart, animales, invalidos, duplicados,
-    cota_archivo:cotas.size===1?[...cotas][0]:null, guia_archivo:guias.size===1?[...guias][0]:null, fecha_pesaje:fechas.size===1?[...fechas][0]:null,
+  // COTA / guía del archivo: solo si en la columna hay un único número (la balanza suele guardarlo en la primera fila nomás); si cada animal trae uno distinto, son datos históricos y no se usan
+  const unico=m=>{ if(m.size!==1) return null; return [...m.keys()][0]; };
+  const sinPeso=animales.filter(a=>a.peso_kg===null).map(a=>a.ide);
+  const avisos=[]; if(iPeso<0) avisos.push('El archivo no tiene columna de peso: se cargan solo las identificaciones.'); else if(sinPeso.length) avisos.push(sinPeso.length+(sinPeso.length===1?' animal sin peso':' animales sin peso')+' en el archivo: '+sinPeso.slice(0,8).join(', ')+(sinPeso.length>8?' …':''));
+  if(invalidos.length) avisos.push(invalidos.length+(invalidos.length===1?' fila sin identificación válida':' filas sin identificación válida')+' (se omiten).'); if(duplicados.length) avisos.push(duplicados.length+(duplicados.length===1?' identificación repetida':' identificaciones repetidas')+' (se cuentan una vez).');
+  const nomCol=i=>(hasHeader&&cols[i])?cols[i]:('columna '+(i+1));
+  return { nombre, columna_ide:nomCol(iIde), columna_peso:iPeso>=0?nomCol(iPeso):null, filas:lines.length-dataStart, animales, invalidos, duplicados, ids_sin_peso:sinPeso, avisos,
+    cota_archivo:unico(cotas), guia_archivo:unico(guias), fecha_pesaje:fechas.size===1?[...fechas][0]:null,
     peso_total_kg:pesos.length?+pesos.reduce((a,b)=>a+b,0).toFixed(1):null, peso_promedio_kg:pesos.length?+(pesos.reduce((a,b)=>a+b,0)/pesos.length).toFixed(1):null, sin_peso:animales.length-pesos.length };
 }
 function renderCsv(){
-  const p=$('csv-panel'), kv=$('csv-kv'); if(!balanza){ p.classList.add('hidden'); return; }
+  const p=$('csv-panel'), kv=$('csv-kv'); if(!balanza){ p.classList.add('hidden'); $('csv-warn').classList.add('hidden'); return; }
   const rows=[['Archivo',balanza.nombre],['Columnas usadas','ID: '+balanza.columna_ide+' · Peso: '+(balanza.columna_peso||'no encontrada')],['Animales',balanza.animales.length+' con identificación válida'+(balanza.sin_peso?' ('+balanza.sin_peso+' sin peso)':'')],['Peso',balanza.peso_promedio_kg!==null?balanza.peso_promedio_kg+' kg promedio · '+balanza.peso_total_kg+' kg total':'—']];
   if(balanza.cota_archivo) rows.push(['COTA en archivo',balanza.cota_archivo]); if(balanza.guia_archivo) rows.push(['Guía en archivo',balanza.guia_archivo]); if(balanza.fecha_pesaje) rows.push(['Fecha en archivo',balanza.fecha_pesaje]);
-  if(balanza.invalidos.length) rows.push(['Filas sin ID',balanza.invalidos.length]); if(balanza.duplicados.length) rows.push(['ID repetidas',balanza.duplicados.length+' (se cuentan una vez)']);
+  const warn=$('csv-warn'); const av=balanza.avisos||[]; if(av.length){ warn.innerHTML=av.map(()=>'<div></div>').join(''); warn.querySelectorAll('div').forEach((d,i)=>d.textContent='⚠ '+av[i]); warn.classList.remove('hidden'); } else warn.classList.add('hidden');
   kv.innerHTML=''; rows.forEach(([k,v])=>{ const dt=document.createElement('dt'); dt.textContent=k; const dd=document.createElement('dd'); dd.textContent=v; kv.appendChild(dt); kv.appendChild(dd); });
-  const dt=document.createElement('dt'); dt.textContent='Lista'; const dd=document.createElement('dd'); dd.className='mono'; dd.textContent=balanza.animales.slice(0,300).map(a=>a.ide+(a.peso_kg!==null?'  '+a.peso_kg+' kg':'')).join('\n')+(balanza.animales.length>300?'\n…':''); kv.appendChild(dt); kv.appendChild(dd);
+  const dt=document.createElement('dt'); dt.textContent='Lista'; const dd=document.createElement('dd'); dd.className='mono'; dd.textContent=balanza.animales.slice(0,300).map(a=>a.ide+(a.peso_kg!==null?'  '+a.peso_kg+' kg':'  (sin peso)')).join('\n')+(balanza.animales.length>300?'\n…':''); kv.appendChild(dt); kv.appendChild(dd);
   p.classList.remove('hidden');
 }
 function refreshIds(){
   const n=balanza?balanza.animales.length:0, q=parseInt($('f-cantidad').value,10);
   $('ids-count').textContent = balanza ? n+(n===1?' animal en el archivo':' animales en el archivo') : 'Sin archivo';
   const chk=$('ids-check'); chk.className='badge';
-  if(!n || tipo==='pesaje'){ chk.textContent=''; chk.className=''; return; }
+  if(!n){ chk.textContent=''; chk.className=''; return; }
   if(!isNaN(q)){ if(q===n){ chk.classList.add('ok'); chk.textContent='Coincide con la cantidad contada'; } else { chk.classList.add('bad'); chk.textContent='No coincide: '+q+' contados, '+n+' en el archivo'; } }
   else { chk.textContent=''; chk.className=''; }
 }
@@ -983,15 +1104,19 @@ function renderCotas(){
     b.innerHTML='<div class="head"><span></span>'+(cotas.length>1?'<button class="btn small danger" type="button" data-del>✕ Quitar</button>':'')+'</div>'
       +'<div class="row"><button class="btn" type="button" data-scan>▣ Escanear QR</button><button class="btn" type="button" data-foto>📷 Foto del QR</button></div>'
       +'<div class="msg ok hidden" data-ok></div>'
-      +'<input type="text" data-texto placeholder="Si el QR no se lee, escriba el Nº de COTA" autocomplete="off">';
+      +'<input type="text" data-texto placeholder="Si el QR no se lee, escriba el Nº de COTA" autocomplete="off">'
+      +'<div class="photo"><span style="font-weight:600;font-size:15px;color:var(--ink-2)" class="req">Foto de la primera página de la guía</span><img class="thumb" alt="Foto de la guía"><div class="row"><button class="btn" type="button" data-gcam>📷 Cámara</button><button class="btn" type="button" data-ggal>🖼 Galería</button></div></div>';
     b.querySelector('.head span').textContent = cotas.length>1 ? 'COTA '+(i+1) : 'COTA';
     const inp=b.querySelector('[data-texto]'); inp.value=c.texto||''; inp.addEventListener('input',e=>{ cotas[i].texto=e.target.value; dirty=true; renderCotaPanel(i); checkCotas(); });
     b.querySelector('[data-scan]').addEventListener('click',()=>openScanner(v=>{ setCota(i,v); toast('COTA leída'); }));
     b.querySelector('[data-foto]').addEventListener('click',()=>{ cotaIdx=i; $('file-cota').click(); });
+    const th=b.querySelector('.thumb'); if(c.foto){ th.src=c.foto; th.classList.add('has'); }
+    b.querySelector('[data-gcam]').addEventListener('click',()=>{ guiaIdx=i; $('file-guia').setAttribute('capture','environment'); $('file-guia').click(); });
+    b.querySelector('[data-ggal]').addEventListener('click',()=>{ guiaIdx=i; $('file-guia').removeAttribute('capture'); $('file-guia').click(); });
     const del=b.querySelector('[data-del]'); if(del) del.addEventListener('click',()=>{ cotas.splice(i,1); dirty=true; renderCotas(); checkCotas(); });
     list.appendChild(b); renderCotaPanel(i); });
 }
-let precintoIdx=0, cotaIdx=0;
+let precintoIdx=0, cotaIdx=0, guiaIdx=0;
 function cotaParsed(c){ const v=(c.texto||'').trim(); return v?window.CotaParser.parseCota(v):null; }
 function renderCotaPanel(i){
   const b=$('cotas-list').children[i]; if(!b) return; const ok=b.querySelector('[data-ok]'); const c=cotaParsed(cotas[i]); if(!c){ ok.classList.add('hidden'); return; }
@@ -1018,37 +1143,38 @@ function checkCotas(){ const hint=$('cota-hint'); hint.style.color=''; hint.clas
 function setTipo(t){ tipo=t; document.querySelectorAll('.tile').forEach(x=>x.classList.toggle('selected',x.dataset.tipo===t)); document.body.className=t?'tipo-'+t:''; dirty=true; }
 function setFoto(key, dataUrl){ fotos[key]=dataUrl||null; const th=$('thumb-'+key); if(dataUrl){ th.src=dataUrl; th.classList.add('has'); } else { th.classList.remove('has'); th.removeAttribute('src'); } }
 function resetForm(){
-  step=1; tipo=null; fotos={animal:null,boton:null,perdida:null}; balanza=null; camiones=[{chapa:'',foto:null}]; cotas=[{texto:''}]; formId=uuid(); editing=null; dirty=false;
+  step=1; tipo=null; fotos={animal:null,boton:null,perdida:null,nacimiento:null}; balanza=null; camiones=[{chapa:'',foto:null}]; cotas=[{texto:'',foto:null}]; ubicacion=null; formId=uuid(); editing=null; dirty=false;
   const listaNames = cfg.lista.length?cfg.lista:(cfg.respondente?[cfg.respondente]:[]);
   fillSelect($('f-respondente'), listaNames.concat(['Otro…']), '— Elegir —');
   if(cfg.respondente && listaNames.includes(cfg.respondente)) $('f-respondente').value=cfg.respondente;
   $('wrap-respondente-otro').style.display='none'; $('f-respondente-otro').value='';
   fillSelect($('f-estancia'), ESTANCIAS, '— Elegir estancia —'); if(cfg.estancia) $('f-estancia').value=cfg.estancia;
-  $('f-fecha').value=todayISO(); $('f-fecha').max=todayISO(); $('f-lote').value='';
+  $('f-fecha').value=todayISO(); $('f-fecha').max=todayISO();
   document.querySelectorAll('.tile').forEach(t=>t.classList.remove('selected')); document.body.className='';
-  ['f-cantidad','f-boton','f-madre','f-cria-boton','f-obs','f-perdida-boton'].forEach(id=>$(id).value='');
+  ['f-lote','f-piquete','f-propietario','f-origen-lote','f-origen-piquete','f-destino-lote','f-destino-piquete','f-cantidad','f-boton','f-madre','f-cria-boton','f-obs','f-perdida-boton'].forEach(id=>$(id).value='');
+  setSeg($('seg-propiedad'),''); setSeg($('seg-origen'),''); setSeg($('seg-sistema'),''); renderUbic(); updateTilesInt();
   $('csv-err').classList.add('hidden'); renderCsv(); renderCamiones(); renderCotas(); checkCotas();
   fillSelect($('f-causa'), CAUSAS_MUERTE, '— Elegir causa —');
-  fillSelect($('f-origen'), ORIGENES_EXTRA.concat(ESTANCIAS), '— Elegir origen —');
-  fillSelect($('f-destino'), ESTANCIAS.concat(DESTINOS_EXTRA), '— Elegir destino —');
   setSeg($('seg-raza'),''); setSeg($('seg-sexo'),'');
-  ['animal','boton','perdida'].forEach(k=>setFoto(k,null));
+  ['animal','boton','perdida','nacimiento'].forEach(k=>setFoto(k,null));
   $('err1').classList.add('hidden'); $('err2').classList.add('hidden'); $('edit-banner').classList.add('hidden');
   refreshIds(); renderStep(); dirty=false;
 }
 function respondenteValue(){ const v=$('f-respondente').value; return v==='Otro…' ? $('f-respondente-otro').value.trim() : v; }
 function collectForm(){ // DOM -> estado serializable (borrador)
-  return { step, tipo, respondente:respondenteValue(), estancia:$('f-estancia').value, fecha:$('f-fecha').value, lote:$('f-lote').value.trim(),
-    camiones:camiones.map(c=>({chapa:c.chapa||'',foto:c.foto||null})), cotas:cotas.map(c=>({texto:c.texto||''})), origen:$('f-origen').value, destino:$('f-destino').value, raza:$('seg-raza').dataset.value||'', cantidad:$('f-cantidad').value,
+  return { step, tipo, respondente:respondenteValue(), estancia:$('f-estancia').value, fecha:$('f-fecha').value, lote:$('f-lote').value.trim(), piquete:$('f-piquete').value.trim(),
+    propiedad:segVal('seg-propiedad'), propietario:$('f-propietario').value.trim(), origen_tipo:segVal('seg-origen'), sistema:segVal('seg-sistema'), origen_lote:$('f-origen-lote').value.trim(), origen_piquete:$('f-origen-piquete').value.trim(), destino_lote:$('f-destino-lote').value.trim(), destino_piquete:$('f-destino-piquete').value.trim(), ubicacion,
+    camiones:camiones.map(c=>({chapa:c.chapa||'',foto:c.foto||null})), cotas:cotas.map(c=>({texto:c.texto||'',foto:c.foto||null})), raza:$('seg-raza').dataset.value||'', cantidad:$('f-cantidad').value,
     boton:$('f-boton').value, causa:$('f-causa').value, madre:$('f-madre').value, sexo:$('seg-sexo').dataset.value||'', cria_boton:$('f-cria-boton').value, perdida_boton:$('f-perdida-boton').value, obs:$('f-obs').value,
     fotos:Object.assign({},fotos), balanza }; }
 function applyForm(s){ // estado -> DOM
   if(s.tipo) setTipo(s.tipo);
   const names=Array.from($('f-respondente').options).map(o=>o.value); if(s.respondente){ if(names.includes(s.respondente)) $('f-respondente').value=s.respondente; else { $('f-respondente').value='Otro…'; $('f-respondente-otro').value=s.respondente; $('wrap-respondente-otro').style.display='flex'; } }
-  if(s.estancia) $('f-estancia').value=s.estancia; if(s.fecha) $('f-fecha').value=s.fecha; $('f-lote').value=s.lote||'';
-  camiones=(s.camiones&&s.camiones.length)?s.camiones.map(c=>({chapa:c.chapa||'',foto:c.foto||null})):[{chapa:s.chapa||'',foto:(s.fotos&&s.fotos.precinto)||null}]; cotas=(s.cotas&&s.cotas.length)?s.cotas.map(c=>({texto:c.texto||''})):[{texto:s.cota||''}]; renderCamiones(); renderCotas(); if(s.origen) $('f-origen').value=s.origen; if(s.destino) $('f-destino').value=s.destino; setSeg($('seg-raza'),s.raza||''); $('f-cantidad').value=s.cantidad||'';
+  if(s.estancia) $('f-estancia').value=s.estancia; if(s.fecha) $('f-fecha').value=s.fecha; $('f-lote').value=s.lote||''; $('f-piquete').value=s.piquete||''; updateTilesInt();
+  setSeg($('seg-propiedad'),s.propiedad||''); $('f-propietario').value=s.propietario||''; setSeg($('seg-origen'),s.origen_tipo||''); setSeg($('seg-sistema'),s.sistema||''); $('f-origen-lote').value=s.origen_lote||''; $('f-origen-piquete').value=s.origen_piquete||''; $('f-destino-lote').value=s.destino_lote||''; $('f-destino-piquete').value=s.destino_piquete||''; ubicacion=s.ubicacion||null; renderUbic();
+  camiones=(s.camiones&&s.camiones.length)?s.camiones.map(c=>({chapa:c.chapa||'',foto:c.foto||null})):[{chapa:s.chapa||'',foto:(s.fotos&&s.fotos.precinto)||null}]; cotas=(s.cotas&&s.cotas.length)?s.cotas.map(c=>({texto:c.texto||'',foto:c.foto||null})):[{texto:s.cota||'',foto:null}]; renderCamiones(); renderCotas(); setSeg($('seg-raza'),s.raza||''); $('f-cantidad').value=s.cantidad||'';
   $('f-boton').value=s.boton||''; $('f-causa').value=s.causa||''; $('f-madre').value=s.madre||''; setSeg($('seg-sexo'),s.sexo||''); $('f-cria-boton').value=s.cria_boton||''; $('f-perdida-boton').value=s.perdida_boton||''; $('f-obs').value=s.obs||'';
-  fotos={animal:null,boton:null,perdida:null}; Object.keys(s.fotos||{}).forEach(k=>{ if(k in fotos) setFoto(k,s.fotos[k]); });
+  fotos={animal:null,boton:null,perdida:null,nacimiento:null}; Object.keys(s.fotos||{}).forEach(k=>{ if(k in fotos) setFoto(k,s.fotos[k]); });
   balanza=s.balanza||null; renderCsv(); refreshIds(); checkCotas();
   step=Math.min(Math.max(s.step||1,1),2); renderStep(); dirty=false;
 }
@@ -1057,13 +1183,15 @@ function recordToForm(r){ // registro guardado -> estado del formulario (para ed
   if(d.animales&&d.animales.length){ const pesos=d.animales.map(a=>a.peso_kg).filter(p=>p!==null&&p!==undefined); b={ nombre:(r.archivo_balanza&&r.archivo_balanza.nombre)||'archivo anterior', columna_ide:'IDE', columna_peso:'Peso', filas:d.animales.length, animales:d.animales.map(a=>({ide:a.ide,peso_kg:a.peso_kg===undefined?null:a.peso_kg})), invalidos:[], duplicados:[], cota_archivo:d.cota_archivo||null, guia_archivo:d.guia_archivo||null, fecha_pesaje:d.fecha_pesaje||null, peso_total_kg:pesos.length?+pesos.reduce((x,y)=>x+y,0).toFixed(1):null, peso_promedio_kg:pesos.length?+(pesos.reduce((x,y)=>x+y,0)/pesos.length).toFixed(1):null, sin_peso:d.animales.length-pesos.length }; }
   const a=r.adjuntos||{};
   const fp=a.fotos_precinto||[]; const cam=(d.camiones&&d.camiones.length)?d.camiones.map((c,i)=>({chapa:c.chapa||'',foto:fp[i]||null})):(d.chapa_camion?[{chapa:d.chapa_camion,foto:a.foto_precinto||null}]:[]);
-  const cts=(d.cotas&&d.cotas.length)?d.cotas.map(c=>({texto:c.cota_qr||c.cota_nro||''})):((d.cota_qr||d.cota_nro)?[{texto:d.cota_qr||d.cota_nro}]:[]);
-  return { step:1, tipo:r.tipo_evento, respondente:r.respondente, estancia:r.estancia, fecha:r.fecha_evento, lote:r.lote_controlpasto||'', camiones:cam, cotas:cts, origen:d.origen||'', destino:d.destino||'', raza:d.raza||'', cantidad:d.cantidad_animales!=null?String(d.cantidad_animales):'',
+  const fg=a.fotos_guia||[]; const cts=(d.cotas&&d.cotas.length)?d.cotas.map((c,i)=>({texto:c.cota_qr||c.cota_nro||'',foto:fg[i]||null})):((d.cota_qr||d.cota_nro)?[{texto:d.cota_qr||d.cota_nro,foto:null}]:[]);
+  const intens=esIntensivo(r.tipo_evento);
+  return { step:1, tipo:r.tipo_evento, respondente:r.respondente, estancia:r.estancia, fecha:r.fecha_evento, lote:intens?'':(r.lote_controlpasto||''), piquete:intens?'':(r.piquete||''), camiones:cam, cotas:cts, raza:d.raza||'', cantidad:d.cantidad_animales!=null?String(d.cantidad_animales):'',
+    propiedad:d.propiedad||'', propietario:d.propietario||'', origen_tipo:d.origen_tipo||'', sistema:d.origen_sistema||'', origen_lote:d.origen_lote||'', origen_piquete:d.origen_piquete||'', destino_lote:d.destino_lote||'', destino_piquete:d.destino_piquete||'', ubicacion:d.ubicacion||null,
     boton:d.nro_boton||'', causa:d.causa_probable||'', madre:d.madre||'', sexo:d.sexo_cria||'', cria_boton:d.nro_boton_cria||'', perdida_boton:r.tipo_evento==='perdida_boton'?(d.nro_boton||''):'', obs:r.observaciones||'',
-    fotos:{ animal:a.foto_animal||null, boton:a.foto_boton||null, perdida:a.foto_ocurrido||null }, balanza:b };
+    fotos:{ animal:a.foto_animal||null, boton:a.foto_boton||null, perdida:a.foto_ocurrido||null, nacimiento:a.foto_nacimiento||null }, balanza:b };
 }
 async function saveDraft(silent){
-  const s=collectForm(); const hayCamion=s.camiones.some(c=>c.chapa||c.foto), hayCota=s.cotas.some(c=>c.texto); if(!s.tipo && !hayCamion && !hayCota && !s.boton && !s.madre && !s.perdida_boton && !s.balanza && !Object.values(s.fotos).some(Boolean) && !s.lote && !s.obs){ if(!silent) toast('No hay nada que guardar todavía.'); return false; }
+  const s=collectForm(); const hayCamion=s.camiones.some(c=>c.chapa||c.foto), hayCota=s.cotas.some(c=>c.texto||c.foto); if(!s.tipo && !hayCamion && !hayCota && !s.piquete && !s.boton && !s.madre && !s.perdida_boton && !s.balanza && !Object.values(s.fotos).some(Boolean) && !s.lote && !s.obs){ if(!silent) toast('No hay nada que guardar todavía.'); return false; }
   const prev=await dbGet(formId);
   if(prev && prev.estado!=='borrador'){ return false; } // un registro real en edición no se convierte en borrador
   const w=prev||{id:formId, creado_en:new Date().toISOString(), estado:'borrador', envios:[], historial:[], version:0};
@@ -1074,6 +1202,25 @@ async function saveDraft(silent){
 async function openDraft(w){ resetForm(); formId=w.id; applyForm(w.borrador||{}); show('scr-form'); }
 async function openEdit(w){ resetForm(); formId=w.id; editing=w; applyForm(recordToForm(w.registro)); $('edit-banner').className='msg warn'; $('edit-banner').textContent='Editando el registro '+w.id.slice(0,8)+' (versión '+(w.version||1)+'). Al guardar, deberá volver a publicarlo en la base de datos.'; $('edit-banner').classList.remove('hidden'); show('scr-form'); }
 
+function renderGroups(){ // qué bloques del paso 2 se ven, según el tipo y las respuestas de origen
+  const intens=esIntensivo(tipo), conf=tipo==='entrada_confinamiento', rip=tipo==='entrada_rip';
+  const prop=segVal('seg-propiedad'), ori=segVal('seg-origen'), sis=segVal('seg-sistema');
+  const sh=(id,v)=>{ $(id).style.display=v?'flex':'none'; };
+  sh('grp-lote', !!tipo && !intens);
+  sh('grp-origen-int', intens);
+  sh('wrap-propiedad', conf); sh('wrap-propietario', conf && prop==='boitel');
+  const pideOrigen = rip || (conf && prop==='propio'); sh('wrap-origen-tipo', pideOrigen);
+  sh('wrap-sistema', conf && prop==='propio' && ori==='misma_propiedad');
+  const pideLoteOrigen = pideOrigen && ori==='misma_propiedad' && (rip || sis); sh('wrap-origen-lote', pideLoteOrigen); sh('wrap-origen-piquete', pideLoteOrigen);
+  const origenRip = conf && sis==='rip'; $('lbl-origen-lote').textContent = origenRip ? 'Lote BovinOS de origen' : 'Lote ControlPasto de origen'; $('lbl-origen-piquete').textContent = origenRip ? 'Piquete RIP de origen' : 'Piquete de origen';
+  const cam=formUsaCamion(); sh('grp-camion', cam);
+  $('grp-camion-title').textContent = tipo==='salida' ? 'Camión que salió' : 'Camión que llegó'; sh('wrap-raza', tipo==='entrada');
+  sh('grp-animales', usaBalanza(tipo)); sh('wrap-cantidad', usaBalanza(tipo)); $('grp-animales-title').textContent = tipo==='pesaje' ? 'Pesaje y conteo' : 'Animales';
+  sh('grp-destino-int', intens); $('lbl-destino-lote').textContent = conf ? 'Lote Confinamiento BovinOS' : 'Lote BovinOS'; $('lbl-destino-piquete').textContent = conf ? 'Piquete Confinamiento' : 'Piquete';
+  sh('grp-muerte', tipo==='mortalidad'); sh('grp-nac', tipo==='nacimiento'); sh('grp-perdida', tipo==='perdida_boton');
+  refreshIds();
+}
+function updateTilesInt(){ const ok=$('f-estancia').value===ESTANCIA_INTENSIVO; $('tiles-int-wrap').style.display = ok?'flex':'none'; if(!ok && esIntensivo(tipo)) setTipo(null); }
 function renderStep(){
   ['step1','step2','step3'].forEach((id,i)=>$(id).style.display = (i+1===step)?'flex':'none');
   const spans=$('steps').querySelectorAll('span'); spans.forEach((s,i)=>s.classList.toggle('done', i<step));
@@ -1082,20 +1229,7 @@ function renderStep(){
   $('ab-next').textContent = step===3 ? '✓ Guardar' : 'Continuar ›';
   $('ab-draft').style.display = (step<3 && !editing) ? '' : 'none';
   document.body.className = tipo ? 'tipo-'+tipo : '';
-  if(step===2){
-    $('grp-camion').style.display = esCamion(tipo)?'flex':'none';
-    $('grp-animales').style.display = usaBalanza(tipo)?'flex':'none';
-    $('wrap-cantidad').style.display = esCamion(tipo)?'flex':'none';
-    $('grp-animales-title').textContent = tipo==='pesaje' ? 'Pesaje' : 'Animales';
-    $('grp-muerte').style.display = tipo==='mortalidad'?'flex':'none';
-    $('grp-nac').style.display = tipo==='nacimiento'?'flex':'none';
-    $('grp-perdida').style.display = tipo==='perdida_boton'?'flex':'none';
-    $('wrap-origen').style.display = tipo==='entrada'?'flex':'none';
-    $('wrap-destino').style.display = tipo==='salida'?'flex':'none';
-    $('wrap-raza').style.display = tipo==='entrada'?'flex':'none';
-    $('grp-camion-title').textContent = tipo==='entrada' ? 'Camión que llegó' : 'Camión que salió';
-    refreshIds();
-  }
+  if(step===2) renderGroups();
   if(step===3) renderReview();
   window.scrollTo(0,0);
 }
@@ -1106,58 +1240,80 @@ function validate1(){
   if(!$('f-estancia').value) e.push('Elija la estancia.');
   if(!$('f-fecha').value) e.push('Indique la fecha.'); else if($('f-fecha').value>todayISO()) e.push('La fecha no puede ser futura.');
   if(!tipo) e.push('Elija qué pasó.');
+  if(esIntensivo(tipo) && $('f-estancia').value!==ESTANCIA_INTENSIVO) e.push('Los registros de intensivo (RIP / confinamiento) son solo para la estancia '+ESTANCIA_INTENSIVO+'.');
   return e;
 }
 function validate2(){
-  const e=[];
-  if(esCamion(tipo)){
+  const e=[]; const intens=esIntensivo(tipo), conf=tipo==='entrada_confinamiento', rip=tipo==='entrada_rip';
+  if(intens){
+    const prop=segVal('seg-propiedad'), ori=segVal('seg-origen'), sis=segVal('seg-sistema');
+    if(conf && !prop) e.push('Indique si los animales son propios o de boitel.');
+    if(conf && prop==='boitel' && !$('f-propietario').value.trim()) e.push('Indique el propietario del boitel.');
+    const pideOrigen = rip || (conf && prop==='propio');
+    if(pideOrigen && !ori) e.push('Indique si vienen de la misma propiedad o de otra.');
+    if(conf && prop==='propio' && ori==='misma_propiedad' && !sis) e.push('Indique el sistema de origen (recría tradicional o RIP).');
+    if(pideOrigen && ori==='misma_propiedad' && (rip || sis)){ if(!$('f-origen-lote').value.trim()) e.push('Indique el lote de origen.'); if(!$('f-origen-piquete').value.trim()) e.push('Indique el piquete de origen.'); }
+    if(!$('f-destino-lote').value.trim()) e.push('Indique el '+$('lbl-destino-lote').textContent+'.'); if(!$('f-destino-piquete').value.trim()) e.push('Indique el '+$('lbl-destino-piquete').textContent+'.');
+  }
+  if(formUsaCamion()){
     camiones.forEach((c,i)=>{ const n=camiones.length>1?' del camión '+(i+1):' del camión'; if(!(c.chapa||'').trim()) e.push('Falta la chapa'+n+'.'); if(!c.foto) e.push('Falta la foto del precinto'+n+'.'); });
     const chapas=camiones.map(c=>(c.chapa||'').trim().toUpperCase().replace(/\s+/g,' ')).filter(Boolean); if(new Set(chapas).size!==chapas.length) e.push('Hay dos camiones con la misma chapa.');
-    if(!cotas.some(c=>(c.texto||'').trim())) e.push('Falta la COTA: escanee el QR o escriba el número.'); cotas.forEach((c,i)=>{ if(cotas.length>1 && !(c.texto||'').trim()) e.push('La COTA '+(i+1)+' está vacía: cárguela o quítela.'); });
+    if(!cotas.some(c=>(c.texto||'').trim())) e.push('Falta la COTA: escanee el QR o escriba el número.');
+    cotas.forEach((c,i)=>{ const n=cotas.length>1?' de la COTA '+(i+1):' de la COTA'; if(cotas.length>1 && !(c.texto||'').trim()) e.push('La COTA '+(i+1)+' está vacía: cárguela o quítela.'); if((c.texto||'').trim() && !c.foto) e.push('Falta la foto de la primera página de la guía'+n+'.'); });
     const nros=cotas.map(c=>cotaNro(c.texto)).filter(Boolean); if(new Set(nros).size!==nros.length) e.push('Hay dos COTAs con el mismo número.');
-    if(tipo==='entrada' && !$('f-origen').value) e.push('Indique de dónde vienen los animales.');
-    if(tipo==='salida' && !$('f-destino').value) e.push('Indique a dónde van los animales.');
-    if(tipo==='salida' && $('f-destino').value===$('f-estancia').value) e.push('El destino no puede ser la misma estancia.');
-    if(tipo==='entrada' && $('f-origen').value===$('f-estancia').value) e.push('El origen no puede ser la misma estancia.');
     if(tipo==='entrada' && !$('seg-raza').dataset.value) e.push('Elija la raza.');
-    const q=parseInt($('f-cantidad').value,10); if(isNaN(q)||q<1) e.push('Indique la cantidad de animales contados.');
   }
-  if(usaBalanza(tipo) && !balanza) e.push('Falta cargar el archivo de la balanza.');
+  if(usaBalanza(tipo)){
+    const q=parseInt($('f-cantidad').value,10); if(isNaN(q)||q<1) e.push('Indique la cantidad de animales contados.');
+    if(!balanza) e.push('Falta cargar el archivo de la balanza.');
+  }
   if(tipo==='mortalidad'){
     if(!$('f-boton').value.trim()) e.push('Falta el número de botón.');
     if(!$('f-causa').value) e.push('Elija la causa de muerte.');
     if(!fotos.animal) e.push('Falta la foto del animal.');
     if(!fotos.boton) e.push('Falta la foto del botón.');
+    if(!ubicacion) e.push('Falta la ubicación de lo ocurrido (ubicación del teléfono o punto en el mapa).');
   }
-  if(tipo==='nacimiento'){ if(!$('f-madre').value.trim()) e.push('Indique la madre.'); }
+  if(tipo==='nacimiento'){ if(!$('f-madre').value.trim()) e.push('Indique la madre.'); if(!fotos.nacimiento) e.push('Falta la foto del nacimiento.'); }
   if(tipo==='perdida_boton'){ if(!$('f-perdida-boton').value.trim()) e.push('Escriba el número del botón perdido.'); if(!fotos.perdida) e.push('Falta la foto de lo ocurrido.'); }
   return e;
 }
 function showErr(id, list){ const el=$(id); if(!list.length){ el.classList.add('hidden'); return; } el.innerHTML=list.map(x=>'• '+x).join('<br>'); el.classList.remove('hidden'); el.scrollIntoView({block:'center'}); }
 
 function buildRecord(){
-  const base=editing?editing.registro:null;
-  const r={ esquema:ESQUEMA, id:formId, tipo_evento:tipo, respondente:respondenteValue(), estancia:$('f-estancia').value, fecha_evento:$('f-fecha').value, lote_controlpasto:$('f-lote').value.trim()||null,
+  const base=editing?editing.registro:null; const intens=esIntensivo(tipo);
+  const lote = intens ? $('f-destino-lote').value.trim() : $('f-lote').value.trim(); const piq = intens ? $('f-destino-piquete').value.trim() : $('f-piquete').value.trim();
+  const r={ esquema:ESQUEMA, id:formId, tipo_evento:tipo, grupo: intens?'intensivo':'pasto', respondente:respondenteValue(), estancia:$('f-estancia').value, fecha_evento:$('f-fecha').value, lote_controlpasto:lote||null, piquete:piq||null,
     creado_en:base?base.creado_en:new Date().toISOString(), modificado_en:base?new Date().toISOString():null, version:base?(base.version||1)+1:1, app_version:APP_VERSION, dispositivo:{plataforma:navigator.platform||'', agente:navigator.userAgent}, geo:base?base.geo:null, datos:{}, control:null, observaciones:$('f-obs').value.trim(), adjuntos:{} };
   const b=balanza; const animales=b?b.animales.map(a=>({ide:a.ide, peso_kg:a.peso_kg})):[]; const ids=animales.map(a=>a.ide);
-  if(esCamion(tipo)){
+  if(intens){
+    const conf=tipo==='entrada_confinamiento'; const prop=conf?segVal('seg-propiedad'):'propio'; const ori=(prop==='propio')?segVal('seg-origen'):null; const sis=(conf&&prop==='propio'&&ori==='misma_propiedad')?segVal('seg-sistema'):(tipo==='entrada_rip'&&ori==='misma_propiedad'?'recria_tradicional':null);
+    const misma = prop==='propio' && ori==='misma_propiedad';
+    r.datos={ propiedad:prop, propietario:prop==='boitel'?$('f-propietario').value.trim():null, origen_tipo:ori, origen_sistema:misma?sis:null, origen_lote:misma?$('f-origen-lote').value.trim():null, origen_piquete:misma?$('f-origen-piquete').value.trim():null,
+      origen: prop==='boitel' ? 'Boitel · '+$('f-propietario').value.trim() : misma ? (SISTEMA_LABEL[sis]||'Misma propiedad')+' · lote '+$('f-origen-lote').value.trim()+' · piquete '+$('f-origen-piquete').value.trim() : 'Otra propiedad',
+      destino_lote:lote, destino_piquete:piq, destino:(conf?'Confinamiento':'RIP')+' · lote '+lote+' · piquete '+piq };
+  }
+  if(usaBalanza(tipo)){
+    const q=parseInt($('f-cantidad').value,10);
+    const sinPeso=animales.filter(a=>a.peso_kg===null).length;
+    Object.assign(r.datos,{ cantidad_animales:q, cantidad_archivo:ids.length, cantidad_sin_peso:sinPeso, peso_total_kg:b?b.peso_total_kg:null, peso_promedio_kg:b?b.peso_promedio_kg:null, fecha_pesaje:b?b.fecha_pesaje:null, cota_archivo:b?b.cota_archivo:null, guia_archivo:b?b.guia_archivo:null, ids_individuales:ids, animales });
+    r.control={ cantidad_declarada:q, cantidad_ids:ids.length, coincide: ids.length===0 ? null : ids.length===q, ide_invalidas:b?b.invalidos.length:0, ide_repetidas:b?b.duplicados.length:0, sin_peso:sinPeso, cota_coincide:null, guia_coincide:null, declarado_coincide:null };
+    r.archivo_balanza = b ? { nombre:b.nombre, columna_ide:b.columna_ide, columna_peso:b.columna_peso, filas:b.filas } : null;
+  }
+  if(formUsaCamion()){
     const q=parseInt($('f-cantidad').value,10);
     const cams=camiones.map((c,i)=>({ nro:i+1, chapa:(c.chapa||'').trim().toUpperCase().replace(/\s+/g,' '), foto_precinto:!!c.foto }));
-    const cts=cotas.map(c=>(c.texto||'').trim()).filter(Boolean).map((t,i)=>{ const cp=window.CotaParser.parseCota(t); return { nro:i+1, cota_qr:t, cota_nro:cp.nro_cota||null, nro_guia:cp.nro_guia||null, total_declarado:cp.total_declarado, cota:cp }; });
+    const ctsSrc=cotas.filter(c=>(c.texto||'').trim());
+    const cts=ctsSrc.map((c,i)=>{ const t=c.texto.trim(); const cp=window.CotaParser.parseCota(t); return { nro:i+1, cota_qr:t, cota_nro:cp.nro_cota||null, nro_guia:cp.nro_guia||null, total_declarado:cp.total_declarado, foto_guia:!!c.foto, cota:cp }; });
     const nros=cts.map(c=>c.cota_nro).filter(Boolean), guias=cts.map(c=>c.nro_guia).filter(Boolean); const conTotal=cts.filter(c=>c.total_declarado!==null&&c.total_declarado!==undefined); const totalDecl=conTotal.length?conTotal.reduce((a,c)=>a+c.total_declarado,0):null;
-    const cp=cts.length?cts[0].cota:null;
-    r.datos={ chapa_camion:cams.map(c=>c.chapa).join(' / '), cantidad_camiones:cams.length, camiones:cams,
-      cota_qr:cts.length?cts[0].cota_qr:null, cota_nro:nros.length?nros.join(' / '):(b?b.cota_archivo:null), cota:cp, cantidad_cotas:cts.length, cotas:cts, total_declarado_cotas:totalDecl, cota_archivo:b?b.cota_archivo:null, guia_archivo:b?b.guia_archivo:null,
-      cantidad_animales:q, cantidad_archivo:ids.length, peso_total_kg:b?b.peso_total_kg:null, peso_promedio_kg:b?b.peso_promedio_kg:null, fecha_pesaje:b?b.fecha_pesaje:null, ids_individuales:ids, animales };
-    if(tipo==='entrada'){ r.datos.origen=$('f-origen').value; r.datos.raza=$('seg-raza').dataset.value; } else { r.datos.destino=$('f-destino').value; }
-    r.control={ cantidad_declarada:q, cantidad_ids:ids.length, coincide: ids.length===0 ? null : ids.length===q, ide_invalidas:b?b.invalidos.length:0, ide_repetidas:b?b.duplicados.length:0,
-      cota_coincide:(nros.length&&b&&b.cota_archivo)?nros.some(n=>cotaLimpia(n)===cotaLimpia(b.cota_archivo)):null, guia_coincide:(guias.length&&b&&b.guia_archivo)?guias.some(g=>cotaLimpia(g)===cotaLimpia(b.guia_archivo)):null, declarado_coincide:(totalDecl!==null&&!isNaN(q))?(totalDecl===q):null };
-    r.archivo_balanza = b ? { nombre:b.nombre, columna_ide:b.columna_ide, columna_peso:b.columna_peso, filas:b.filas } : null;
-    r.adjuntos={ fotos_precinto:camiones.map(c=>c.foto||null) };
+    Object.assign(r.datos,{ chapa_camion:cams.map(c=>c.chapa).join(' / '), cantidad_camiones:cams.length, camiones:cams,
+      cota_qr:cts.length?cts[0].cota_qr:null, cota_nro:nros.length?nros.join(' / '):(b?b.cota_archivo:null), cota:cts.length?cts[0].cota:null, cantidad_cotas:cts.length, cotas:cts, total_declarado_cotas:totalDecl });
+    if(tipo==='entrada') r.datos.raza=$('seg-raza').dataset.value;
+    Object.assign(r.control,{ cota_coincide:(nros.length&&b&&b.cota_archivo)?nros.some(n=>cotaLimpia(n)===cotaLimpia(b.cota_archivo)):null, guia_coincide:(guias.length&&b&&b.guia_archivo)?guias.some(g=>cotaLimpia(g)===cotaLimpia(b.guia_archivo)):null, declarado_coincide:(totalDecl!==null&&!isNaN(q))?(totalDecl===q):null });
+    r.adjuntos={ fotos_precinto:camiones.map(c=>c.foto||null), fotos_guia:ctsSrc.map(c=>c.foto||null) };
   }
-  if(tipo==='pesaje'){ r.datos={ cantidad_archivo:ids.length, peso_total_kg:b?b.peso_total_kg:null, peso_promedio_kg:b?b.peso_promedio_kg:null, fecha_pesaje:b?b.fecha_pesaje:null, ids_individuales:ids, animales }; r.archivo_balanza=b?{ nombre:b.nombre, columna_ide:b.columna_ide, columna_peso:b.columna_peso, filas:b.filas }:null; }
-  if(tipo==='mortalidad'){ r.datos={ nro_boton:$('f-boton').value.trim(), causa_probable:$('f-causa').value||null }; r.adjuntos={ foto_animal:fotos.animal, foto_boton:fotos.boton }; }
-  if(tipo==='nacimiento'){ r.datos={ madre:$('f-madre').value.trim(), sexo_cria:$('seg-sexo').dataset.value||null, nro_boton_cria:$('f-cria-boton').value.trim()||null }; }
+  if(tipo==='mortalidad'){ r.datos={ nro_boton:$('f-boton').value.trim(), causa_probable:$('f-causa').value||null, ubicacion:ubicacion?Object.assign({},ubicacion):null }; r.adjuntos={ foto_animal:fotos.animal, foto_boton:fotos.boton }; }
+  if(tipo==='nacimiento'){ r.datos={ madre:$('f-madre').value.trim(), sexo_cria:$('seg-sexo').dataset.value||null, nro_boton_cria:$('f-cria-boton').value.trim()||null }; r.adjuntos={ foto_nacimiento:fotos.nacimiento }; }
   if(tipo==='perdida_boton'){ r.datos={ nro_boton:$('f-perdida-boton').value.trim() }; r.adjuntos={ foto_ocurrido:fotos.perdida }; }
   return r;
 }
@@ -1169,23 +1325,25 @@ function diffRecords(a,b){ // campos que cambiaron entre dos registros (para el 
   return out;
 }
 
+function ubicTxt(u){ return u ? u.lat.toFixed(5)+', '+u.lon.toFixed(5)+(u.precision_m?' (±'+u.precision_m+' m)':'')+(u.fuente==='mapa'?' · elegido en el mapa':u.fuente==='manual'?' · escrito a mano':' · GPS del teléfono') : '—'; }
 function kvRows(r){
   const rows=[['Tipo',TIPO_LABEL[r.tipo_evento]],['Estancia',r.estancia],['Fecha',fmtDate(r.fecha_evento)],['Registra',r.respondente]];
-  if(r.lote_controlpasto) rows.push(['Lote ControlPasto',r.lote_controlpasto]);
-  const d=r.datos||{};
-  if(esCamion(r.tipo_evento)){
+  const d=r.datos||{}; const intens=esIntensivo(r.tipo_evento);
+  if(!intens){ if(r.lote_controlpasto) rows.push(['Lote',r.lote_controlpasto]); if(r.piquete) rows.push(['Piquete',r.piquete]); }
+  if(intens){ rows.push(['Animales',PROPIEDAD_LABEL[d.propiedad]||d.propiedad||'—']); if(d.propietario) rows.push(['Propietario',d.propietario]); if(d.origen_tipo) rows.push(['Vienen de',ORIGEN_LABEL[d.origen_tipo]||d.origen_tipo]); if(d.origen_sistema) rows.push(['Sistema de origen',SISTEMA_LABEL[d.origen_sistema]||d.origen_sistema]); if(d.origen_lote) rows.push(['Lote de origen',d.origen_lote]); if(d.origen_piquete) rows.push(['Piquete de origen',d.origen_piquete]); }
+  if(recCamion(r)){
     const fp=(r.adjuntos&&r.adjuntos.fotos_precinto)||[]; const cams=(d.camiones&&d.camiones.length)?d.camiones:[{nro:1,chapa:d.chapa_camion,foto_precinto:!!(r.adjuntos&&r.adjuntos.foto_precinto)}];
     cams.forEach((c,i)=>rows.push([cams.length>1?'Camión '+(i+1):'Camión',(c.chapa||'—')+(c.foto_precinto||fp[i]?' · precinto: foto adjunta':' · sin foto del precinto')]));
     const cts=(d.cotas&&d.cotas.length)?d.cotas:(d.cota||d.cota_nro||d.cota_qr?[{nro:1,cota_qr:d.cota_qr,cota_nro:d.cota_nro,cota:d.cota}]:[]);
-    cts.forEach((ct,i)=>{ const c=ct.cota; const lbl=cts.length>1?'COTA '+(i+1):'COTA'; rows.push([lbl,(ct.cota_nro||ct.cota_qr||'—')]); if(c&&c.parse_ok) rows.push([lbl+' · guía',c.nro_guia||'—'],[lbl+' · emitida',c.fecha_emision?fmtDate(c.fecha_emision):'—'],[lbl+' · origen',c.establecimiento_origen||'—'],[lbl+' · destino',c.establecimiento_destino||'—'],[lbl+' · finalidad',c.finalidad||'—'],[lbl+' · declarados',c.total_declarado!==null?c.animales_declarados.map(x=>x.categoria+' '+x.cantidad).join(', ')+' = '+c.total_declarado:'—']); });
+    cts.forEach((ct,i)=>{ const c=ct.cota; const lbl=cts.length>1?'COTA '+(i+1):'COTA'; rows.push([lbl,(ct.cota_nro||ct.cota_qr||'—')+(ct.foto_guia?' · guía: foto adjunta':'')]); if(c&&c.parse_ok) rows.push([lbl+' · guía',c.nro_guia||'—'],[lbl+' · emitida',c.fecha_emision?fmtDate(c.fecha_emision):'—'],[lbl+' · origen',c.establecimiento_origen||'—'],[lbl+' · destino',c.establecimiento_destino||'—'],[lbl+' · finalidad',c.finalidad||'—'],[lbl+' · declarados',c.total_declarado!==null?c.animales_declarados.map(x=>x.categoria+' '+x.cantidad).join(', ')+' = '+c.total_declarado:'—']); });
     if(cts.length>1 && d.total_declarado_cotas!=null) rows.push(['Declarados en total',d.total_declarado_cotas+(r.control&&r.control.declarado_coincide===false?' (≠ contados)':'')]);
     if(d.cota_archivo) rows.push(['COTA en archivo',d.cota_archivo+(r.control&&r.control.cota_coincide===false?' (≠ COTAs cargadas)':'')]); if(d.guia_archivo&&r.control&&r.control.guia_coincide===false) rows.push(['Guía en archivo',d.guia_archivo+' (≠ QR)']);
-    if(r.tipo_evento==='entrada') rows.push(['Origen',d.origen],['Raza',d.raza]); else rows.push(['Destino',d.destino]);
-    rows.push(['Contados',String(d.cantidad_animales)+' animales']);
+    if(d.origen && !intens) rows.push(['Origen',d.origen]); if(d.destino && !intens) rows.push(['Destino',d.destino]); if(d.raza) rows.push(['Raza',d.raza]);
   }
-  if(usaBalanza(r.tipo_evento)) rows.push(['Archivo', (d.ids_individuales||[]).length ? d.ids_individuales.length+' animales · '+(d.peso_promedio_kg!=null?d.peso_promedio_kg+' kg prom. · '+d.peso_total_kg+' kg total':'sin pesos') : 'Sin archivo']);
-  if(r.tipo_evento==='mortalidad'){ rows.push(['Botón',d.nro_boton],['Causa',d.causa_probable||'—'],['Fotos', ((r.adjuntos||{}).foto_animal?'animal ':'')+((r.adjuntos||{}).foto_boton?'botón':'')]); }
-  if(r.tipo_evento==='nacimiento'){ rows.push(['Madre',d.madre],['Sexo',d.sexo_cria||'—'],['Botón cría',d.nro_boton_cria||'—']); }
+  if(usaBalanza(r.tipo_evento)){ if(d.cantidad_animales!=null) rows.push(['Contados',String(d.cantidad_animales)+' animales'+(r.control&&r.control.coincide===false?' (≠ archivo)':'')]); rows.push(['Archivo', (d.ids_individuales||[]).length ? d.ids_individuales.length+' animales · '+(d.peso_promedio_kg!=null?d.peso_promedio_kg+' kg prom. · '+d.peso_total_kg+' kg total':'sin pesos')+(d.cantidad_sin_peso?' · ⚠ '+d.cantidad_sin_peso+' sin peso':'') : 'Sin archivo']); }
+  if(intens){ rows.push([r.tipo_evento==='entrada_confinamiento'?'Lote Confinamiento BovinOS':'Lote BovinOS',d.destino_lote||'—'],[r.tipo_evento==='entrada_confinamiento'?'Piquete Confinamiento':'Piquete',d.destino_piquete||'—']); }
+  if(r.tipo_evento==='mortalidad'){ rows.push(['Botón',d.nro_boton],['Causa',d.causa_probable||'—'],['Ubicación',ubicTxt(d.ubicacion)],['Fotos', ((r.adjuntos||{}).foto_animal?'animal ':'')+((r.adjuntos||{}).foto_boton?'botón':'')]); }
+  if(r.tipo_evento==='nacimiento'){ rows.push(['Madre',d.madre],['Sexo',d.sexo_cria||'—'],['Botón cría',d.nro_boton_cria||'—'],['Foto',(r.adjuntos||{}).foto_nacimiento?'adjunta':'sin foto']); }
   if(r.tipo_evento==='perdida_boton'){ rows.push(['Botón perdido',d.nro_boton],['Foto',(r.adjuntos||{}).foto_ocurrido?'adjunta':'sin foto']); }
   if(r.observaciones) rows.push(['Obs.',r.observaciones]);
   if(r.version&&r.version>1) rows.push(['Versión',String(r.version)+' (editado '+fmtDT(r.modificado_en)+')']);
@@ -1193,7 +1351,7 @@ function kvRows(r){
 }
 function renderKv(el, r, withIds){
   el.innerHTML=''; kvRows(r).forEach(([k,v])=>{ const dt=document.createElement('dt'); dt.textContent=k; const dd=document.createElement('dd'); dd.textContent=v; el.appendChild(dt); el.appendChild(dd); });
-  if(withIds && r.datos.animales && r.datos.animales.length){ const dt=document.createElement('dt'); dt.textContent='Lista'; const dd=document.createElement('dd'); dd.className='mono'; dd.textContent=r.datos.animales.map(a=>a.ide+(a.peso_kg!==null&&a.peso_kg!==undefined?'  '+a.peso_kg+' kg':'')).join('\n'); el.appendChild(dt); el.appendChild(dd); }
+  if(withIds && r.datos.animales && r.datos.animales.length){ const dt=document.createElement('dt'); dt.textContent='Lista'; const dd=document.createElement('dd'); dd.className='mono'; dd.textContent=r.datos.animales.map(a=>a.ide+(a.peso_kg!==null&&a.peso_kg!==undefined?'  '+a.peso_kg+' kg':'  (sin peso)')).join('\n'); el.appendChild(dt); el.appendChild(dd); }
 }
 function renderReview(){ const r=buildRecord(); renderKv($('review'), r, true);
   const note=$('review-note'); note.className='msg';
@@ -1213,7 +1371,7 @@ function compressImage(file, maxSide, quality){
   });
 }
 document.querySelectorAll('[data-cam],[data-gal]').forEach(btn=>{ btn.addEventListener('click',()=>{ const key=btn.dataset.cam||btn.dataset.gal; const inp=$('file-'+key); if(btn.dataset.cam!==undefined) inp.setAttribute('capture','environment'); else inp.removeAttribute('capture'); inp.click(); }); });
-['animal','boton','perdida'].forEach(key=>{ $('file-'+key).addEventListener('change', async e=>{ const f=e.target.files[0]; if(!f) return; try{ setFoto(key, await compressImage(f,1280,0.72)); dirty=true; toast('Foto cargada'); }catch(err){ toast(err.message); } e.target.value=''; }); });
+['animal','boton','perdida','nacimiento'].forEach(key=>{ $('file-'+key).addEventListener('change', async e=>{ const f=e.target.files[0]; if(!f) return; try{ setFoto(key, await compressImage(f,1280,0.72)); dirty=true; toast('Foto cargada'); }catch(err){ toast(err.message); } e.target.value=''; }); });
 
 /* ---------- lector de QR (propio + BarcodeDetector si existe) ---------- */
 let scanStream=null, scanTimer=null, scanBusy=false;
@@ -1255,12 +1413,49 @@ function decodeFromFile(file){
 $('scan-cancel').addEventListener('click',closeScanner);
 $('file-precinto').addEventListener('change', async e=>{ const f=e.target.files[0]; if(!f) return; try{ const du=await compressImage(f,1280,0.72); if(camiones[precintoIdx]){ camiones[precintoIdx].foto=du; renderCamiones(); } dirty=true; toast('Foto cargada'); }catch(err){ toast(err.message); } e.target.value=''; });
 $('btn-add-camion').addEventListener('click',()=>{ camiones.push({chapa:'',foto:null}); dirty=true; renderCamiones(); const last=$('camiones-list').lastElementChild; if(last){ last.scrollIntoView({block:'center'}); last.querySelector('[data-chapa]').focus(); } });
-$('btn-add-cota').addEventListener('click',()=>{ cotas.push({texto:''}); dirty=true; renderCotas(); const last=$('cotas-list').lastElementChild; if(last) last.scrollIntoView({block:'center'}); });
+$('file-guia').addEventListener('change', async e=>{ const f=e.target.files[0]; if(!f) return; try{ const du=await compressImage(f,1400,0.75); if(cotas[guiaIdx]){ cotas[guiaIdx].foto=du; renderCotas(); } dirty=true; toast('Foto de la guía cargada'); }catch(err){ toast(err.message); } e.target.value=''; });
+$('btn-add-cota').addEventListener('click',()=>{ cotas.push({texto:'',foto:null}); dirty=true; renderCotas(); const last=$('cotas-list').lastElementChild; if(last) last.scrollIntoView({block:'center'}); });
 $('btn-import-ids').addEventListener('click',()=>$('file-ids').click());
-$('file-ids').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>{ const err=$('csv-err'); try{ balanza=parseBalanza(decodeText(rd.result), f.name); err.classList.add('hidden'); dirty=true; toast(balanza.animales.length+' animales cargados'); }catch(ex){ balanza=null; err.textContent=ex.message; err.classList.remove('hidden'); } renderCsv(); refreshIds(); checkCotas(); }; rd.readAsArrayBuffer(f); e.target.value=''; });
+$('file-ids').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>{ const err=$('csv-err'); try{ balanza=parseBalanza(decodeText(rd.result), f.name); err.classList.add('hidden'); dirty=true; toast(balanza.animales.length+' animales cargados'+(balanza.sin_peso?' · '+balanza.sin_peso+' sin peso':'')); }catch(ex){ balanza=null; err.textContent=ex.message; err.classList.remove('hidden'); } renderCsv(); refreshIds(); checkCotas(); }; rd.readAsArrayBuffer(f); e.target.value=''; });
 $('f-cantidad').addEventListener('input',()=>{ refreshIds(); checkCotas(); dirty=true; });
 $('file-cota').addEventListener('change',async e=>{ const f=e.target.files[0]; if(!f) return; e.target.value=''; toast('Leyendo el QR de la foto…'); try{ const v=await decodeFromFile(f); if(v) setCota(cotaIdx,v); else toast('No se pudo leer el QR en la foto. Acérquese más y evite reflejos, o escriba el número.'); }catch(ex){ toast('No se pudo leer la foto'); } });
 document.querySelectorAll('#scr-form input, #scr-form select, #scr-form textarea').forEach(el=>el.addEventListener('input',()=>{ dirty=true; }));
+
+/* ---------- ubicación de lo ocurrido (mortalidad): GPS o punto en el mapa ---------- */
+function renderUbic(){ const b=$('ubic-badge'); b.className='badge'; if(!ubicacion){ b.textContent='Sin ubicación'; return; } b.classList.add('ok'); b.textContent=ubicTxt(ubicacion); }
+function setUbic(u){ ubicacion=u; renderUbic(); dirty=true; }
+function gpsActual(){ return new Promise((res,rej)=>{ if(!navigator.geolocation) return rej(new Error('Este teléfono no permite usar la ubicación aquí.')); navigator.geolocation.getCurrentPosition(p=>res({lat:+p.coords.latitude.toFixed(6), lon:+p.coords.longitude.toFixed(6), precision_m:Math.round(p.coords.accuracy)}), e=>rej(new Error(e.code===1?'Permiso de ubicación denegado.':e.code===2?'Sin señal de GPS.':'La ubicación tardó demasiado.')), {enableHighAccuracy:true, timeout:15000, maximumAge:0}); }); }
+$('btn-ubic-gps').addEventListener('click',async()=>{ const b=$('ubic-badge'); b.textContent='Buscando la ubicación…'; try{ const u=await gpsActual(); setUbic(Object.assign(u,{fuente:'gps', tomada_en:new Date().toISOString()})); toast('Ubicación tomada'); }catch(e){ renderUbic(); toast(e.message+' Puede elegir el punto en el mapa.'); } });
+$('btn-ubic-mapa').addEventListener('click',()=>openMapa(ubicacion, u=>setUbic(u)));
+/* mapa deslizable mínimo (teselas de OpenStreetMap si hay señal; sin señal, cuadrícula gris con coordenadas) */
+const MAPA={ z:15, lat:-23.33, lon:-56.71, tiles:{}, cb:null, drag:null, raf:0 };
+const lon2x=(lon,z)=>(lon+180)/360*Math.pow(2,z), lat2y=(lat,z)=>(1-Math.log(Math.tan(lat*Math.PI/180)+1/Math.cos(lat*Math.PI/180))/Math.PI)/2*Math.pow(2,z);
+const x2lon=(x,z)=>x/Math.pow(2,z)*360-180, y2lat=(y,z)=>{ const n=Math.PI-2*Math.PI*y/Math.pow(2,z); return 180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n))); };
+function mapaTile(z,x,y){ const n=Math.pow(2,z); x=((x%n)+n)%n; if(y<0||y>=n) return null; const k=z+'/'+x+'/'+y; let t=MAPA.tiles[k]; if(!t){ t={img:new Image(), ok:false, err:false}; MAPA.tiles[k]=t; t.img.onload=()=>{ t.ok=true; mapaDraw(); }; t.img.onerror=()=>{ t.err=true; mapaDraw(); }; t.img.src='https://tile.openstreetmap.org/'+z+'/'+x+'/'+y+'.png'; } return t; }
+function mapaDraw(){ const cv=$('mapa-canvas'); const W=cv.clientWidth, H=cv.clientHeight; if(!W||!H) return; const dpr=window.devicePixelRatio||1; if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); } const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.fillStyle='#1d2520'; g.fillRect(0,0,W,H);
+  const z=MAPA.z, cx=lon2x(MAPA.lon,z), cy=lat2y(MAPA.lat,z); const cyPix=H/2-32; // la cruz está 32px arriba del centro
+  const x0=Math.floor(cx-W/2/256), x1=Math.floor(cx+W/2/256), y0=Math.floor(cy-cyPix/256), y1=Math.floor(cy+(H-cyPix)/256);
+  let faltan=0; for(let tx=x0;tx<=x1;tx++) for(let ty=y0;ty<=y1;ty++){ const px=W/2+(tx-cx)*256, py=cyPix+(ty-cy)*256; const t=mapaTile(z,tx,ty); if(t&&t.ok) g.drawImage(t.img,px,py,256,256); else { g.strokeStyle='#33403a'; g.strokeRect(px,py,256,256); if(t&&t.err) faltan++; } }
+  $('mapa-msg').textContent = faltan ? 'Sin señal: el mapa no se ve, pero puede acercar/alejar y confirmar las coordenadas de la cruz, o escribirlas abajo.' : 'Mueva el mapa hasta que la cruz quede sobre el lugar. Coordenadas: '+MAPA.lat.toFixed(5)+', '+MAPA.lon.toFixed(5)+' · zoom '+z;
+}
+function mapaPan(dx,dy){ const z=MAPA.z; const x=lon2x(MAPA.lon,z)-dx/256, y=lat2y(MAPA.lat,z)-dy/256; MAPA.lon=x2lon(x,z); MAPA.lat=Math.max(-85,Math.min(85,y2lat(y,z))); mapaDraw(); }
+function openMapa(inicial, cb){ MAPA.cb=cb; const m=$('mapa-modal'); m.classList.add('on'); $('mapa-coord').value='';
+  const go=(lat,lon)=>{ MAPA.lat=lat; MAPA.lon=lon; mapaDraw(); };
+  if(inicial){ go(inicial.lat,inicial.lon); } else { go(MAPA.lat,MAPA.lon); gpsActual().then(u=>go(u.lat,u.lon)).catch(()=>{}); }
+  setTimeout(mapaDraw,50); }
+function closeMapa(){ $('mapa-modal').classList.remove('on'); MAPA.cb=null; }
+(function(){ const cv=$('mapa-canvas');
+  cv.addEventListener('pointerdown',e=>{ MAPA.drag={x:e.clientX,y:e.clientY}; cv.setPointerCapture(e.pointerId); });
+  cv.addEventListener('pointermove',e=>{ if(!MAPA.drag) return; const dx=e.clientX-MAPA.drag.x, dy=e.clientY-MAPA.drag.y; MAPA.drag={x:e.clientX,y:e.clientY}; mapaPan(dx,dy); });
+  const up=()=>{ MAPA.drag=null; }; cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up);
+  cv.addEventListener('wheel',e=>{ e.preventDefault(); MAPA.z=Math.max(5,Math.min(18,MAPA.z+(e.deltaY<0?1:-1))); mapaDraw(); },{passive:false});
+  $('mapa-zin').addEventListener('click',()=>{ MAPA.z=Math.min(18,MAPA.z+1); mapaDraw(); }); $('mapa-zout').addEventListener('click',()=>{ MAPA.z=Math.max(5,MAPA.z-1); mapaDraw(); });
+  $('mapa-loc').addEventListener('click',async()=>{ try{ const u=await gpsActual(); MAPA.lat=u.lat; MAPA.lon=u.lon; MAPA.z=Math.max(MAPA.z,16); mapaDraw(); }catch(e){ toast(e.message); } });
+  $('mapa-ir').addEventListener('click',()=>{ const m=/(-?\d+(?:[.,]\d+))\s*[,;\s]\s*(-?\d+(?:[.,]\d+))/.exec($('mapa-coord').value); if(!m){ toast('Escriba latitud y longitud, por ejemplo -23.3327, -56.7100'); return; } MAPA.lat=parseFloat(m[1].replace(',','.')); MAPA.lon=parseFloat(m[2].replace(',','.')); MAPA.z=Math.max(MAPA.z,15); mapaDraw(); });
+  $('mapa-cancel').addEventListener('click',closeMapa);
+  $('mapa-ok').addEventListener('click',()=>{ const escrito=$('mapa-coord').value.trim(); const u={lat:+MAPA.lat.toFixed(6), lon:+MAPA.lon.toFixed(6), precision_m:null, fuente:escrito?'manual':'mapa', tomada_en:new Date().toISOString()}; const cb=MAPA.cb; closeMapa(); if(cb) cb(u); toast('Ubicación elegida'); });
+  window.addEventListener('resize',()=>{ if($('mapa-modal').classList.contains('on')) mapaDraw(); });
+})();
 
 /* ---------- PDF ---------- */
 function ansi(s){ return String(s==null?'':s).replace(/[^\x20-\x7E\xA0-\xFF€]/g,'?'); }
@@ -1268,7 +1463,7 @@ async function makePdf(r){
   const {PDFDocument, StandardFonts, rgb} = window.PDFLib;
   const pdf=await PDFDocument.create(); pdf.setTitle('Registro de manejo '+r.estancia+' '+r.fecha_evento); pdf.setAuthor('App Registro de manejo · Rural Bioenergía');
   const font=await pdf.embedFont(StandardFonts.Helvetica), bold=await pdf.embedFont(StandardFonts.HelveticaBold);
-  const W=595.28,H=841.89,M=48; const colors={entrada:rgb(.18,.42,.23),salida:rgb(.17,.36,.55),mortalidad:rgb(.64,.2,.12),nacimiento:rgb(.54,.42,.12),pesaje:rgb(.18,.39,.44),perdida_boton:rgb(.42,.25,.55)};
+  const W=595.28,H=841.89,M=48; const colors={entrada:rgb(.18,.42,.23),salida:rgb(.17,.36,.55),mortalidad:rgb(.64,.2,.12),nacimiento:rgb(.54,.42,.12),pesaje:rgb(.18,.39,.44),perdida_boton:rgb(.42,.25,.55),entrada_rip:rgb(.48,.31,.12),entrada_confinamiento:rgb(.29,.29,.55)};
   const ink=rgb(.09,.13,.1), grey=rgb(.45,.5,.44), line=rgb(.78,.82,.76);
   let page, y, pageNo=0; const pages=[];
   const header=()=>{ page=pdf.addPage([W,H]); pages.push(page); pageNo++; y=H-M;
@@ -1285,23 +1480,24 @@ async function makePdf(r){
   const embedDataUrl=async(du)=>{ const bytes=Uint8Array.from(atob(du.split(',')[1]),ch=>ch.charCodeAt(0)); return await pdf.embedJpg(bytes); };
   const fotoDerecha=async(du,label)=>{ try{ const img=await embedDataUrl(du); const pw=RIGHT_W-15, ph=Math.min(pw*img.height/img.width, 110); const iw=img.width*(ph/img.height)>pw? pw : img.width*(ph/img.height), ih=iw*img.height/img.width; need(ih+22); const px=W-M-iw, py=y-ih+4; page.drawImage(img,{x:px,y:py,width:iw,height:ih}); page.drawRectangle({x:px,y:py,width:iw,height:ih,borderColor:line,borderWidth:.5}); page.drawText(ansi(label),{x:px,y:py-10,size:7,font:bold,color:grey}); kvRight=RIGHT_W; return py-16; }catch(e){ return y; } };
   const tablaAnimales=(an)=>{ if(!an||!an.length) return; y-=6; title('Identificaciones y pesos ('+an.length+')'); const cols=3, cw=(W-M*2)/cols, rowH=12.5;
-    for(let i=0;i<an.length;i+=cols){ need(rowH); for(let c=0;c<cols&&i+c<an.length;c++){ const a=an[i+c]; const x0=M+c*cw; page.drawText(ansi(String(i+c+1).padStart(3,' ')),{x:x0,y,size:8.5,font,color:grey}); page.drawText(ansi(a.ide),{x:x0+18,y,size:9,font,color:ink}); if(a.peso_kg!==null&&a.peso_kg!==undefined){ const t=a.peso_kg+' kg'; page.drawText(ansi(t),{x:x0+cw-14-font.widthOfTextAtSize(t,9),y,size:9,font:bold,color:ink}); } } y-=rowH; } };
+    for(let i=0;i<an.length;i+=cols){ need(rowH); for(let c=0;c<cols&&i+c<an.length;c++){ const a=an[i+c]; const x0=M+c*cw; page.drawText(ansi(String(i+c+1).padStart(3,' ')),{x:x0,y,size:8.5,font,color:grey}); page.drawText(ansi(a.ide),{x:x0+18,y,size:9,font,color:ink}); if(a.peso_kg!==null&&a.peso_kg!==undefined){ const t=a.peso_kg+' kg'; page.drawText(ansi(t),{x:x0+cw-14-font.widthOfTextAtSize(t,9),y,size:9,font:bold,color:ink}); } else { const t='sin peso'; page.drawText(ansi(t),{x:x0+cw-14-font.widthOfTextAtSize(t,8),y,size:8,font,color:rgb(.75,.15,.1)}); } } y-=rowH; } };
   header();
   page.drawText(ansi(r.estancia),{x:M,y,size:26,font:bold,color:ink});
   page.drawText(ansi(fmtDate(r.fecha_evento)),{x:W-M-bold.widthOfTextAtSize(fmtDate(r.fecha_evento),18),y:y+3,size:18,font:bold,color:ink}); y-=18;
-  page.drawText(ansi('Registrado por '+r.respondente+(r.lote_controlpasto?'  ·  Lote ControlPasto '+r.lote_controlpasto:'')),{x:M,y,size:10.5,font,color:grey}); y-=28;
-  const d=r.datos||{};
-  if(esCamion(r.tipo_evento)){
+  page.drawText(ansi('Registrado por '+r.respondente+(r.lote_controlpasto?'  ·  Lote '+r.lote_controlpasto:'')+(r.piquete?'  ·  Piquete '+r.piquete:'')),{x:M,y,size:10.5,font,color:grey}); y-=28;
+  const d=r.datos||{}; const intens=esIntensivo(r.tipo_evento); const conf=r.tipo_evento==='entrada_confinamiento';
+  if(!intens && (r.lote_controlpasto||r.piquete)){ title('Lote y piquete'); if(r.lote_controlpasto) kv('Lote (ControlPasto)',r.lote_controlpasto); if(r.piquete) kv('Piquete',r.piquete); y-=8; }
+  if(intens){ title('Origen de los animales'); kv('Animales',PROPIEDAD_LABEL[d.propiedad]||d.propiedad||'—'); if(d.propietario) kv('Propietario (boitel)',d.propietario); if(d.origen_tipo) kv('Vienen de',ORIGEN_LABEL[d.origen_tipo]||d.origen_tipo); if(d.origen_sistema) kv('Sistema de origen',SISTEMA_LABEL[d.origen_sistema]||d.origen_sistema); if(d.origen_lote) kv('Lote de origen',d.origen_lote); if(d.origen_piquete) kv('Piquete de origen',d.origen_piquete); y-=8; }
+  if(recCamion(r)){
     const fp=(r.adjuntos&&r.adjuntos.fotos_precinto)||(r.adjuntos&&r.adjuntos.foto_precinto?[r.adjuntos.foto_precinto]:[]);
     const cams=(d.camiones&&d.camiones.length)?d.camiones:[{nro:1,chapa:d.chapa_camion}];
-    title(cams.length>1 ? (r.tipo_evento==='entrada'?'Camiones que llegaron ('+cams.length+')':'Camiones que salieron ('+cams.length+')') : (r.tipo_evento==='entrada'?'Camión que llegó':'Camión que salió'));
+    const salio=r.tipo_evento==='salida'; title(cams.length>1 ? (salio?'Camiones que salieron ('+cams.length+')':'Camiones que llegaron ('+cams.length+')') : (salio?'Camión que salió':'Camión que llegó'));
     let rightBottom=y, rightPage=pageNo; kvRight=0;
     for(let i=0;i<cams.length;i++){ const lbl=cams.length>1?'Camión '+(i+1):'Camión'; need(60); rightBottom=y; rightPage=pageNo; kvRight=0;
       if(fp[i]){ rightBottom=await fotoDerecha(fp[i],'PRECINTO · '+lbl.toUpperCase()); }
       kv(lbl+' · chapa',cams[i].chapa); kv('Precinto',fp[i]?'foto a la derecha':'sin foto');
       if(pageNo===rightPage && y>rightBottom) y=rightBottom; kvRight=0; if(cams.length>1) y-=4; }
-    if(r.tipo_evento==='entrada'){ kv('Origen',d.origen); kv('Raza',d.raza); } else kv('Destino',d.destino);
-    if(r.lote_controlpasto) kv('Lote ControlPasto',r.lote_controlpasto);
+    if(!intens && d.origen) kv('Origen',d.origen); if(!intens && d.destino) kv('Destino',d.destino); if(d.raza) kv('Raza',d.raza);
     const cts=(d.cotas&&d.cotas.length)?d.cotas:[{nro:1,cota_qr:d.cota_qr,cota_nro:d.cota_nro,cota:d.cota}];
     for(let i=0;i<cts.length;i++){ const ct=cts[i]; const c=ct.cota;
     y-=8; need(140); title(cts.length>1?'COTA '+(i+1)+' de '+cts.length+' (SENACSA)':'COTA (SENACSA)');
@@ -1315,23 +1511,26 @@ async function makePdf(r){
       rightBottom=ly-4; rightPage=pageNo; kvRight=RIGHT_W; }
     kv('COTA Nº',ct.cota_nro||'no leída'); if(c&&c.parse_ok){ kv('Guía Nº',c.nro_guia||'—'); kv('Fecha de emisión',c.fecha_emision?fmtDate(c.fecha_emision):'—'); kv('Propietario origen',c.propietario_origen||'—'); kv('Establecimiento origen',c.establecimiento_origen||'—'); if(c.coord_origen) kv('Coordenadas origen',c.coord_origen.lat+', '+c.coord_origen.lon); kv('Propietario destino',c.propietario_destino||'—'); kv('Establecimiento destino',c.establecimiento_destino||'—'); if(c.coord_destino) kv('Coordenadas destino',c.coord_destino.lat+', '+c.coord_destino.lon); kv('Finalidad',c.finalidad||'—'); kv('Animales declarados',c.total_declarado!==null?c.animales_declarados.map(x=>x.categoria+' '+x.cantidad).join(', ')+'  (total '+c.total_declarado+')':'—'); }
     else if(ct.cota_qr && ct.cota_qr!==ct.cota_nro) kv('Contenido del QR',ct.cota_qr);
-    if(pageNo===rightPage && y>rightBottom) y=rightBottom; kvRight=0; }
+    if(pageNo===rightPage && y>rightBottom) y=rightBottom; kvRight=0;
+    const fg=(r.adjuntos&&r.adjuntos.fotos_guia)||[]; if(fg[i]){ try{ const img=await embedDataUrl(fg[i]); const maxW=W-M*2, maxH=300; const sc=Math.min(maxW/img.width, maxH/img.height); const iw=img.width*sc, ih=img.height*sc; need(ih+30); page.drawText(ansi('FOTO DE LA GUÍA'+(cts.length>1?' '+(i+1):'')),{x:M,y,size:8,font:bold,color:grey}); y-=ih+6; page.drawImage(img,{x:M,y,width:iw,height:ih}); page.drawRectangle({x:M,y,width:iw,height:ih,borderColor:line,borderWidth:.5}); y-=14; }catch(e){} } }
     if(cts.length>1 && d.total_declarado_cotas!=null) kv('Declarados en total',d.total_declarado_cotas+' animales en '+cts.length+' COTAs');
     if(d.cota_archivo) kv('COTA en archivo balanza',d.cota_archivo+(r.control&&r.control.cota_coincide===false?'  (NO COINCIDE con las cargadas)':'  (coincide)')); if(d.guia_archivo) kv('Guía en archivo balanza',d.guia_archivo+(r.control&&r.control.guia_coincide===false?'  (NO COINCIDE)':''));
-    y-=8; title('Animales');
-    kv('Cantidad contada',String(d.cantidad_animales)+' animales'); kv('Animales en archivo',String((d.ids_individuales||[]).length)+(r.archivo_balanza?'  ('+r.archivo_balanza.nombre+')':''));
+  }
+  if(usaBalanza(r.tipo_evento)){
+    y-=8; title(r.tipo_evento==='pesaje'?'Pesaje y conteo':'Animales');
+    kv('Cantidad contada',d.cantidad_animales!=null?String(d.cantidad_animales)+' animales':'—'); kv('Animales en archivo',String((d.ids_individuales||[]).length)+(r.archivo_balanza?'  ('+r.archivo_balanza.nombre+')':''));
     if(d.peso_promedio_kg!=null){ kv('Peso promedio',d.peso_promedio_kg+' kg'); kv('Peso total',d.peso_total_kg+' kg'); } if(d.fecha_pesaje) kv('Fecha de pesaje',d.fecha_pesaje);
-    const avisos=[]; if(r.control){ if(r.control.coincide===false) avisos.push('la cantidad contada no coincide con el archivo de la balanza'); if(r.control.declarado_coincide===false) avisos.push('la cantidad contada no coincide con los animales declarados en la(s) COTA(s)'); if(r.control.cota_coincide===false) avisos.push('la COTA del archivo de la balanza no coincide con ninguna COTA cargada'); if(r.control.guia_coincide===false) avisos.push('la guía del QR no coincide con la del archivo'); }
+    const avisos=[]; if(r.control){ if(r.control.coincide===false) avisos.push('la cantidad contada no coincide con el archivo de la balanza'); if(r.control.sin_peso) avisos.push(r.control.sin_peso+(r.control.sin_peso===1?' animal del archivo no tiene peso':' animales del archivo no tienen peso')); if(r.control.declarado_coincide===false) avisos.push('la cantidad contada no coincide con los animales declarados en la(s) COTA(s)'); if(r.control.cota_coincide===false) avisos.push('la COTA del archivo de la balanza no coincide con ninguna COTA cargada'); if(r.control.guia_coincide===false) avisos.push('la guía del QR no coincide con la del archivo'); }
     for(const av of avisos){ need(24); page.drawRectangle({x:M,y:y-6,width:W-M*2,height:22,color:rgb(.98,.92,.84)}); page.drawText(ansi('ATENCIÓN: '+av+'. Revisar.'),{x:M+8,y:y+1,size:9.5,font:bold,color:rgb(.6,.4,0)}); y-=30; }
     tablaAnimales(d.animales);
   }
-  if(r.tipo_evento==='pesaje'){ title('Pesaje de auditoría'); if(r.lote_controlpasto) kv('Lote ControlPasto',r.lote_controlpasto); kv('Archivo',r.archivo_balanza?r.archivo_balanza.nombre:'—'); kv('Animales pesados',String((d.ids_individuales||[]).length)); if(d.peso_promedio_kg!=null){ kv('Peso promedio',d.peso_promedio_kg+' kg'); kv('Peso total',d.peso_total_kg+' kg'); } if(d.fecha_pesaje) kv('Fecha en archivo',d.fecha_pesaje); tablaAnimales(d.animales); }
-  if(r.tipo_evento==='mortalidad'){ title('Animal muerto'); if(r.lote_controlpasto) kv('Lote ControlPasto',r.lote_controlpasto); kv('Nº de botón',d.nro_boton); kv('Causa de muerte',d.causa_probable||'no indicada'); }
-  if(r.tipo_evento==='nacimiento'){ title('Nacimiento'); if(r.lote_controlpasto) kv('Lote ControlPasto',r.lote_controlpasto); kv('Madre',d.madre); kv('Sexo del ternero',d.sexo_cria||'no indicado'); kv('Botón del ternero',d.nro_boton_cria||'todavía sin botón'); }
-  if(r.tipo_evento==='perdida_boton'){ title('Pérdida de botón electrónico'); if(r.lote_controlpasto) kv('Lote ControlPasto',r.lote_controlpasto); kv('Nº de botón (a mano)',d.nro_boton); }
+  if(intens){ y-=8; title('Destino de los animales'); kv(conf?'Lote Confinamiento BovinOS':'Lote BovinOS',d.destino_lote||'—'); kv(conf?'Piquete Confinamiento':'Piquete',d.destino_piquete||'—'); }
+  if(r.tipo_evento==='mortalidad'){ title('Animal muerto'); kv('Nº de botón',d.nro_boton); kv('Causa de muerte',d.causa_probable||'no indicada'); kv('Ubicación',ubicTxt(d.ubicacion)); if(d.ubicacion){ kv('Ver en el mapa','https://maps.google.com/?q='+d.ubicacion.lat+','+d.ubicacion.lon); const mw=RIGHT_W-15, mh=mw*((-19.15+27.75)/((62.8-54.15)*Math.cos(23.5*Math.PI/180))); need(mh+20); window.MapaPY.drawMap(page,{x:M,y:y-mh,width:mw,origen:{lat:d.ubicacion.lat,lon:d.ubicacion.lon},destino:null,rgb,font,bold,labels:['Lugar','']}); y-=mh+14; } }
+  if(r.tipo_evento==='nacimiento'){ title('Nacimiento'); kv('Madre',d.madre); kv('Sexo del ternero',d.sexo_cria||'no indicado'); kv('Botón del ternero',d.nro_boton_cria||'todavía sin botón'); }
+  if(r.tipo_evento==='perdida_boton'){ title('Pérdida de botón electrónico'); kv('Nº de botón (a mano)',d.nro_boton); }
   if(r.observaciones){ y-=8; title('Observaciones'); wrap(r.observaciones,10.5,font,W-M*2).forEach(l=>{ need(14); page.drawText(l,{x:M,y,size:10.5,font,color:ink}); y-=14; }); }
   if(r.adjuntos){
-    for(const [key,label] of [['foto_animal','Foto del animal'],['foto_boton','Foto del botón'],['foto_ocurrido','Foto de lo ocurrido']]){
+    for(const [key,label] of [['foto_animal','Foto del animal'],['foto_boton','Foto del botón'],['foto_nacimiento','Foto del nacimiento'],['foto_ocurrido','Foto de lo ocurrido']]){
       const du=r.adjuntos[key]; if(!du) continue;
       try{ const img=await embedDataUrl(du); const maxW=W-M*2, maxH=280; const s=Math.min(maxW/img.width, maxH/img.height); const iw=img.width*s, ih=img.height*s;
       need(ih+34); page.drawText(ansi(label.toUpperCase()),{x:M,y,size:9,font:bold,color:grey}); y-=ih+8; page.drawImage(img,{x:M,y,width:iw,height:ih}); y-=18; }catch(e){}
@@ -1351,8 +1550,9 @@ let dlCap; async function getDownloads(){ if(dlCap!==undefined) return dlCap; tr
 async function saveFile(file){ const d=await getDownloads(); if(d){ try{ await d.save({filename:file.name, data:file}); return 'saved'; }catch(e){ const code=e&&e.code; if(code==='declined') return 'declined'; if(code==='rate_limited'){ toast('Espere un momento y vuelva a intentar.'); return 'retry'; } toast('No se pudo guardar el archivo ('+(code||'error')+').'); return 'error'; } } download(file); return 'saved'; }
 async function openPdf(file){ const d=await getDownloads(); if(d) return saveFile(file); const u=URL.createObjectURL(file); const w=window.open(u,'_blank'); if(!w) return saveFile(file); return 'opened'; }
 function resumen(r){ const d=r.datos||{}; let s='*'+TIPO_LABEL[r.tipo_evento]+'* · '+r.estancia+' · '+fmtDate(r.fecha_evento)+'\nRegistra: '+r.respondente+(r.lote_controlpasto?' · Lote '+r.lote_controlpasto:'')+'\n';
-  if(esCamion(r.tipo_evento)){ s+=((d.cantidad_camiones||1)>1?'Chapas ':'Chapa ')+d.chapa_camion+' · '+((d.cantidad_cotas||1)>1?'COTAs ':'COTA ')+(d.cota_nro||d.cota_qr||'—')+'\n'+(r.tipo_evento==='entrada'?'Origen: '+d.origen+' · Raza: '+d.raza:'Destino: '+d.destino)+'\n'+d.cantidad_animales+' animales contados · '+(d.ids_individuales||[]).length+' en el archivo de balanza'+(d.peso_promedio_kg!=null?' · '+d.peso_promedio_kg+' kg prom.':'')+'\n'; }
-  if(r.tipo_evento==='pesaje') s+=(d.ids_individuales||[]).length+' animales pesados'+(d.peso_promedio_kg!=null?' · '+d.peso_promedio_kg+' kg prom.':'')+'\n';
+  if(r.piquete) s+='Piquete: '+r.piquete+'\n'; if(esIntensivo(r.tipo_evento)) s+='Origen: '+(d.origen||'—')+'\nDestino: '+(d.destino||'—')+'\n';
+  if(recCamion(r)){ s+=((d.cantidad_camiones||1)>1?'Chapas ':'Chapa ')+d.chapa_camion+' · '+((d.cantidad_cotas||1)>1?'COTAs ':'COTA ')+(d.cota_nro||d.cota_qr||'—')+(d.raza?' · Raza: '+d.raza:'')+'\n'; }
+  if(usaBalanza(r.tipo_evento)) s+=(d.cantidad_animales!=null?d.cantidad_animales+' animales contados · ':'')+(d.ids_individuales||[]).length+' en el archivo de balanza'+(d.peso_promedio_kg!=null?' · '+d.peso_promedio_kg+' kg prom.':'')+'\n';
   if(r.tipo_evento==='mortalidad') s+='Botón '+d.nro_boton+(d.causa_probable?' · '+d.causa_probable:'')+'\n';
   if(r.tipo_evento==='nacimiento') s+='Madre: '+d.madre+(d.sexo_cria?' · '+d.sexo_cria:'')+'\n';
   if(r.tipo_evento==='perdida_boton') s+='Botón perdido: '+d.nro_boton+'\n';
@@ -1436,8 +1636,8 @@ async function renderHome(){
   all.forEach(w=>{ const b=document.createElement('button');
     if(w.estado==='borrador'){ const s=w.borrador||{}; b.className='item'+(s.tipo?' tipo-'+s.tipo:''); b.innerHTML='<div class="main"><b></b><span></span></div><span class="badge draft">Borrador</span>'; b.querySelector('b').textContent=(s.tipo?TIPO_LABEL[s.tipo]:'Sin tipo')+(s.estancia?' · '+s.estancia:''); b.querySelector('span').textContent='guardado '+fmtDT(w.actualizado_en||w.creado_en)+(s.fecha?' · evento '+fmtDate(s.fecha):''); b.addEventListener('click',()=>openDraft(w)); list.appendChild(b); return; }
     const r=w.registro; const d=r.datos||{}; b.className='item tipo-'+r.tipo_evento;
-    const det = esCamion(r.tipo_evento) ? d.cantidad_animales+' animales · '+(r.tipo_evento==='entrada'?'de '+d.origen:'a '+d.destino)+' · chapa '+d.chapa_camion : r.tipo_evento==='mortalidad' ? 'botón '+d.nro_boton : r.tipo_evento==='nacimiento' ? 'madre '+d.madre : r.tipo_evento==='pesaje' ? (d.ids_individuales||[]).length+' animales pesados' : 'botón '+d.nro_boton;
-    b.innerHTML='<div class="main"><b></b><span></span></div><span class="badge"></span>'; b.querySelector('b').textContent=TIPO_LABEL[r.tipo_evento]+' · '+r.estancia+(r.version>1?' · v'+r.version:''); b.querySelector('span').textContent=fmtDate(r.fecha_evento)+' · '+det+(r.lote_controlpasto?' · lote '+r.lote_controlpasto:'');
+    const det = esIntensivo(r.tipo_evento) ? d.cantidad_animales+' animales · '+(d.origen||'')+' → lote '+(d.destino_lote||'') : esCamion(r.tipo_evento) ? d.cantidad_animales+' animales · chapa '+d.chapa_camion+(d.origen?' · de '+d.origen:'')+(d.destino?' · a '+d.destino:'') : r.tipo_evento==='mortalidad' ? 'botón '+d.nro_boton : r.tipo_evento==='nacimiento' ? 'madre '+d.madre : r.tipo_evento==='pesaje' ? (d.ids_individuales||[]).length+' animales pesados' : 'botón '+d.nro_boton;
+    b.innerHTML='<div class="main"><b></b><span></span></div><span class="badge"></span>'; b.querySelector('b').textContent=TIPO_LABEL[r.tipo_evento]+' · '+r.estancia+(r.version>1?' · v'+r.version:''); b.querySelector('span').textContent=fmtDate(r.fecha_evento)+' · '+det+(r.lote_controlpasto&&!esIntensivo(r.tipo_evento)?' · lote '+r.lote_controlpasto:'')+(r.piquete&&!esIntensivo(r.tipo_evento)?' · '+r.piquete:'');
     const bd=b.querySelector('.badge'); bd.textContent = w.estado==='enviado'?'En la base':w.publicar?'En cola':w.estado==='compartido'?'Compartido':'Sin guardar en la base'; bd.classList.add(w.estado==='enviado'?'ok':(w.publicar||w.estado==='compartido')?'warn':'bad');
     b.addEventListener('click',()=>openDone(w)); list.appendChild(b); });
 }
@@ -1481,7 +1681,8 @@ $('ab-next').addEventListener('click',async()=>{
 });
 document.querySelectorAll('.tile').forEach(t=>t.addEventListener('click',()=>setTipo(t.dataset.tipo)));
 $('f-respondente').addEventListener('change',()=>{ $('wrap-respondente-otro').style.display = $('f-respondente').value==='Otro…' ? 'flex':'none'; if($('f-respondente').value==='Otro…') $('f-respondente-otro').focus(); });
-document.querySelectorAll('.seg').forEach(seg=>seg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ setSeg(seg,b.dataset.v); dirty=true; })));
+document.querySelectorAll('.seg').forEach(seg=>seg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ setSeg(seg,b.dataset.v); dirty=true; if(['seg-propiedad','seg-origen','seg-sistema'].includes(seg.id) && step===2) renderGroups(); })));
+$('f-estancia').addEventListener('change',()=>{ updateTilesInt(); dirty=true; });
 
 /* ---------- configuración ---------- */
 function openConfig(){ $('c-respondente').value=cfg.respondente||''; fillSelect($('c-estancia'),ESTANCIAS,'— Sin estancia habitual —'); $('c-estancia').value=cfg.estancia||''; $('c-lista').value=(cfg.lista||[]).join('\n'); $('c-mail').value=cfg.mail||DEFAULT_MAIL; $('c-endpoint').value=cfg.endpoint||DEFAULT_ENDPOINT; $('c-msg').classList.add('hidden'); $('c-version').textContent=APP_VERSION; show('scr-config'); }
