@@ -183,10 +183,14 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
 .actionbar .inner{max-width:560px;margin:0 auto;display:flex;gap:10px}
 .actionbar .inner .btn{flex:1}
 .actionbar .inner .btn.back{flex:0 0 auto;width:auto;padding:14px 16px}
-#mapa-modal{position:fixed;inset:0;background:#000;z-index:21;display:none;flex-direction:column}
+#mapa-modal{position:fixed;inset:0;height:100vh;height:100dvh;background:#000;z-index:21;display:none;flex-direction:column}
 #mapa-modal.on{display:flex}
-#mapa-modal canvas{flex:1;width:100%;height:100%;touch-action:none;cursor:grab;background:#1d2520}
-#mapa-modal .cross{position:absolute;left:50%;top:calc(50% - 32px);width:28px;height:28px;transform:translate(-50%,-50%);pointer-events:none}
+#mapa-modal .lienzo{position:relative;flex:1 1 0;min-height:0;overflow:hidden}
+#mapa-modal canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab;background:#1d2520}
+#mapa-modal .bar.top{padding-top:max(10px,env(safe-area-inset-top));padding-bottom:10px;flex:none}
+#mapa-modal .bar.top .row{flex-wrap:nowrap}
+#mapa-modal .bar{flex:none}
+#mapa-modal .cross{position:absolute;left:50%;top:50%;width:28px;height:28px;transform:translate(-50%,-50%);pointer-events:none}
 #mapa-modal .cross:before,#mapa-modal .cross:after{content:'';position:absolute;background:#E03A2A;left:50%;top:50%}
 #mapa-modal .cross:before{width:2px;height:28px;transform:translate(-50%,-50%)}
 #mapa-modal .cross:after{width:28px;height:2px;transform:translate(-50%,-50%)}
@@ -643,15 +647,19 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
 </div>
 
 <div id="mapa-modal">
-  <canvas id="mapa-canvas"></canvas>
-  <div class="cross"><i></i></div>
-  <button class="loc" type="button" id="mapa-loc" title="Mi ubicación">◎</button>
-  <div class="zoom"><button type="button" id="mapa-zin">+</button><button type="button" id="mapa-zout">−</button></div>
-  <div class="attr">© OpenStreetMap</div>
+  <div class="bar top">
+    <div class="row"><button class="btn" type="button" id="mapa-cancel">✕ Cancelar</button><button class="btn" type="button" id="mapa-capa">🛰 Satélite</button><button class="btn ok" type="button" id="mapa-ok">✓ Usar este punto</button></div>
+  </div>
+  <div class="lienzo">
+    <canvas id="mapa-canvas"></canvas>
+    <div class="cross"><i></i></div>
+    <button class="loc" type="button" id="mapa-loc" title="Mi ubicación">◎</button>
+    <div class="zoom"><button type="button" id="mapa-zin">+</button><button type="button" id="mapa-zout">−</button></div>
+    <div class="attr" id="mapa-attr">© OpenStreetMap</div>
+  </div>
   <div class="bar">
-    <span id="mapa-msg" style="font-size:14px">Mueva el mapa hasta que la cruz quede sobre el lugar.</span>
+    <span id="mapa-msg" style="font-size:13px">Mueva el mapa hasta que la cruz quede sobre el lugar y toque "Usar este punto" (arriba).</span>
     <div class="row" style="align-items:center"><input type="text" id="mapa-coord" placeholder="o escriba: -23.3327, -56.7100" autocomplete="off" style="flex:2;min-height:44px;background:#222;color:#fff;border-color:#444"><button class="btn" type="button" id="mapa-ir">Ir</button></div>
-    <div class="row"><button class="btn" type="button" id="mapa-cancel">Cancelar</button><button class="btn ok" type="button" id="mapa-ok">✓ Usar este punto</button></div>
   </div>
 </div>
 <div id="scanner">
@@ -1034,15 +1042,16 @@ function drawMap(page,{x,y,width,origen,destino,rgb,font,bold,labels}){
   page.drawSvgPath(PY_OUTLINE.map(toSvg).map((p,i)=>(i?'L':'M')+p[0].toFixed(2)+' '+p[1].toFixed(2)).join(' ')+' Z',{x, y:y+height, color:land, borderColor:border, borderWidth:0.7});
   page.drawSvgPath(smoothPath(RIO_PARAGUAY.map(toSvg),false),{x, y:y+height, borderColor:water, borderWidth:0.8});
   const inside=(c)=>c && isFinite(c.lat)&&isFinite(c.lon)&&c.lat<=LAT_MAX&&c.lat>=LAT_MIN&&c.lon>=LON_MIN&&c.lon<=LON_MAX;
-  const pts=[];
-  if(inside(origen)) pts.push({c:origen,color:red,label:labels?labels[0]:'Origen'});
-  if(inside(destino)) pts.push({c:destino,color:black,label:labels?labels[1]:'Destino'});
+  const pts=[]; let fuera=false; const clamp=c=>({lat:Math.max(LAT_MIN,Math.min(LAT_MAX,c.lat)), lon:Math.max(LON_MIN,Math.min(LON_MAX,c.lon))});
+  const valido=c=>c && isFinite(c.lat)&&isFinite(c.lon);
+  if(inside(origen)) pts.push({c:origen,color:red,label:labels?labels[0]:'Origen'}); else if(valido(origen)){ fuera=true; pts.push({c:clamp(origen),color:red,label:(labels?labels[0]:'Origen')+' (fuera del mapa)',hueco:true}); }
+  if(inside(destino)) pts.push({c:destino,color:black,label:labels?labels[1]:'Destino'}); else if(valido(destino)){ fuera=true; pts.push({c:clamp(destino),color:black,label:(labels?labels[1]:'Destino')+' (fuera del mapa)',hueco:true}); }
   if(pts.length===2){ const [ax,ay]=f(pts[0].c.lat,pts[0].c.lon), [bx,by]=f(pts[1].c.lat,pts[1].c.lon); page.drawLine({start:{x:ax,y:ay},end:{x:bx,y:by},thickness:0.6,color:rgb(.45,.45,.45),dashArray:[2,2]}); }
   let prev=null;
-  for(const p of pts){ const [px,py]=f(p.c.lat,p.c.lon); page.drawCircle({x:px,y:py,size:5.5,color:rgb(1,1,1)}); page.drawCircle({x:px,y:py,size:3.8,color:p.color});
+  for(const p of pts){ const [px,py]=f(p.c.lat,p.c.lon); page.drawCircle({x:px,y:py,size:5.5,color:rgb(1,1,1)}); if(p.hueco) page.drawCircle({x:px,y:py,size:3.8,borderColor:p.color,borderWidth:1.5}); else page.drawCircle({x:px,y:py,size:3.8,color:p.color});
     let lx=px+7, ly=py-3; if(prev && Math.abs(prev.ly-ly)<10 && Math.abs(prev.lx-lx)<40) ly=prev.ly-10; // evitar que las etiquetas se pisen
     page.drawText(p.label,{x:lx,y:ly,size:7.5,font:bold,color:ink}); prev={lx,ly}; }
-  return {height, drawn:pts.length};
+  return {height, drawn:pts.length, fuera};
 }
 const api={drawMap,PY_OUTLINE};
 if(typeof module!=='undefined'&&module.exports) module.exports=api; else root.MapaPY=api;
@@ -1051,7 +1060,7 @@ if(typeof module!=='undefined'&&module.exports) module.exports=api; else root.Ma
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '3.2.0';
+const APP_VERSION = '3.2.2';
 const ESQUEMA = 'manejo-ypoti/3.2';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
@@ -1465,7 +1474,7 @@ function buildRecord(){
     Object.assign(r.control,{ cota_coincide:(nros.length&&b&&b.cota_archivo)?nros.some(n=>cotaLimpia(n)===cotaLimpia(b.cota_archivo)):null, guia_coincide:(guias.length&&b&&b.guia_archivo)?guias.some(g=>cotaLimpia(g)===cotaLimpia(b.guia_archivo)):null, declarado_coincide:(totalDecl!==null&&!isNaN(q))?(totalDecl===q):null });
     r.adjuntos={ fotos_precinto:camiones.map(c=>fotosCamion(c)), fotos_guia:ctsSrc.map(c=>c.foto||null) };
   }
-  if(tipo==='mortalidad'){ r.datos={ nro_boton:$('f-boton').value.trim(), causa_probable:$('f-causa').value||null, ubicacion:ubicacion?Object.assign({},ubicacion):null }; r.adjuntos={ foto_animal:fotos.animal, foto_boton:fotos.boton }; }
+  if(tipo==='mortalidad'){ r.datos={ nro_boton:$('f-boton').value.trim(), causa_probable:$('f-causa').value||null, ubicacion:ubicacion?Object.assign({},ubicacion):null }; r.adjuntos={ foto_animal:fotos.animal, foto_boton:fotos.boton }; const prevU=base&&base.datos&&base.datos.ubicacion, prevS=base&&base.adjuntos&&base.adjuntos.imagen_satelite; if(prevS && prevU && ubicacion && prevU.lat===ubicacion.lat && prevU.lon===ubicacion.lon) r.adjuntos.imagen_satelite=prevS; }
   if(tipo==='nacimiento'){ r.datos={ madre:$('f-madre').value.trim(), sexo_cria:$('seg-sexo').dataset.value||null, nro_boton_cria:$('f-cria-boton').value.trim()||null }; r.adjuntos={ foto_nacimiento:fotos.nacimiento }; }
   if(tipo==='perdida_boton'){ r.datos={ nro_boton:$('f-perdida-boton').value.trim() }; r.adjuntos={ foto_ocurrido:fotos.perdida }; }
   return r;
@@ -1598,15 +1607,17 @@ function gpsActual(){ return new Promise((res,rej)=>{ if(!navigator.geolocation)
 $('btn-ubic-gps').addEventListener('click',async()=>{ const b=$('ubic-badge'); b.textContent='Buscando la ubicación…'; try{ const u=await gpsActual(); setUbic(Object.assign(u,{fuente:'gps', tomada_en:new Date().toISOString()})); toast('Ubicación tomada'); }catch(e){ renderUbic(); toast(e.message+' Puede elegir el punto en el mapa.'); } });
 $('btn-ubic-mapa').addEventListener('click',()=>openMapa(ubicacion, u=>setUbic(u)));
 /* mapa deslizable mínimo (teselas de OpenStreetMap si hay señal; sin señal, cuadrícula gris con coordenadas) */
-const MAPA={ z:15, lat:-23.33, lon:-56.71, tiles:{}, cb:null, drag:null, raf:0 };
+const MAPA={ z:15, lat:-23.33, lon:-56.71, tiles:{}, cb:null, drag:null, raf:0, capa:'mapa' };
+const TILE_URL={ mapa:(z,x,y)=>'https://tile.openstreetmap.org/'+z+'/'+x+'/'+y+'.png', sat:(z,x,y)=>'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/'+z+'/'+y+'/'+x };
+const TILE_ATTR={ mapa:'© OpenStreetMap', sat:'Imagen: Esri World Imagery (Maxar, Earthstar Geographics)' };
 const lon2x=(lon,z)=>(lon+180)/360*Math.pow(2,z), lat2y=(lat,z)=>(1-Math.log(Math.tan(lat*Math.PI/180)+1/Math.cos(lat*Math.PI/180))/Math.PI)/2*Math.pow(2,z);
 const x2lon=(x,z)=>x/Math.pow(2,z)*360-180, y2lat=(y,z)=>{ const n=Math.PI-2*Math.PI*y/Math.pow(2,z); return 180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n))); };
-function mapaTile(z,x,y){ const n=Math.pow(2,z); x=((x%n)+n)%n; if(y<0||y>=n) return null; const k=z+'/'+x+'/'+y; let t=MAPA.tiles[k]; if(!t){ t={img:new Image(), ok:false, err:false}; MAPA.tiles[k]=t; t.img.onload=()=>{ t.ok=true; mapaDraw(); }; t.img.onerror=()=>{ t.err=true; mapaDraw(); }; t.img.src='https://tile.openstreetmap.org/'+z+'/'+x+'/'+y+'.png'; } return t; }
+function mapaTile(z,x,y){ const n=Math.pow(2,z); x=((x%n)+n)%n; if(y<0||y>=n) return null; const k=MAPA.capa+'/'+z+'/'+x+'/'+y; let t=MAPA.tiles[k]; if(!t){ t={img:new Image(), ok:false, err:false}; MAPA.tiles[k]=t; t.img.onload=()=>{ t.ok=true; mapaDraw(); }; t.img.onerror=()=>{ t.err=true; mapaDraw(); }; t.img.src=TILE_URL[MAPA.capa](z,x,y); } return t; }
 function mapaDraw(){ const cv=$('mapa-canvas'); const W=cv.clientWidth, H=cv.clientHeight; if(!W||!H) return; const dpr=window.devicePixelRatio||1; if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); } const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.fillStyle='#1d2520'; g.fillRect(0,0,W,H);
-  const z=MAPA.z, cx=lon2x(MAPA.lon,z), cy=lat2y(MAPA.lat,z); const cyPix=H/2-32; // la cruz está 32px arriba del centro
+  const z=MAPA.z, cx=lon2x(MAPA.lon,z), cy=lat2y(MAPA.lat,z); const cyPix=H/2; // la cruz está en el centro del lienzo
   const x0=Math.floor(cx-W/2/256), x1=Math.floor(cx+W/2/256), y0=Math.floor(cy-cyPix/256), y1=Math.floor(cy+(H-cyPix)/256);
   let faltan=0; for(let tx=x0;tx<=x1;tx++) for(let ty=y0;ty<=y1;ty++){ const px=W/2+(tx-cx)*256, py=cyPix+(ty-cy)*256; const t=mapaTile(z,tx,ty); if(t&&t.ok) g.drawImage(t.img,px,py,256,256); else { g.strokeStyle='#33403a'; g.strokeRect(px,py,256,256); if(t&&t.err) faltan++; } }
-  $('mapa-msg').textContent = faltan ? 'Sin señal: el mapa no se ve, pero puede acercar/alejar y confirmar las coordenadas de la cruz, o escribirlas abajo.' : 'Mueva el mapa hasta que la cruz quede sobre el lugar. Coordenadas: '+MAPA.lat.toFixed(5)+', '+MAPA.lon.toFixed(5)+' · zoom '+z;
+  $('mapa-msg').textContent = faltan ? 'Sin señal: el mapa no se ve, pero puede acercar/alejar y confirmar las coordenadas de la cruz (arriba), o escribirlas abajo.' : 'Mueva el mapa hasta que la cruz quede sobre el lugar y toque "Usar este punto" (arriba). '+MAPA.lat.toFixed(5)+', '+MAPA.lon.toFixed(5)+' · zoom '+z; $('mapa-attr').textContent=TILE_ATTR[MAPA.capa];
 }
 function mapaPan(dx,dy){ const z=MAPA.z; const x=lon2x(MAPA.lon,z)-dx/256, y=lat2y(MAPA.lat,z)-dy/256; MAPA.lon=x2lon(x,z); MAPA.lat=Math.max(-85,Math.min(85,y2lat(y,z))); mapaDraw(); }
 function openMapa(inicial, cb){ MAPA.cb=cb; const m=$('mapa-modal'); m.classList.add('on'); $('mapa-coord').value='';
@@ -1623,6 +1634,7 @@ function closeMapa(){ $('mapa-modal').classList.remove('on'); MAPA.cb=null; }
   $('mapa-loc').addEventListener('click',async()=>{ try{ const u=await gpsActual(); MAPA.lat=u.lat; MAPA.lon=u.lon; MAPA.z=Math.max(MAPA.z,16); mapaDraw(); }catch(e){ toast(e.message); } });
   $('mapa-ir').addEventListener('click',()=>{ const m=/(-?\d+(?:[.,]\d+))\s*[,;\s]\s*(-?\d+(?:[.,]\d+))/.exec($('mapa-coord').value); if(!m){ toast('Escriba latitud y longitud, por ejemplo -23.3327, -56.7100'); return; } MAPA.lat=parseFloat(m[1].replace(',','.')); MAPA.lon=parseFloat(m[2].replace(',','.')); MAPA.z=Math.max(MAPA.z,15); mapaDraw(); });
   $('mapa-cancel').addEventListener('click',closeMapa);
+  $('mapa-capa').addEventListener('click',()=>{ MAPA.capa = MAPA.capa==='sat'?'mapa':'sat'; $('mapa-capa').textContent = MAPA.capa==='sat'?'🗺 Mapa':'🛰 Satélite'; mapaDraw(); });
   $('mapa-ok').addEventListener('click',()=>{ const escrito=$('mapa-coord').value.trim(); const u={lat:+MAPA.lat.toFixed(6), lon:+MAPA.lon.toFixed(6), precision_m:null, fuente:escrito?'manual':'mapa', tomada_en:new Date().toISOString()}; const cb=MAPA.cb; closeMapa(); if(cb) cb(u); toast('Ubicación elegida'); });
   window.addEventListener('resize',()=>{ if($('mapa-modal').classList.contains('on')) mapaDraw(); });
 })();
@@ -1700,13 +1712,26 @@ async function makePdf(r){
       const ff=(r.adjuntos&&r.adjuntos.fotos_faltantes)||[]; for(let k=0;k<ff.length;k++){ try{ const img=await embedDataUrl(ff[k]); const maxW=(W-M*2-10)/2, maxH=200; const sc=Math.min(maxW/img.width, maxH/img.height); const iw=img.width*sc, ih=img.height*sc; if(k%2===0){ need(ih+28); page.drawText(ansi('FOTOS DEL ACTA'),{x:M,y,size:8,font:bold,color:grey}); y-=ih+6; } const px=M+(k%2)*(maxW+10); page.drawImage(img,{x:px,y,width:iw,height:ih}); page.drawRectangle({x:px,y,width:iw,height:ih,borderColor:line,borderWidth:.5}); if(k%2===1||k===ff.length-1) y-=14; }catch(e){} } }
   }
   if(intens){ y-=8; title('Destino de los animales'); kv(conf?'Lote Confinamiento BovinOS':'Lote BovinOS',d.destino_lote||'—'); kv(conf?'Piquete Confinamiento':'Piquete',d.destino_piquete||'—'); }
-  if(r.tipo_evento==='mortalidad'){ title('Animal muerto'); kv('Nº de botón',d.nro_boton); kv('Causa de muerte',d.causa_probable||'no indicada'); kv('Ubicación',ubicTxt(d.ubicacion)); if(d.ubicacion){ kv('Ver en el mapa','https://maps.google.com/?q='+d.ubicacion.lat+','+d.ubicacion.lon); const mw=RIGHT_W-15, mh=mw*((-19.15+27.75)/((62.8-54.15)*Math.cos(23.5*Math.PI/180))); need(mh+20); window.MapaPY.drawMap(page,{x:M,y:y-mh,width:mw,origen:{lat:d.ubicacion.lat,lon:d.ubicacion.lon},destino:null,rgb,font,bold,labels:['Lugar','']}); y-=mh+14; } }
+  if(r.tipo_evento==='mortalidad'){ // todo en una página: datos, mapas y las dos fotos lado a lado
+    title('Animal muerto'); kv('Nº de botón',d.nro_boton); kv('Causa de muerte',d.causa_probable||'no indicada'); kv('Lote (ControlPasto)',r.lote_controlpasto||'no indicado'); kv('Piquete / pastura',r.piquete||'no indicado'); kv('Ubicación',ubicTxt(d.ubicacion)); if(d.ubicacion) kv('Ver en el mapa','https://maps.google.com/?q='+d.ubicacion.lat+','+d.ubicacion.lon); if(r.observaciones) kv('Observaciones',r.observaciones);
+    if(d.ubicacion){ const satDu=r.adjuntos&&r.adjuntos.imagen_satelite; const mw=150, mh=mw*((-19.15+27.75)/((62.8-54.15)*Math.cos(23.5*Math.PI/180))); const sw=170; const alto=Math.max(mh,satDu?sw:0);
+      y-=4; page.drawText(ansi('UBICACIÓN EN EL PARAGUAY'),{x:M,y,size:8,font:bold,color:grey}); if(satDu) page.drawText(ansi('IMAGEN SATELITAL · RADIO 20 KM'),{x:M+mw+30,y,size:8,font:bold,color:grey}); y-=10;
+      const top=y; const res=window.MapaPY.drawMap(page,{x:M,y:top-mh,width:mw,origen:{lat:d.ubicacion.lat,lon:d.ubicacion.lon},destino:null,rgb,font,bold,labels:['Lugar','']});
+      if(res&&res.fuera){ page.drawText(ansi('Punto fuera del mapa del Paraguay'),{x:M,y:top-mh-9,size:7,font,color:rgb(.75,.15,.1)}); }
+      if(satDu){ try{ const img=await embedDataUrl(satDu); page.drawImage(img,{x:M+mw+30,y:top-sw,width:sw,height:sw}); page.drawRectangle({x:M+mw+30,y:top-sw,width:sw,height:sw,borderColor:line,borderWidth:.5}); }catch(e){} }
+      else { wrap('Imagen satelital no disponible: no había conexión al generar este PDF. Se agrega sola al volver a generarlo con señal.',7.5,font,W-M-(M+mw+30)).forEach((l,i)=>page.drawText(l,{x:M+mw+30,y:top-12-i*9,size:7.5,font,color:grey})); }
+      y=top-alto-14-(res&&res.fuera?6:0); }
+    const fotosM=[['foto_animal','FOTO DEL ANIMAL'],['foto_boton','FOTO DEL BOTÓN']].filter(([k])=>r.adjuntos&&r.adjuntos[k]);
+    if(fotosM.length){ const disponible=y-(M+16); const colW=(W-M*2-12)/2; const maxH=Math.max(90, disponible-14); let maxUsed=0; y-=2;
+      for(let k=0;k<fotosM.length;k++){ const [key,label]=fotosM[k]; try{ const img=await embedDataUrl(r.adjuntos[key]); const sc=Math.min(colW/img.width, maxH/img.height); const iw=img.width*sc, ih=img.height*sc; const px=M+k*(colW+12); page.drawText(ansi(label),{x:px,y:y,size:8,font:bold,color:grey}); page.drawImage(img,{x:px,y:y-10-ih,width:iw,height:ih}); page.drawRectangle({x:px,y:y-10-ih,width:iw,height:ih,borderColor:line,borderWidth:.5}); maxUsed=Math.max(maxUsed,ih+10); }catch(e){} }
+      y-=maxUsed+8; }
+  }
   if(r.tipo_evento==='nacimiento'){ title('Nacimiento'); kv('Madre',d.madre); kv('Sexo del ternero',d.sexo_cria||'no indicado'); kv('Botón del ternero',d.nro_boton_cria||'todavía sin botón'); }
   if(r.tipo_evento==='perdida_boton'){ title('Pérdida de botón electrónico'); kv('Nº de botón (a mano)',d.nro_boton); }
-  if(r.observaciones){ y-=8; title('Observaciones'); wrap(r.observaciones,10.5,font,W-M*2).forEach(l=>{ need(14); page.drawText(l,{x:M,y,size:10.5,font,color:ink}); y-=14; }); }
+  if(r.observaciones && r.tipo_evento!=='mortalidad'){ y-=8; title('Observaciones'); wrap(r.observaciones,10.5,font,W-M*2).forEach(l=>{ need(14); page.drawText(l,{x:M,y,size:10.5,font,color:ink}); y-=14; }); }
   if(r.adjuntos){
     for(const [key,label] of [['foto_animal','Foto del animal'],['foto_boton','Foto del botón'],['foto_nacimiento','Foto del nacimiento'],['foto_ocurrido','Foto de lo ocurrido']]){
-      const du=r.adjuntos[key]; if(!du) continue;
+      if(r.tipo_evento==='mortalidad' && (key==='foto_animal'||key==='foto_boton')) continue; const du=r.adjuntos[key]; if(!du) continue;
       try{ const img=await embedDataUrl(du); const maxW=W-M*2, maxH=280; const s=Math.min(maxW/img.width, maxH/img.height); const iw=img.width*s, ih=img.height*s;
       need(ih+34); page.drawText(ansi(label.toUpperCase()),{x:M,y,size:9,font:bold,color:grey}); y-=ih+8; page.drawImage(img,{x:M,y,width:iw,height:ih}); y-=18; }catch(e){}
     }
@@ -1718,7 +1743,23 @@ async function makePdf(r){
 /* ---------- archivos ---------- */
 function fileNames(r){ const base='manejo_'+slug(r.estancia)+'_'+r.fecha_evento+'_'+r.tipo_evento+'_'+r.id.slice(0,8)+(r.version&&r.version>1?'_v'+r.version:''); return {json:base+'.json', pdf:base+'.pdf'}; }
 function exportRecord(w){ return Object.assign({}, w.registro, {historial:w.historial||[], estado_local:w.estado}); }
-async function buildFiles(w){ const r=w.registro; const n=fileNames(r); const pdfBytes=await makePdf(r); return { jsonFile:new File([new Blob([JSON.stringify(exportRecord(w),null,2)],{type:'application/json'})],n.json,{type:'application/json'}), pdfFile:new File([pdfBytes],n.pdf,{type:'application/pdf'}), pdfBytes }; }
+const satIntentado=new Set();
+async function asegurarSatelite(w){ const r=w.registro; if(!r || r.tipo_evento!=='mortalidad' || !r.datos || !r.datos.ubicacion) return; if(r.adjuntos && r.adjuntos.imagen_satelite) return; if(!navigator.onLine || satIntentado.has(w.id)) return; satIntentado.add(w.id);
+  try{ const du=await imagenSatelite(r.datos.ubicacion.lat, r.datos.ubicacion.lon, 20); if(du){ r.adjuntos=r.adjuntos||{}; r.adjuntos.imagen_satelite=du; const w2=await dbGet(w.id); if(w2&&w2.registro){ w2.registro.adjuntos=w2.registro.adjuntos||{}; w2.registro.adjuntos.imagen_satelite=du; await dbPut(w2); } } }catch(e){ console.warn('satelite',e); } }
+/* Mosaico satelital (Esri World Imagery) centrado en el punto, con el círculo de radio dado en km; devuelve data URL JPEG o null si no hay conexión/CORS. */
+async function imagenSatelite(lat, lon, radioKm){
+  const z=11, px=640; const mpp=156543.03392*Math.cos(lat*Math.PI/180)/Math.pow(2,z); // metros por píxel
+  const cxT=lon2x(lon,z), cyT=lat2y(lat,z); const x0=Math.floor(cxT-px/2/256), x1=Math.floor(cxT+px/2/256), y0=Math.floor(cyT-px/2/256), y1=Math.floor(cyT+px/2/256);
+  const cv=document.createElement('canvas'); cv.width=px; cv.height=px; const g=cv.getContext('2d'); g.fillStyle='#223'; g.fillRect(0,0,px,px);
+  const trabajos=[]; for(let tx=x0;tx<=x1;tx++) for(let ty=y0;ty<=y1;ty++){ const ox=px/2+(tx-cxT)*256, oy=px/2+(ty-cyT)*256; trabajos.push((async()=>{ const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),12000); try{ const res=await fetch(TILE_URL.sat(z,tx,ty),{mode:'cors', signal:ctrl.signal}); if(!res.ok) throw new Error('HTTP '+res.status); const bm=await createImageBitmap(await res.blob()); g.drawImage(bm,ox,oy,256,256); return true; }catch(e){ return false; } finally{ clearTimeout(to); } })()); }
+  const ok=await Promise.all(trabajos); if(!ok.some(Boolean)) return null;
+  const rPx=radioKm*1000/mpp; g.lineWidth=2.5; g.strokeStyle='rgba(255,60,40,.95)'; g.beginPath(); g.arc(px/2,px/2,rPx,0,Math.PI*2); g.stroke(); g.fillStyle='rgba(255,60,40,.08)'; g.fill();
+  g.beginPath(); g.arc(px/2,px/2,7,0,Math.PI*2); g.fillStyle='#fff'; g.fill(); g.beginPath(); g.arc(px/2,px/2,5,0,Math.PI*2); g.fillStyle='#E03A2A'; g.fill();
+  const barKm=5, barPx=barKm*1000/mpp; g.fillStyle='rgba(0,0,0,.55)'; g.fillRect(10,px-34,barPx+16,24); g.fillStyle='#fff'; g.fillRect(18,px-18,barPx,3); g.font='bold 11px sans-serif'; g.fillText(barKm+' km',18,px-22);
+  g.fillStyle='rgba(0,0,0,.55)'; g.fillRect(px-250,px-20,250,20); g.fillStyle='#fff'; g.font='10px sans-serif'; g.fillText('Esri World Imagery · radio '+radioKm+' km',px-244,px-6);
+  try{ return cv.toDataURL('image/jpeg',0.8); }catch(e){ return null; }
+}
+async function buildFiles(w){ await asegurarSatelite(w); const r=w.registro; const n=fileNames(r); const pdfBytes=await makePdf(r); return { jsonFile:new File([new Blob([JSON.stringify(exportRecord(w),null,2)],{type:'application/json'})],n.json,{type:'application/json'}), pdfFile:new File([pdfBytes],n.pdf,{type:'application/pdf'}), pdfBytes }; }
 function b64(bytes){ let s=''; const chunk=0x8000; for(let i=0;i<bytes.length;i+=chunk) s+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk)); return btoa(s); }
 function download(file){ const a=document.createElement('a'); a.href=URL.createObjectURL(file); a.download=file.name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},4000); }
 let dlCap; async function getDownloads(){ if(dlCap!==undefined) return dlCap; try{ dlCap=(window.claude&&typeof window.claude.use==='function') ? await window.claude.use('downloads') : null; }catch(e){ dlCap=null; } return dlCap; }
