@@ -141,6 +141,12 @@ input.upper{text-transform:uppercase}
 .barrow .bar{height:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;overflow:hidden}
 .barrow .bar i{display:block;height:100%;background:var(--salida);width:0}
 .barrow .bar i.ok{background:var(--ok)}
+.barrow .bar i.bad{background:var(--bad)}
+.chips{display:flex;flex-direction:column;gap:6px}
+.chip{display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px}
+.chip span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip b{color:var(--ink-2);white-space:nowrap}
+.chip button{border:0;background:transparent;color:var(--bad);font-size:16px;padding:2px 6px}
 .barrow b{text-align:right;font-size:13px}
 .thumbs{display:flex;flex-wrap:wrap;gap:6px}
 .thumbs .th{position:relative;width:calc(33.33% - 4px);aspect-ratio:4/3}
@@ -382,7 +388,7 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
           <button class="btn" type="button" id="btn-add-cota">+ Agregar otra COTA</button>
           <input type="file" id="file-cota" accept="image/*" capture="environment" class="hidden">
           <input type="file" id="file-guia" accept="image/*" class="hidden">
-          <span class="hint" id="cota-hint">Apunte la cámara al QR de la COTA y espere el aviso. Si hay poca luz, use “Foto del QR”. Si la subida tiene varias guías, agregue una COTA por cada una.</span>
+          <span class="hint" id="cota-hint">Apunte la cámara al QR de la COTA y espere el aviso. Si hay poca luz, use “Foto del QR”. Si la subida tiene varias guías, agregue una COTA por cada una. En cada COTA son obligatorios el QR leído y la foto de la primera página de la guía.</span>
           <label class="f" id="wrap-raza"><span class="req">Raza</span>
             <div class="seg" id="seg-raza">
               <button type="button" data-v="Cebú">Cebú</button>
@@ -402,26 +408,29 @@ dl.kv dd.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;f
           <div class="stack" style="gap:8px" id="wrap-baston">
             <span style="font-weight:600;font-size:15px;color:var(--ink-2)">Lectura del bastón (solo IDE) · opcional</span>
             <span class="hint">Si los animales pasan primero por el bastón y se pesan otro día (o al revés), cargue aquí el archivo del bastón, guarde como borrador y después agregue el de la báscula. El app concilia las dos listas.</span>
-            <div class="row"><button class="btn" type="button" id="btn-import-baston">▭ Cargar archivo del bastón</button><button class="btn danger hidden" type="button" id="btn-quitar-baston">✕ Quitar</button></div>
-            <input type="file" id="file-baston" accept=".csv,.txt,text/csv,text/plain,text/comma-separated-values,application/vnd.ms-excel" class="hidden">
+            <div class="chips hidden" id="baston-files"></div>
+            <div class="row"><button class="btn" type="button" id="btn-import-baston">▭ Cargar archivo(s) del bastón</button><button class="btn danger hidden" type="button" id="btn-quitar-baston">✕ Quitar todos</button></div>
+            <input type="file" id="file-baston" multiple accept=".csv,.txt,text/csv,text/plain,text/comma-separated-values,application/vnd.ms-excel" class="hidden">
+            <span class="hint">Si hubo varias lecturas (por ejemplo, un archivo por camión), cargue todos: se juntan por IDE como si fuera una sola lectura. En entradas y salidas, <b>los animales del bastón son los que cuentan</b>; la báscula solo aporta el peso de cada uno.</span>
             <div class="msg bad hidden" id="baston-err"></div>
             <div class="card flat hidden" id="baston-panel"><dl class="kv" id="baston-kv"></dl></div>
           </div>
           <div class="stack" style="gap:8px">
             <span style="font-weight:600;font-size:15px;color:var(--ink-2)" class="req" id="lbl-bascula">Archivo de la báscula (IDE y peso)</span>
-            <div class="row"><button class="btn" type="button" id="btn-import-ids">⚖ Cargar archivo de la báscula</button><button class="btn danger hidden" type="button" id="btn-quitar-ids">✕ Quitar</button></div>
-            <input type="file" id="file-ids" accept=".csv,.txt,text/csv,text/plain,text/comma-separated-values,application/vnd.ms-excel" class="hidden">
-            <span class="hint">Se toman solo dos columnas: la identificación (IDE, obligatoria) y el peso (si el archivo lo trae). Las demás columnas se ignoran, así sirve cualquier balanza (Tru-Test, XR5000, exportaciones con ; o ,).</span>
+            <div class="chips hidden" id="csv-files"></div>
+            <div class="row"><button class="btn" type="button" id="btn-import-ids">⚖ Cargar archivo(s) de la báscula</button><button class="btn danger hidden" type="button" id="btn-quitar-ids">✕ Quitar todos</button></div>
+            <input type="file" id="file-ids" multiple accept=".csv,.txt,text/csv,text/plain,text/comma-separated-values,application/vnd.ms-excel" class="hidden">
+            <span class="hint">Se toman solo dos columnas: la identificación (IDE, obligatoria) y el peso (si el archivo lo trae). Las demás columnas se ignoran, así sirve cualquier balanza (Tru-Test, XR5000, exportaciones con ; o ,). Si hubo varias pesadas, cargue todos los archivos: se juntan por IDE y peso.</span>
             <div class="msg bad hidden" id="csv-err"></div>
             <div class="msg bad hidden" id="csv-warn"></div>
             <div class="card flat hidden" id="csv-panel"><dl class="kv" id="csv-kv"></dl></div>
           </div>
           <div class="card flat hidden" id="conc-panel">
-            <div style="font-weight:700;font-size:14px;color:var(--ink-2);margin-bottom:8px">Conciliación bastón ↔ báscula</div>
+            <div style="font-weight:700;font-size:14px;color:var(--ink-2);margin-bottom:8px">Animales del bastón con peso de la báscula</div>
             <div class="bars">
               <div class="barrow"><span>Bastón</span><div class="bar"><i id="bar-baston"></i></div><b id="n-baston"></b></div>
-              <div class="barrow"><span>Báscula</span><div class="bar"><i id="bar-bascula"></i></div><b id="n-bascula"></b></div>
-              <div class="barrow"><span>En ambos</span><div class="bar"><i id="bar-ambos" class="ok"></i></div><b id="n-ambos"></b></div>
+              <div class="barrow"><span>Con peso</span><div class="bar"><i id="bar-bascula" class="ok"></i></div><b id="n-bascula"></b></div>
+              <div class="barrow"><span>Sin peso</span><div class="bar"><i id="bar-ambos" class="bad"></i></div><b id="n-ambos"></b></div>
             </div>
             <div class="status-line" style="margin-top:8px"><span class="badge" id="conc-pct"></span></div>
             <div class="msg warn hidden" id="conc-detalle" style="margin-top:8px;font-size:13px"></div>
@@ -1060,8 +1069,8 @@ if(typeof module!=='undefined'&&module.exports) module.exports=api; else root.Ma
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '3.2.2';
-const ESQUEMA = 'manejo-ypoti/3.2';
+const APP_VERSION = '3.3.0';
+const ESQUEMA = 'manejo-ypoti/3.3';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
 const TIPO_LABEL = {entrada:'Entrada pasto', salida:'Salida de animales', mortalidad:'Mortalidad', nacimiento:'Nacimiento', pesaje:'Pesaje de auditoría', perdida_boton:'Pérdida de botón electrónico', entrada_rip:'Entrada RIP', entrada_confinamiento:'Entrada confinamiento'};
@@ -1069,7 +1078,7 @@ const TIPOS_INTENSIVO = ['entrada_rip','entrada_confinamiento']; const ESTANCIA_
 const esIntensivo = t => TIPOS_INTENSIVO.includes(t);
 const SISTEMA_LABEL = {recria_tradicional:'Recría tradicional', rip:'RIP'}; const ORIGEN_LABEL = {misma_propiedad:'Misma propiedad', otra_propiedad:'Otra propiedad'}; const PROPIEDAD_LABEL = {propio:'Animal propio', boitel:'Boitel'};
 const CAUSAS_MUERTE = ['Abigeo','Accidente','Afogamento','Anemia','Atolado','Atolado/trancado erosion','Atrapado por el alambrado','Carbunco','Cayo en la Baleta','Cobra','Debilitado','Desconocido','Enfermedad','Enpantanado o Atascado','Enroscado','Faena Interna','Flaco','Fractura','Fraqueza','Hipotermia','Intoxicacion','Jaguarete/león','Lesion','Machucado','Machucadura no chifre','Muerte Súbita','Neumonia','No identificado','Otros','Poleo','Rayo','Requema','Toxico','Trauma','Tristeza','Tristeza Parasitaria','Vibora'];
-const DEFAULT_MAIL = 'trazabilidad@ypoti.com';
+const DEFAULT_MAIL = 'lucasmoller@ypoti.com';
 const DEFAULT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwnmB0MXm7Wrt7dQEIU9oN7oy1j2XjQ_7HfZkpsn-5rkaWApoBWYv40J-zo7BAanuzIdg/exec'; // servidor (Apps Script) de la base de datos
 // SHA-256 de la contraseña de publicación de cada estancia ('*' = clave maestra, válida para todas)
 const CLAVES_HASH = {"Ypoti": "3d8360923e82ddcb52c25c64a155c1faeb4275f5be5afa24f8cc93feccb1c32b", "Ybypora": "1178b2ca622889302b1f03fdb4830dfdc8348ba563e02bdbe069f6e9f4b8062b", "Cafetalera": "2d62d94c4350688b77d345f1685bbeaa060de14360ac0f4ca9f88cf97d335435", "La Esperanza": "a882411d4143d987c5d8ef3cc7f9ecde5949edcc6446886c628f021b4bf4b461", "Santa Clara": "e763c722cc8f6a12de80efedc101f35ad6584277e98b04b8a74ef3eca1a0a5a8", "Lusipar": "a13cb9998e0df05a6c08961ba9e83cad251d59322cb2a2ae606e3b23fcf1fa39", "Oro Verde": "eea9512f7d9d18a08d1de370bf10efb6cb11367f16e1d84de97ed059385f562f", "Santa Maria": "b664eec79fc4407f977e27fc4edefdfb86ab7a0e5a36c65c47a36ddf72714abf", "Cielo Azul": "5f044008b9890e7e367cc9aabb757c398045ee6c6fc95db2c11dd3abd78014bc", "Bella Vista": "335b4c6512a4da2822dadf6ee831af77789ce8ebe0070d5ce959e546cb5fcb74", "Cerro Memby": "786112cbd91a2d097dd39624976dd92de9066a3078e47c6c511ee83db7dae77a", "Otra": "11b68b96d7e22edcdb5793e0231bf3ae490d8b6323e0f99d33844288e8e526af", "*": "29be39bc8d05cb0b0e51e6e823400c42714577f0e3481ea4f30e2a7da94f2b5c"};
@@ -1123,7 +1132,8 @@ function updateNet(){ const p=$('netpill'); const on=navigator.onLine; p.textCon
 window.addEventListener('online',()=>{updateNet(); syncPendientes();}); window.addEventListener('offline',updateNet);
 
 /* ---------- estado del formulario ---------- */
-let step=1, tipo=null, fotos={animal:null, boton:null, perdida:null, nacimiento:null}, balanza=null, baston=null, camiones=[], cotas=[], ubicacion=null, faltFotos=[];
+let step=1, tipo=null, fotos={animal:null, boton:null, perdida:null, nacimiento:null}, balanza=null, baston=null, balanzas=[], bastones=[], camiones=[], cotas=[], ubicacion=null, faltFotos=[];
+const esMovimiento = () => usaBalanza(tipo) && tipo!=='pesaje';
 function faltIds(){ return $('f-falt-ids').value.split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean); }
 function faltUsa(){ return segVal('seg-faltantes')==='si'; }
 const MAX_PRECINTO=3, MAX_FALT_FOTOS=6;
@@ -1182,39 +1192,56 @@ function parseBalanza(text, nombre){
 }
 function renderCsv(){
   const p=$('csv-panel'), kv=$('csv-kv'); if(!balanza){ p.classList.add('hidden'); $('csv-warn').classList.add('hidden'); return; }
-  const rows=[['Archivo',balanza.nombre],['Columnas usadas','ID: '+balanza.columna_ide+' · Peso: '+(balanza.columna_peso||'no encontrada')],['Animales',balanza.animales.length+' con identificación válida'+(balanza.sin_peso?' ('+balanza.sin_peso+' sin peso)':'')],['Peso',balanza.peso_promedio_kg!==null?balanza.peso_promedio_kg+' kg promedio · '+balanza.peso_total_kg+' kg total':'—']];
+  const rows=[['Archivo'+(balanzas.length>1?'s':''),balanzas.length>1?balanzas.length+' archivos consolidados por IDE y peso':balanza.nombre],['Columnas usadas','ID: '+balanza.columna_ide+' · Peso: '+(balanza.columna_peso||'no encontrada')],['Animales',balanza.animales.length+' con identificación válida'+(balanza.sin_peso?' ('+balanza.sin_peso+' sin peso)':'')],['Peso',balanza.peso_promedio_kg!==null?balanza.peso_promedio_kg+' kg promedio · '+balanza.peso_total_kg+' kg total':'—']];
   if(balanza.cota_archivo) rows.push(['COTA en archivo',balanza.cota_archivo]); if(balanza.guia_archivo) rows.push(['Guía en archivo',balanza.guia_archivo]); if(balanza.fecha_pesaje) rows.push(['Fecha en archivo',balanza.fecha_pesaje]);
   const warn=$('csv-warn'); const av=balanza.avisos||[]; if(av.length){ warn.innerHTML=av.map(()=>'<div></div>').join(''); warn.querySelectorAll('div').forEach((d,i)=>d.textContent='⚠ '+av[i]); warn.classList.remove('hidden'); } else warn.classList.add('hidden');
   kv.innerHTML=''; rows.forEach(([k,v])=>{ const dt=document.createElement('dt'); dt.textContent=k; const dd=document.createElement('dd'); dd.textContent=v; kv.appendChild(dt); kv.appendChild(dd); });
   const dt=document.createElement('dt'); dt.textContent='Lista'; const dd=document.createElement('dd'); dd.className='mono'; dd.textContent=balanza.animales.slice(0,300).map(a=>a.ide+(a.peso_kg!==null?'  '+a.peso_kg+' kg':'  (sin peso)')).join('\n')+(balanza.animales.length>300?'\n…':''); kv.appendChild(dt); kv.appendChild(dd);
   p.classList.remove('hidden');
 }
-function unionAnimales(){ // báscula + bastón -> lista única con fuente
-  if(!balanza && !baston) return [];
-  const map=new Map();
-  if(balanza) balanza.animales.forEach(a=>map.set(a.ide,{ide:a.ide, peso_kg:a.peso_kg, fuente:'bascula'}));
-  if(baston) baston.animales.forEach(a=>{ const x=map.get(a.ide); if(x) x.fuente='ambos'; else map.set(a.ide,{ide:a.ide, peso_kg:null, fuente:'baston'}); });
-  if(!balanza) map.forEach(x=>x.fuente='baston');
-  return [...map.values()];
+/* Varios archivos de báscula se consolidan por IDE (último peso cargado manda si se repite); varios de bastón, por IDE. */
+function consolidarLista(lista, conPeso){
+  if(!lista.length) return null; const map=new Map(); let repesados=0, duplicadosEntre=0;
+  lista.forEach(b=>b.animales.forEach(a=>{ const prev=map.get(a.ide); if(prev){ duplicadosEntre++; if(conPeso && a.peso_kg!==null && prev.peso_kg!==null && a.peso_kg!==prev.peso_kg) repesados++; if(conPeso && a.peso_kg!==null) prev.peso_kg=a.peso_kg; } else map.set(a.ide,{ide:a.ide, peso_kg:conPeso?a.peso_kg:null}); }));
+  const animales=[...map.values()]; const pesos=animales.map(a=>a.peso_kg).filter(p=>p!==null&&p!==undefined);
+  const uni=k=>{ const v=new Set(lista.map(b=>b[k]).filter(Boolean)); return v.size===1?[...v][0]:null; };
+  const sinPeso=animales.filter(a=>a.peso_kg===null).map(a=>a.ide);
+  const avisos=[]; if(conPeso){ if(lista.every(b=>!b.columna_peso)) avisos.push('Los archivos no tienen columna de peso: se cargan solo las identificaciones.'); else if(sinPeso.length) avisos.push(sinPeso.length+(sinPeso.length===1?' animal sin peso':' animales sin peso')+' en los archivos: '+sinPeso.slice(0,8).join(', ')+(sinPeso.length>8?' …':'')); }
+  const inv=lista.reduce((a,b)=>a+b.invalidos.length,0), dup=lista.reduce((a,b)=>a+b.duplicados.length,0)+duplicadosEntre;
+  if(inv) avisos.push(inv+(inv===1?' fila sin identificación válida':' filas sin identificación válida')+' (se omiten).'); if(dup) avisos.push(dup+(dup===1?' identificación repetida':' identificaciones repetidas')+' (se cuentan una vez'+(repesados?'; '+repesados+' con peso distinto entre archivos: vale el último cargado':'')+').');
+  return { nombre:lista.map(b=>b.nombre).join(' + '), archivos:lista.map(b=>({nombre:b.nombre, animales:b.animales.length})), columna_ide:lista[0].columna_ide, columna_peso:conPeso?(lista.find(b=>b.columna_peso)||{}).columna_peso||null:null, filas:lista.reduce((a,b)=>a+b.filas,0), animales, invalidos:[], duplicados:[], ids_sin_peso:sinPeso, avisos,
+    cota_archivo:uni('cota_archivo'), guia_archivo:uni('guia_archivo'), fecha_pesaje:uni('fecha_pesaje'), peso_total_kg:pesos.length?+pesos.reduce((a,b)=>a+b,0).toFixed(1):null, peso_promedio_kg:pesos.length?+(pesos.reduce((a,b)=>a+b,0)/pesos.length).toFixed(1):null, sin_peso:sinPeso.length };
 }
-function conciliacion(){ if(!balanza||!baston) return null; const sb=new Set(baston.animales.map(a=>a.ide)), sq=new Set(balanza.animales.map(a=>a.ide)); const ambos=[...sb].filter(x=>sq.has(x)); const soloB=[...sb].filter(x=>!sq.has(x)), soloQ=[...sq].filter(x=>!sb.has(x)); const total=sb.size+sq.size-ambos.length; return { baston:sb.size, bascula:sq.size, en_ambos:ambos.length, solo_baston:soloB, solo_bascula:soloQ, total_unico:total, porcentaje: total?Math.round(ambos.length/total*1000)/10:0 }; }
+function consolidar(){ balanza=consolidarLista(balanzas,true); baston=consolidarLista(bastones,false); }
+function unionAnimales(){ // lista final de animales
+  if(!balanza && !baston) return [];
+  if(esMovimiento() && baston){ // en entradas/salidas valen SOLO los animales del bastón; la báscula aporta el peso (left join por IDE)
+    const pesos=new Map(); if(balanza) balanza.animales.forEach(a=>{ if(a.peso_kg!==null&&a.peso_kg!==undefined) pesos.set(a.ide,a.peso_kg); });
+    return baston.animales.map(a=>{ const p=pesos.has(a.ide)?pesos.get(a.ide):null; return {ide:a.ide, peso_kg:p, fuente:p!==null?'ambos':'baston'}; });
+  }
+  if(balanza) return balanza.animales.map(a=>({ide:a.ide, peso_kg:a.peso_kg, fuente:'bascula'}));
+  return baston.animales.map(a=>({ide:a.ide, peso_kg:null, fuente:'baston'}));
+}
+function conciliacion(){ if(!esMovimiento()||!balanza||!baston) return null; const lista=unionAnimales(); const conPeso=lista.filter(a=>a.peso_kg!==null).length; const sinPeso=lista.filter(a=>a.peso_kg===null).map(a=>a.ide); const sb=new Set(baston.animales.map(a=>a.ide)); const descartados=balanza.animales.filter(a=>!sb.has(a.ide)).length; const n=lista.length; return { baston:n, bascula:balanza.animales.length, con_peso:conPeso, sin_peso:sinPeso, descartados_bascula:descartados, porcentaje:n?Math.round(conPeso/n*1000)/10:0 }; }
+function renderArchivos(cont, lista, quitar){ cont.innerHTML=''; lista.forEach((b,i)=>{ const ch=document.createElement('div'); ch.className='chip'; ch.innerHTML='<span></span><b></b><button type="button" title="Quitar">✕</button>'; ch.querySelector('span').textContent=b.nombre; ch.querySelector('b').textContent=b.animales.length+(b.animales.length===1?' animal':' animales'); ch.querySelector('button').addEventListener('click',()=>quitar(i)); cont.appendChild(ch); }); cont.classList.toggle('hidden',!lista.length); }
 function renderBaston(){
-  const p=$('baston-panel'), kv=$('baston-kv'); $('btn-quitar-baston').classList.toggle('hidden',!baston); $('btn-quitar-ids').classList.toggle('hidden',!balanza);
+  renderArchivos($('baston-files'), bastones, i=>{ bastones.splice(i,1); consolidar(); dirty=true; renderBaston(); refreshIds(); });
+  renderArchivos($('csv-files'), balanzas, i=>{ balanzas.splice(i,1); consolidar(); dirty=true; renderCsv(); renderBaston(); refreshIds(); checkCotas(); });
+  const p=$('baston-panel'), kv=$('baston-kv'); $('btn-quitar-baston').classList.toggle('hidden',bastones.length<2); $('btn-quitar-ids').classList.toggle('hidden',balanzas.length<2);
   if(!baston){ p.classList.add('hidden'); } else {
-    const rows=[['Archivo',baston.nombre],['Columna usada','ID: '+baston.columna_ide],['Animales leídos',String(baston.animales.length)]]; if(baston.fecha_pesaje) rows.push(['Fecha en archivo',baston.fecha_pesaje]); if(baston.duplicados.length) rows.push(['ID repetidas',baston.duplicados.length+' (se cuentan una vez)']);
+    const rows=[['Archivo'+(bastones.length>1?'s':''),bastones.length>1?bastones.length+' archivos consolidados por IDE':baston.nombre],['Columna usada','ID: '+baston.columna_ide],['Animales leídos',String(baston.animales.length)]]; if(baston.fecha_pesaje) rows.push(['Fecha en archivo',baston.fecha_pesaje]); (baston.avisos||[]).forEach(a=>rows.push(['Aviso',a]));
     kv.innerHTML=''; rows.forEach(([k,v])=>{ const dt=document.createElement('dt'); dt.textContent=k; const dd=document.createElement('dd'); dd.textContent=v; kv.appendChild(dt); kv.appendChild(dd); });
     const dt=document.createElement('dt'); dt.textContent='Lista'; const dd=document.createElement('dd'); dd.className='mono'; dd.textContent=baston.animales.slice(0,300).map(a=>a.ide).join('\n')+(baston.animales.length>300?'\n…':''); kv.appendChild(dt); kv.appendChild(dd); p.classList.remove('hidden'); }
   const c=conciliacion(); const cp=$('conc-panel'); if(!c){ cp.classList.add('hidden'); return; }
-  const mx=Math.max(c.baston,c.bascula,1); $('bar-baston').style.width=(c.baston/mx*100)+'%'; $('bar-bascula').style.width=(c.bascula/mx*100)+'%'; $('bar-ambos').style.width=(c.en_ambos/mx*100)+'%';
-  $('n-baston').textContent=c.baston; $('n-bascula').textContent=c.bascula; $('n-ambos').textContent=c.en_ambos;
-  const pct=$('conc-pct'); pct.className='badge '+(c.porcentaje>=99.9?'ok':c.porcentaje>=90?'warn':'bad'); pct.textContent=c.porcentaje+'% de las IDE coinciden'+(c.porcentaje>=99.9?' · las dos listas son iguales':'');
-  const det=$('conc-detalle'); const partes=[]; if(c.solo_baston.length) partes.push('Solo en el bastón, sin pesar ('+c.solo_baston.length+'): '+c.solo_baston.slice(0,10).join(', ')+(c.solo_baston.length>10?' …':'')); if(c.solo_bascula.length) partes.push('Solo en la báscula, no leídos con el bastón ('+c.solo_bascula.length+'): '+c.solo_bascula.slice(0,10).join(', ')+(c.solo_bascula.length>10?' …':''));
-  if(partes.length){ det.innerHTML=partes.map(()=>'<div></div>').join(''); det.querySelectorAll('div').forEach((d,i)=>d.textContent=partes[i]); det.classList.remove('hidden'); } else det.classList.add('hidden');
+  const mx=Math.max(c.baston,1); $('bar-baston').style.width='100%'; $('bar-bascula').style.width=(c.con_peso/mx*100)+'%'; $('bar-ambos').style.width=(c.sin_peso.length/mx*100)+'%';
+  $('n-baston').textContent=c.baston; $('n-bascula').textContent=c.con_peso; $('n-ambos').textContent=c.sin_peso.length;
+  const pct=$('conc-pct'); pct.className='badge '+(c.porcentaje>=99.9?'ok':c.porcentaje>=90?'warn':'bad'); pct.textContent=c.porcentaje+'% de los animales del bastón tienen peso'+(c.porcentaje>=99.9?' · todos pesados':'');
+  const det=$('conc-detalle'); if(c.sin_peso.length){ det.textContent='⚠ Sin peso en la báscula ('+c.sin_peso.length+'): '+c.sin_peso.slice(0,12).join(', ')+(c.sin_peso.length>12?' …':''); det.classList.remove('hidden'); } else det.classList.add('hidden');
   cp.classList.remove('hidden');
 }
 function refreshIds(){
   const lista=unionAnimales(); const n=lista.length, q=parseInt($('f-cantidad').value,10);
-  $('ids-count').textContent = n ? n+(n===1?' animal en ':' animales en ')+(balanza&&baston?'los archivos (unidos)':balanza?'el archivo de la báscula':'el archivo del bastón') : 'Sin archivo';
+  $('ids-count').textContent = n ? n+(n===1?' animal':' animales')+(esMovimiento()&&baston?' en el bastón'+(balanza?' (pesos de la báscula)':''):balanza?' en la báscula':' en el bastón') : 'Sin archivo';
   const chk=$('ids-check'); chk.className='badge';
   if(!n){ chk.textContent=''; chk.className=''; return; }
   if(!isNaN(q)){ if(q===n){ chk.classList.add('ok'); chk.textContent='Coincide con la cantidad contada'; } else { chk.classList.add('bad'); chk.textContent='No coincide: '+q+' contados, '+n+' en el archivo'; } }
@@ -1244,7 +1271,7 @@ function renderCotas(){
     b.innerHTML='<div class="head"><span></span>'+(cotas.length>1?'<button class="btn small danger" type="button" data-del>✕ Quitar</button>':'')+'</div>'
       +'<div class="row"><button class="btn" type="button" data-scan>▣ Escanear QR</button><button class="btn" type="button" data-foto>📷 Foto del QR</button></div>'
       +'<div class="msg ok hidden" data-ok></div>'
-      +'<input type="text" data-texto placeholder="Si el QR no se lee, escriba el Nº de COTA" autocomplete="off">'
+      +'<input type="text" data-texto placeholder="Contenido del QR (léalo con la cámara)" autocomplete="off">'
       +'<div class="photo"><span style="font-weight:600;font-size:15px;color:var(--ink-2)" class="req">Foto de la primera página de la guía</span><img class="thumb" alt="Foto de la guía"><div class="row"><button class="btn" type="button" data-gcam>📷 Cámara</button><button class="btn" type="button" data-ggal>🖼 Galería</button></div></div>';
     b.querySelector('.head span').textContent = cotas.length>1 ? 'COTA '+(i+1) : 'COTA';
     const inp=b.querySelector('[data-texto]'); inp.value=c.texto||''; inp.addEventListener('input',e=>{ cotas[i].texto=e.target.value; dirty=true; renderCotaPanel(i); checkCotas(); });
@@ -1283,7 +1310,7 @@ function checkCotas(){ const hint=$('cota-hint'); hint.style.color=''; hint.clas
 function setTipo(t){ tipo=t; document.querySelectorAll('.tile').forEach(x=>x.classList.toggle('selected',x.dataset.tipo===t)); document.body.className=t?'tipo-'+t:''; dirty=true; }
 function setFoto(key, dataUrl){ fotos[key]=dataUrl||null; const th=$('thumb-'+key); if(dataUrl){ th.src=dataUrl; th.classList.add('has'); } else { th.classList.remove('has'); th.removeAttribute('src'); } }
 function resetForm(){
-  step=1; tipo=null; fotos={animal:null,boton:null,perdida:null,nacimiento:null}; balanza=null; baston=null; camiones=[{chapa:'',fotos:[]}]; cotas=[{texto:'',foto:null}]; ubicacion=null; faltFotos=[]; formId=uuid(); editing=null; dirty=false;
+  step=1; tipo=null; fotos={animal:null,boton:null,perdida:null,nacimiento:null}; balanza=null; baston=null; balanzas=[]; bastones=[]; camiones=[{chapa:'',fotos:[]}]; cotas=[{texto:'',foto:null}]; ubicacion=null; faltFotos=[]; formId=uuid(); editing=null; dirty=false;
   const listaNames = cfg.lista.length?cfg.lista:(cfg.respondente?[cfg.respondente]:[]);
   fillSelect($('f-respondente'), listaNames.concat(['Otro…']), '— Elegir —');
   if(cfg.respondente && listaNames.includes(cfg.respondente)) $('f-respondente').value=cfg.respondente;
@@ -1306,19 +1333,19 @@ function setEstancia(v){ if(!v){ $('f-estancia').value=''; $('f-estancia-otra').
 function collectForm(){ // DOM -> estado serializable (borrador)
   return { step, tipo, respondente:respondenteValue(), estancia:estanciaValue(), fecha:$('f-fecha').value, lote:$('f-lote').value.trim(), piquete:$('f-piquete').value.trim(),
     propiedad:segVal('seg-propiedad'), propietario:$('f-propietario').value.trim(), origen_tipo:segVal('seg-origen'), sistema:segVal('seg-sistema'), origen_lote:$('f-origen-lote').value.trim(), origen_piquete:$('f-origen-piquete').value.trim(), destino_lote:$('f-destino-lote').value.trim(), destino_piquete:$('f-destino-piquete').value.trim(), ubicacion,
-    camiones:camiones.map(c=>({chapa:c.chapa||'',fotos:fotosCamion(c)})), cotas:cotas.map(c=>({texto:c.texto||'',foto:c.foto||null})), baston, falt_usa:segVal('seg-faltantes'), falt_cantidad:$('f-falt-cantidad').value, falt_peso_medio:$('f-falt-peso-medio').value, falt_ids:$('f-falt-ids').value, falt_fotos:faltFotos.slice(), falt_lugar:$('f-falt-lugar').value.trim(), falt_motivo:$('f-falt-motivo').value.trim(), falt_capataz:$('f-falt-capataz').value.trim(), falt_auditor:$('f-falt-auditor').value.trim(), falt_conforme:$('f-falt-conforme').checked, raza:$('seg-raza').dataset.value||'', cantidad:$('f-cantidad').value,
+    camiones:camiones.map(c=>({chapa:c.chapa||'',fotos:fotosCamion(c)})), cotas:cotas.map(c=>({texto:c.texto||'',foto:c.foto||null})), bastones:bastones.slice(), balanzas:balanzas.slice(), falt_usa:segVal('seg-faltantes'), falt_cantidad:$('f-falt-cantidad').value, falt_peso_medio:$('f-falt-peso-medio').value, falt_ids:$('f-falt-ids').value, falt_fotos:faltFotos.slice(), falt_lugar:$('f-falt-lugar').value.trim(), falt_motivo:$('f-falt-motivo').value.trim(), falt_capataz:$('f-falt-capataz').value.trim(), falt_auditor:$('f-falt-auditor').value.trim(), falt_conforme:$('f-falt-conforme').checked, raza:$('seg-raza').dataset.value||'', cantidad:$('f-cantidad').value,
     boton:$('f-boton').value, causa:$('f-causa').value, madre:$('f-madre').value, sexo:$('seg-sexo').dataset.value||'', cria_boton:$('f-cria-boton').value, perdida_boton:$('f-perdida-boton').value, obs:$('f-obs').value,
-    fotos:Object.assign({},fotos), balanza }; }
+    fotos:Object.assign({},fotos) }; }
 function applyForm(s){ // estado -> DOM
   if(s.tipo) setTipo(s.tipo);
   const names=Array.from($('f-respondente').options).map(o=>o.value); if(s.respondente){ if(names.includes(s.respondente)) $('f-respondente').value=s.respondente; else { $('f-respondente').value='Otro…'; $('f-respondente-otro').value=s.respondente; $('wrap-respondente-otro').style.display='flex'; } }
   if(s.estancia) setEstancia(s.estancia); if(s.fecha) $('f-fecha').value=s.fecha; $('f-lote').value=s.lote||''; $('f-piquete').value=s.piquete||''; updateTilesInt();
   setSeg($('seg-propiedad'),s.propiedad||''); $('f-propietario').value=s.propietario||''; setSeg($('seg-origen'),s.origen_tipo||''); setSeg($('seg-sistema'),s.sistema||''); $('f-origen-lote').value=s.origen_lote||''; $('f-origen-piquete').value=s.origen_piquete||''; $('f-destino-lote').value=s.destino_lote||''; $('f-destino-piquete').value=s.destino_piquete||''; ubicacion=s.ubicacion||null; renderUbic();
   camiones=(s.camiones&&s.camiones.length)?s.camiones.map(c=>({chapa:c.chapa||'',fotos:fotosCamion(c)})):[{chapa:s.chapa||'',fotos:(s.fotos&&s.fotos.precinto)?[s.fotos.precinto]:[]}];
-  baston=s.baston||null; setSeg($('seg-faltantes'), s.falt_usa||(s.faltantes&&s.faltantes.length?'si':'')); $('f-falt-cantidad').value=s.falt_cantidad||(s.faltantes&&s.faltantes.length?String(s.faltantes.length):''); $('f-falt-peso-medio').value=s.falt_peso_medio||''; $('f-falt-ids').value=s.falt_ids!=null?s.falt_ids:((s.faltantes||[]).map(f=>f.ide).filter(Boolean).join('\n')); faltFotos=(s.falt_fotos||[]).slice(); $('f-falt-lugar').value=s.falt_lugar||''; $('f-falt-motivo').value=s.falt_motivo||''; $('f-falt-capataz').value=s.falt_capataz||''; $('f-falt-auditor').value=s.falt_auditor||''; $('f-falt-conforme').checked=!!s.falt_conforme; renderFaltantes(); renderBaston(); cotas=(s.cotas&&s.cotas.length)?s.cotas.map(c=>({texto:c.texto||'',foto:c.foto||null})):[{texto:s.cota||'',foto:null}]; renderCamiones(); renderCotas(); setSeg($('seg-raza'),s.raza||''); $('f-cantidad').value=s.cantidad||'';
+  bastones=(s.bastones||(s.baston?[s.baston]:[])).slice(); balanzas=(s.balanzas||(s.balanza?[s.balanza]:[])).slice(); consolidar(); setSeg($('seg-faltantes'), s.falt_usa||(s.faltantes&&s.faltantes.length?'si':'')); $('f-falt-cantidad').value=s.falt_cantidad||(s.faltantes&&s.faltantes.length?String(s.faltantes.length):''); $('f-falt-peso-medio').value=s.falt_peso_medio||''; $('f-falt-ids').value=s.falt_ids!=null?s.falt_ids:((s.faltantes||[]).map(f=>f.ide).filter(Boolean).join('\n')); faltFotos=(s.falt_fotos||[]).slice(); $('f-falt-lugar').value=s.falt_lugar||''; $('f-falt-motivo').value=s.falt_motivo||''; $('f-falt-capataz').value=s.falt_capataz||''; $('f-falt-auditor').value=s.falt_auditor||''; $('f-falt-conforme').checked=!!s.falt_conforme; renderFaltantes(); renderBaston(); cotas=(s.cotas&&s.cotas.length)?s.cotas.map(c=>({texto:c.texto||'',foto:c.foto||null})):[{texto:s.cota||'',foto:null}]; renderCamiones(); renderCotas(); setSeg($('seg-raza'),s.raza||''); $('f-cantidad').value=s.cantidad||'';
   $('f-boton').value=s.boton||''; $('f-causa').value=s.causa||''; $('f-madre').value=s.madre||''; setSeg($('seg-sexo'),s.sexo||''); $('f-cria-boton').value=s.cria_boton||''; $('f-perdida-boton').value=s.perdida_boton||''; $('f-obs').value=s.obs||'';
   fotos={animal:null,boton:null,perdida:null,nacimiento:null}; Object.keys(s.fotos||{}).forEach(k=>{ if(k in fotos) setFoto(k,s.fotos[k]); });
-  balanza=s.balanza||null; renderCsv(); renderBaston(); refreshIds(); checkCotas();
+  renderCsv(); renderBaston(); refreshIds(); checkCotas();
   step=Math.min(Math.max(s.step||1,1),2); renderStep(); dirty=false;
 }
 function recordToForm(r){ // registro guardado -> estado del formulario (para editar)
@@ -1332,13 +1359,13 @@ function recordToForm(r){ // registro guardado -> estado del formulario (para ed
   const fg=a.fotos_guia||[]; const cts=(d.cotas&&d.cotas.length)?d.cotas.map((c,i)=>({texto:c.cota_qr||c.cota_nro||'',foto:fg[i]||null})):((d.cota_qr||d.cota_nro)?[{texto:d.cota_qr||d.cota_nro,foto:null}]:[]);
   const intens=esIntensivo(r.tipo_evento);
   return { step:1, tipo:r.tipo_evento, respondente:r.respondente, estancia:r.estancia, fecha:r.fecha_evento, lote:intens?'':(r.lote_controlpasto||''), piquete:intens?'':(r.piquete||''), camiones:cam, cotas:cts, raza:d.raza||'', cantidad:d.cantidad_animales!=null?String(d.cantidad_animales):'',
-    baston:bast, falt_usa:(fl.cantidad?'si':(r.tipo_evento==='pesaje'&&fl!==null&&d.faltantes!==undefined?'no':'')), falt_cantidad:fl.cantidad?String(fl.cantidad):'', falt_peso_medio:fl.peso_medio_estimado_kg!=null?String(fl.peso_medio_estimado_kg):'', falt_ids:(fl.ids||(fl.animales||[]).map(x=>x.ide).filter(Boolean)).join('\n'), falt_fotos:(a.fotos_faltantes||[]).slice(), falt_lugar:fl.lugar||'', falt_motivo:fl.motivo||'', falt_capataz:fl.capataz||'', falt_auditor:fl.auditor||'', falt_conforme:!!fl.conformidad,
+    bastones:bast?[bast]:[], balanzas:b?[b]:[], falt_usa:(fl.cantidad?'si':(r.tipo_evento==='pesaje'&&fl!==null&&d.faltantes!==undefined?'no':'')), falt_cantidad:fl.cantidad?String(fl.cantidad):'', falt_peso_medio:fl.peso_medio_estimado_kg!=null?String(fl.peso_medio_estimado_kg):'', falt_ids:(fl.ids||(fl.animales||[]).map(x=>x.ide).filter(Boolean)).join('\n'), falt_fotos:(a.fotos_faltantes||[]).slice(), falt_lugar:fl.lugar||'', falt_motivo:fl.motivo||'', falt_capataz:fl.capataz||'', falt_auditor:fl.auditor||'', falt_conforme:!!fl.conformidad,
     propiedad:d.propiedad||'', propietario:d.propietario||'', origen_tipo:d.origen_tipo||'', sistema:d.origen_sistema||'', origen_lote:d.origen_lote||'', origen_piquete:d.origen_piquete||'', destino_lote:d.destino_lote||'', destino_piquete:d.destino_piquete||'', ubicacion:d.ubicacion||null,
     boton:d.nro_boton||'', causa:d.causa_probable||'', madre:d.madre||'', sexo:d.sexo_cria||'', cria_boton:d.nro_boton_cria||'', perdida_boton:r.tipo_evento==='perdida_boton'?(d.nro_boton||''):'', obs:r.observaciones||'',
-    fotos:{ animal:a.foto_animal||null, boton:a.foto_boton||null, perdida:a.foto_ocurrido||null, nacimiento:a.foto_nacimiento||null }, balanza:b };
+    fotos:{ animal:a.foto_animal||null, boton:a.foto_boton||null, perdida:a.foto_ocurrido||null, nacimiento:a.foto_nacimiento||null } };
 }
 async function saveDraft(silent){
-  const s=collectForm(); const hayCamion=s.camiones.some(c=>c.chapa||(c.fotos&&c.fotos.length)), hayCota=s.cotas.some(c=>c.texto||c.foto); if(!s.tipo && !hayCamion && !hayCota && !s.baston && !s.falt_usa && !s.piquete && !s.boton && !s.madre && !s.perdida_boton && !s.balanza && !Object.values(s.fotos).some(Boolean) && !s.lote && !s.obs){ if(!silent) toast('No hay nada que guardar todavía.'); return false; }
+  const s=collectForm(); const hayCamion=s.camiones.some(c=>c.chapa||(c.fotos&&c.fotos.length)), hayCota=s.cotas.some(c=>c.texto||c.foto); if(!s.tipo && !hayCamion && !hayCota && !s.bastones.length && !s.balanzas.length && !s.falt_usa && !s.piquete && !s.boton && !s.madre && !s.perdida_boton && !s.balanza && !Object.values(s.fotos).some(Boolean) && !s.lote && !s.obs){ if(!silent) toast('No hay nada que guardar todavía.'); return false; }
   const prev=await dbGet(formId);
   if(prev && prev.estado!=='borrador'){ return false; } // un registro real en edición no se convierte en borrador
   const w=prev||{id:formId, creado_en:new Date().toISOString(), estado:'borrador', envios:[], historial:[], version:0};
@@ -1405,8 +1432,7 @@ function validate2(){
   if(formUsaCamion()){
     camiones.forEach((c,i)=>{ const n=camiones.length>1?' del camión '+(i+1):' del camión'; if(!(c.chapa||'').trim()) e.push('Falta la chapa'+n+'.'); if(!fotosCamion(c).length) e.push('Falta la foto del precinto'+n+'.'); });
     const chapas=camiones.map(c=>(c.chapa||'').trim().toUpperCase().replace(/\s+/g,' ')).filter(Boolean); if(new Set(chapas).size!==chapas.length) e.push('Hay dos camiones con la misma chapa.');
-    if(!cotas.some(c=>(c.texto||'').trim())) e.push('Falta la COTA: escanee el QR o escriba el número.');
-    cotas.forEach((c,i)=>{ const n=cotas.length>1?' de la COTA '+(i+1):' de la COTA'; if(cotas.length>1 && !(c.texto||'').trim()) e.push('La COTA '+(i+1)+' está vacía: cárguela o quítela.'); if((c.texto||'').trim() && !c.foto) e.push('Falta la foto de la primera página de la guía'+n+'.'); });
+    cotas.forEach((c,i)=>{ const n=cotas.length>1?' de la COTA '+(i+1):' de la COTA'; const t=(c.texto||'').trim(); const cp=t?window.CotaParser.parseCota(t):null; if(!t) e.push('Falta leer el QR'+n+' (escanee o saque foto del QR).'); else if(!cp||!cp.parse_ok) e.push('El QR'+n+' no se leyó: escanee el código o saque una foto del QR. El número escrito a mano no alcanza.'); if(!c.foto) e.push('Falta la foto de la primera página de la guía'+n+'.'); });
     const nros=cotas.map(c=>cotaNro(c.texto)).filter(Boolean); if(new Set(nros).size!==nros.length) e.push('Hay dos COTAs con el mismo número.');
     if(tipo==='entrada' && !$('seg-raza').dataset.value) e.push('Elija la raza.');
   }
@@ -1454,13 +1480,13 @@ function buildRecord(){
   }
   if(usaBalanza(tipo)){
     const q=parseInt($('f-cantidad').value,10);
-    const sinPeso=animales.filter(a=>a.peso_kg===null).length;
-    Object.assign(r.datos,{ cantidad_animales:q, cantidad_archivo:ids.length, cantidad_sin_peso:sinPeso, cantidad_bascula:b?b.animales.length:0, cantidad_baston:baston?baston.animales.length:0,
-      baston:baston?{ nombre:baston.nombre, cantidad:baston.animales.length, ids:baston.animales.map(a=>a.ide), fecha:baston.fecha_pesaje||null }:null,
-      conciliacion:conc?{ baston:conc.baston, bascula:conc.bascula, en_ambos:conc.en_ambos, solo_baston:conc.solo_baston, solo_bascula:conc.solo_bascula, porcentaje:conc.porcentaje }:null, peso_total_kg:b?b.peso_total_kg:null, peso_promedio_kg:b?b.peso_promedio_kg:null, fecha_pesaje:b?b.fecha_pesaje:null, cota_archivo:b?b.cota_archivo:null, guia_archivo:b?b.guia_archivo:null, ids_individuales:ids, animales });
-    r.control={ cantidad_declarada:q, cantidad_ids:ids.length, coincide: ids.length===0 ? null : ids.length===q, ide_invalidas:b?b.invalidos.length:0, ide_repetidas:b?b.duplicados.length:0, sin_peso:sinPeso, conciliacion_pct:conc?conc.porcentaje:null, solo_baston:conc?conc.solo_baston.length:null, solo_bascula:conc?conc.solo_bascula.length:null, cota_coincide:null, guia_coincide:null, declarado_coincide:null };
+    const sinPeso=animales.filter(a=>a.peso_kg===null).length; const pesosU=animales.map(a=>a.peso_kg).filter(p=>p!==null&&p!==undefined); // pesos solo de los animales que valen (en movimientos, los del bastón)
+    Object.assign(r.datos,{ cantidad_animales:q, cantidad_archivo:ids.length, cantidad_sin_peso:sinPeso, cantidad_bascula:b?b.animales.length:0, cantidad_baston:baston?baston.animales.length:0, bascula_archivos:b?b.archivos:[],
+      baston:baston?{ nombre:baston.nombre, archivos:baston.archivos, cantidad:baston.animales.length, ids:baston.animales.map(a=>a.ide), fecha:baston.fecha_pesaje||null }:null,
+      conciliacion:conc?{ baston:conc.baston, bascula:conc.bascula, con_peso:conc.con_peso, sin_peso:conc.sin_peso, descartados_bascula:conc.descartados_bascula, porcentaje:conc.porcentaje, en_ambos:conc.con_peso, solo_baston:conc.sin_peso, solo_bascula:[] }:null, peso_total_kg:pesosU.length?+pesosU.reduce((x,y)=>x+y,0).toFixed(1):null, peso_promedio_kg:pesosU.length?+(pesosU.reduce((x,y)=>x+y,0)/pesosU.length).toFixed(1):null, fecha_pesaje:b?b.fecha_pesaje:null, cota_archivo:b?b.cota_archivo:null, guia_archivo:b?b.guia_archivo:null, ids_individuales:ids, animales });
+    r.control={ cantidad_declarada:q, cantidad_ids:ids.length, coincide: ids.length===0 ? null : ids.length===q, ide_invalidas:b?b.invalidos.length:0, ide_repetidas:b?b.duplicados.length:0, sin_peso:sinPeso, conciliacion_pct:conc?conc.porcentaje:null, solo_baston:conc?conc.sin_peso.length:null, solo_bascula:conc?conc.descartados_bascula:null, cota_coincide:null, guia_coincide:null, declarado_coincide:null };
     if(tipo==='pesaje' && faltUsa()){ const q=parseInt($('f-falt-cantidad').value,10); const pm=$('f-falt-peso-medio').value.trim(); const ids=faltIds().map(x=>x.replace(/\s+/g,'')); r.datos.faltantes={ cantidad:q, peso_medio_estimado_kg:pm!==''?Number(pm.replace(',','.')):null, ids, identificados:ids.length, sin_identificar:Math.max(0,q-ids.length), lugar:$('f-falt-lugar').value.trim(), motivo:$('f-falt-motivo').value.trim(), capataz:$('f-falt-capataz').value.trim(), auditor:$('f-falt-auditor').value.trim(), conformidad:$('f-falt-conforme').checked, animales:ids.map(ide=>({ide, peso_kg:null})) }; r.adjuntos.fotos_faltantes=faltFotos.slice(); r.control.faltantes=q; } else if(tipo==='pesaje') r.datos.faltantes=null;
-    r.archivo_balanza = b ? { nombre:b.nombre, columna_ide:b.columna_ide, columna_peso:b.columna_peso, filas:b.filas } : null;
+    r.archivo_balanza = b ? { nombre:b.nombre, archivos:b.archivos, columna_ide:b.columna_ide, columna_peso:b.columna_peso, filas:b.filas } : null;
   }
   if(formUsaCamion()){
     const q=parseInt($('f-cantidad').value,10);
@@ -1502,7 +1528,7 @@ function kvRows(r){
     if(d.cota_archivo) rows.push(['COTA en archivo',d.cota_archivo+(r.control&&r.control.cota_coincide===false?' (≠ COTAs cargadas)':'')]); if(d.guia_archivo&&r.control&&r.control.guia_coincide===false) rows.push(['Guía en archivo',d.guia_archivo+' (≠ QR)']);
     if(d.origen && !intens) rows.push(['Origen',d.origen]); if(d.destino && !intens) rows.push(['Destino',d.destino]); if(d.raza) rows.push(['Raza',d.raza]);
   }
-  if(usaBalanza(r.tipo_evento)){ if(d.cantidad_animales!=null) rows.push(['Contados',String(d.cantidad_animales)+' animales'+(r.control&&r.control.coincide===false?' (≠ archivo)':'')]); if(d.baston) rows.push(['Bastón',d.baston.cantidad+' identificaciones ('+d.baston.nombre+')']); if(d.conciliacion){ const c=d.conciliacion; rows.push(['Conciliación',c.porcentaje+'% coinciden · '+c.en_ambos+' en ambos'+(c.solo_baston.length?' · '+c.solo_baston.length+' solo bastón':'')+(c.solo_bascula.length?' · '+c.solo_bascula.length+' solo báscula':'')]); } rows.push(['Archivo', (d.ids_individuales||[]).length ? d.ids_individuales.length+' animales · '+(d.peso_promedio_kg!=null?d.peso_promedio_kg+' kg prom. · '+d.peso_total_kg+' kg total':'sin pesos')+(d.cantidad_sin_peso?' · ⚠ '+d.cantidad_sin_peso+' sin peso':'') : 'Sin archivo']); }
+  if(usaBalanza(r.tipo_evento)){ if(d.cantidad_animales!=null) rows.push(['Contados',String(d.cantidad_animales)+' animales'+(r.control&&r.control.coincide===false?' (≠ archivo)':'')]); if(d.baston) rows.push(['Bastón',d.baston.cantidad+' identificaciones ('+d.baston.nombre+')']); if(d.conciliacion){ const c=d.conciliacion; rows.push(['Pesos (báscula)',(c.con_peso!=null?c.con_peso:c.en_ambos)+' de '+c.baston+' con peso ('+c.porcentaje+'%)'+((c.sin_peso||c.solo_baston||[]).length?' · ⚠ '+(c.sin_peso||c.solo_baston).length+' sin peso':'')]); } rows.push(['Archivo', (d.ids_individuales||[]).length ? d.ids_individuales.length+' animales · '+(d.peso_promedio_kg!=null?d.peso_promedio_kg+' kg prom. · '+d.peso_total_kg+' kg total':'sin pesos')+(d.cantidad_sin_peso?' · ⚠ '+d.cantidad_sin_peso+' sin peso':'') : 'Sin archivo']); }
   if(d.faltantes&&d.faltantes.cantidad){ const f=d.faltantes; rows.push(['No arreados',f.cantidad+(f.cantidad===1?' animal':' animales')+' · '+f.lugar+(f.peso_medio_estimado_kg!=null?' · '+f.peso_medio_estimado_kg+' kg prom. estimado':'')+(f.ids&&f.ids.length?' · '+f.ids.length+' identificados':' · sin caravanas identificadas')],['Motivo',f.motivo],['Acta firmada por','Capataz '+f.capataz+' · Auditor '+f.auditor+(f.conformidad?' · conformidad dada':'')],['Fotos del acta',((r.adjuntos||{}).fotos_faltantes||[]).length+' foto(s)']); }
   if(intens){ rows.push([r.tipo_evento==='entrada_confinamiento'?'Lote Confinamiento BovinOS':'Lote BovinOS',d.destino_lote||'—'],[r.tipo_evento==='entrada_confinamiento'?'Piquete Confinamiento':'Piquete',d.destino_piquete||'—']); }
   if(r.tipo_evento==='mortalidad'){ rows.push(['Botón',d.nro_boton],['Causa',d.causa_probable||'—'],['Ubicación',ubicTxt(d.ubicacion)],['Fotos', ((r.adjuntos||{}).foto_animal?'animal ':'')+((r.adjuntos||{}).foto_boton?'botón':'')]); }
@@ -1580,11 +1606,11 @@ $('btn-add-camion').addEventListener('click',()=>{ camiones.push({chapa:'',fotos
 $('file-guia').addEventListener('change', async e=>{ const f=e.target.files[0]; if(!f) return; try{ const du=await compressImage(f,1400,0.75); if(cotas[guiaIdx]){ cotas[guiaIdx].foto=du; renderCotas(); } dirty=true; toast('Foto de la guía cargada'); }catch(err){ toast(err.message); } e.target.value=''; });
 $('btn-add-cota').addEventListener('click',()=>{ cotas.push({texto:'',foto:null}); dirty=true; renderCotas(); const last=$('cotas-list').lastElementChild; if(last) last.scrollIntoView({block:'center'}); });
 $('btn-import-ids').addEventListener('click',()=>$('file-ids').click());
-$('btn-quitar-ids').addEventListener('click',()=>{ balanza=null; dirty=true; renderCsv(); renderBaston(); refreshIds(); checkCotas(); });
+$('btn-quitar-ids').addEventListener('click',()=>{ balanzas=[]; consolidar(); dirty=true; renderCsv(); renderBaston(); refreshIds(); checkCotas(); });
 $('btn-import-baston').addEventListener('click',()=>$('file-baston').click());
-$('btn-quitar-baston').addEventListener('click',()=>{ baston=null; dirty=true; renderBaston(); refreshIds(); });
-$('file-baston').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>{ const err=$('baston-err'); try{ baston=parseBalanza(decodeText(rd.result), f.name); err.classList.add('hidden'); dirty=true; toast(baston.animales.length+' identificaciones del bastón cargadas'); }catch(ex){ baston=null; err.textContent=ex.message; err.classList.remove('hidden'); } renderBaston(); refreshIds(); }; rd.readAsArrayBuffer(f); e.target.value=''; });
-$('file-ids').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>{ const err=$('csv-err'); try{ balanza=parseBalanza(decodeText(rd.result), f.name); err.classList.add('hidden'); dirty=true; toast(balanza.animales.length+' animales cargados'+(balanza.sin_peso?' · '+balanza.sin_peso+' sin peso':'')); }catch(ex){ balanza=null; err.textContent=ex.message; err.classList.remove('hidden'); } renderCsv(); renderBaston(); refreshIds(); checkCotas(); }; rd.readAsArrayBuffer(f); e.target.value=''; });
+$('btn-quitar-baston').addEventListener('click',()=>{ bastones=[]; consolidar(); dirty=true; renderBaston(); refreshIds(); });
+$('file-baston').addEventListener('change',e=>{ const files=Array.from(e.target.files||[]); e.target.value=''; if(!files.length) return; const err=$('baston-err'); let pend=files.length; files.forEach(f=>{ const rd=new FileReader(); rd.onload=()=>{ try{ const b=parseBalanza(decodeText(rd.result), f.name); if(bastones.some(x=>x.nombre===b.nombre)) toast('El archivo '+f.name+' ya estaba cargado; se reemplaza.'); bastones=bastones.filter(x=>x.nombre!==b.nombre).concat([b]); err.classList.add('hidden'); dirty=true; toast(b.animales.length+' identificaciones del bastón cargadas ('+f.name+')'); }catch(ex){ err.textContent=f.name+': '+ex.message; err.classList.remove('hidden'); } if(--pend===0){ consolidar(); renderBaston(); refreshIds(); } }; rd.readAsArrayBuffer(f); }); });
+$('file-ids').addEventListener('change',e=>{ const files=Array.from(e.target.files||[]); e.target.value=''; if(!files.length) return; const err=$('csv-err'); let pend=files.length; files.forEach(f=>{ const rd=new FileReader(); rd.onload=()=>{ try{ const b=parseBalanza(decodeText(rd.result), f.name); if(balanzas.some(x=>x.nombre===b.nombre)) toast('El archivo '+f.name+' ya estaba cargado; se reemplaza.'); balanzas=balanzas.filter(x=>x.nombre!==b.nombre).concat([b]); err.classList.add('hidden'); dirty=true; toast(b.animales.length+' animales cargados ('+f.name+')'+(b.sin_peso?' · '+b.sin_peso+' sin peso':'')); }catch(ex){ err.textContent=f.name+': '+ex.message; err.classList.remove('hidden'); } if(--pend===0){ consolidar(); renderCsv(); renderBaston(); refreshIds(); checkCotas(); } }; rd.readAsArrayBuffer(f); }); });
 $('f-cantidad').addEventListener('input',()=>{ refreshIds(); checkCotas(); dirty=true; });
 $('file-cota').addEventListener('change',async e=>{ const f=e.target.files[0]; if(!f) return; e.target.value=''; toast('Leyendo el QR de la foto…'); try{ const v=await decodeFromFile(f); if(v) setCota(cotaIdx,v); else toast('No se pudo leer el QR en la foto. Acérquese más y evite reflejos, o escriba el número.'); }catch(ex){ toast('No se pudo leer la foto'); } });
 document.querySelectorAll('#scr-form input, #scr-form select, #scr-form textarea').forEach(el=>el.addEventListener('input',()=>{ dirty=true; }));
@@ -1703,10 +1729,10 @@ async function makePdf(r){
     y-=8; title(r.tipo_evento==='pesaje'?'Pesaje y conteo':'Animales');
     kv('Cantidad contada',d.cantidad_animales!=null?String(d.cantidad_animales)+' animales':'—'); kv('Animales en archivo',String((d.ids_individuales||[]).length)+(r.archivo_balanza?'  ('+r.archivo_balanza.nombre+')':''));
     if(d.peso_promedio_kg!=null){ kv('Peso promedio',d.peso_promedio_kg+' kg'); kv('Peso total',d.peso_total_kg+' kg'); } if(d.fecha_pesaje) kv('Fecha de pesaje',d.fecha_pesaje);
-    if(d.baston) kv('Lectura del bastón',d.baston.cantidad+' identificaciones ('+d.baston.nombre+')'); if(d.conciliacion){ const c=d.conciliacion; kv('Conciliación bastón/báscula',c.porcentaje+'% de las IDE coinciden: '+c.en_ambos+' en ambos'+(c.solo_baston.length?', '+c.solo_baston.length+' solo en el bastón':'')+(c.solo_bascula.length?', '+c.solo_bascula.length+' solo en la báscula':'')); }
-    const avisos=[]; if(r.control){ if(r.control.coincide===false) avisos.push('la cantidad contada no coincide con el archivo de la balanza'); if(d.conciliacion&&d.conciliacion.porcentaje<99.9) avisos.push('las listas del bastón y de la báscula no coinciden del todo ('+d.conciliacion.porcentaje+'%)'); if(r.control.sin_peso) avisos.push(r.control.sin_peso+(r.control.sin_peso===1?' animal del archivo no tiene peso':' animales del archivo no tienen peso')); if(r.control.declarado_coincide===false) avisos.push('la cantidad contada no coincide con los animales declarados en la(s) COTA(s)'); if(r.control.cota_coincide===false) avisos.push('la COTA del archivo de la balanza no coincide con ninguna COTA cargada'); if(r.control.guia_coincide===false) avisos.push('la guía del QR no coincide con la del archivo'); }
+    if(d.baston) kv('Lectura del bastón',d.baston.cantidad+' identificaciones ('+d.baston.nombre+')'); if(d.conciliacion){ const c=d.conciliacion; const sp=c.sin_peso||c.solo_baston||[]; kv('Pesos de la báscula',(c.con_peso!=null?c.con_peso:c.en_ambos)+' de '+c.baston+' animales del bastón con peso ('+c.porcentaje+'%)'+(sp.length?'; '+sp.length+' sin peso':'')); }
+    const avisos=[]; if(r.control){ if(r.control.coincide===false) avisos.push('la cantidad contada no coincide con el archivo de la balanza'); if(r.control.sin_peso) avisos.push(r.control.sin_peso+(r.control.sin_peso===1?' animal del archivo no tiene peso':' animales del archivo no tienen peso')); if(r.control.declarado_coincide===false) avisos.push('la cantidad contada no coincide con los animales declarados en la(s) COTA(s)'); if(r.control.cota_coincide===false) avisos.push('la COTA del archivo de la balanza no coincide con ninguna COTA cargada'); if(r.control.guia_coincide===false) avisos.push('la guía del QR no coincide con la del archivo'); }
     for(const av of avisos){ need(24); page.drawRectangle({x:M,y:y-6,width:W-M*2,height:22,color:rgb(.98,.92,.84)}); page.drawText(ansi('ATENCIÓN: '+av+'. Revisar.'),{x:M+8,y:y+1,size:9.5,font:bold,color:rgb(.6,.4,0)}); y-=30; }
-    if(d.conciliacion){ tablaAnimales(d.animales.filter(a=>a.fuente!=='baston'), 'Identificaciones y pesos de la báscula'); tablaIds(d.conciliacion.solo_baston,'Solo en el bastón · no pesados'); tablaIds(d.conciliacion.solo_bascula,'Solo en la báscula · no leídos con el bastón'); } else tablaAnimales(d.animales, (d.baston&&!d.cantidad_bascula)?'Identificaciones leídas con el bastón (sin pesos)':null);
+    if(d.conciliacion&&d.conciliacion.con_peso==null&&d.conciliacion.solo_bascula&&d.conciliacion.solo_bascula.length){ tablaAnimales(d.animales.filter(a=>a.fuente!=='baston'), 'Identificaciones y pesos de la báscula'); tablaIds(d.conciliacion.solo_baston,'Solo en el bastón · no pesados'); tablaIds(d.conciliacion.solo_bascula,'Solo en la báscula · no leídos con el bastón'); } else tablaAnimales(d.animales, d.baston?(d.cantidad_bascula?'Identificaciones del bastón y pesos de la báscula':'Identificaciones leídas con el bastón (sin pesos)'):null);
     if(d.faltantes&&d.faltantes.cantidad){ const f=d.faltantes; y-=8; need(120); title('Acta de novedades · animales no arreados o faltantes en corral ('+f.cantidad+')'); kv('Retiro / lugar',f.lugar); kv('Motivo',f.motivo); kv('Capataz del retiro',f.capataz); kv('Auditor / comisario',f.auditor); kv('Cantidad no arreada',f.cantidad+(f.cantidad===1?' animal':' animales')+(f.peso_medio_estimado_kg!=null?' · peso medio estimado '+f.peso_medio_estimado_kg+' kg':'')); kv('Caravanas identificadas',(f.ids&&f.ids.length)?f.ids.length+' de '+f.cantidad:'ninguna (no se pudo leer)'); kv('Conformidad',f.conformidad?'Capataz y auditor dan conformidad a esta acta':'SIN conformidad'); kv('Nota','Estos animales NO fueron cargados en la báscula; se registran según el manual de auditoría de pesaje.');
       const an=f.animales||[]; y-=4; const cols=3, cw=(W-M*2)/cols, rowH=12.5; for(let i=0;i<an.length;i+=cols){ need(rowH); for(let c=0;c<cols&&i+c<an.length;c++){ const a=an[i+c]; const x0=M+c*cw; page.drawText(ansi(String(i+c+1).padStart(3,' ')),{x:x0,y,size:8.5,font,color:grey}); page.drawText(ansi(a.ide),{x:x0+18,y,size:9,font,color:ink}); } y-=rowH; }
       const ff=(r.adjuntos&&r.adjuntos.fotos_faltantes)||[]; for(let k=0;k<ff.length;k++){ try{ const img=await embedDataUrl(ff[k]); const maxW=(W-M*2-10)/2, maxH=200; const sc=Math.min(maxW/img.width, maxH/img.height); const iw=img.width*sc, ih=img.height*sc; if(k%2===0){ need(ih+28); page.drawText(ansi('FOTOS DEL ACTA'),{x:M,y,size:8,font:bold,color:grey}); y-=ih+6; } const px=M+(k%2)*(maxW+10); page.drawImage(img,{x:px,y,width:iw,height:ih}); page.drawRectangle({x:px,y,width:iw,height:ih,borderColor:line,borderWidth:.5}); if(k%2===1||k===ff.length-1) y-=14; }catch(e){} } }
