@@ -1069,8 +1069,8 @@ if(typeof module!=='undefined'&&module.exports) module.exports=api; else root.Ma
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '3.3.0';
-const ESQUEMA = 'manejo-ypoti/3.3';
+const APP_VERSION = '3.4.0';
+const ESQUEMA = 'manejo-ypoti/3.4';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
 const TIPO_LABEL = {entrada:'Entrada pasto', salida:'Salida de animales', mortalidad:'Mortalidad', nacimiento:'Nacimiento', pesaje:'Pesaje de auditoría', perdida_boton:'Pérdida de botón electrónico', entrada_rip:'Entrada RIP', entrada_confinamiento:'Entrada confinamiento'};
@@ -1168,6 +1168,7 @@ function parseBalanza(text, nombre){
   if(iPeso<0){ const sc=score(esPeso).map((n,i)=>i===iIde?-1:n); const best=Math.max(...sc); if(best>0) iPeso=sc.indexOf(best); }
   if(iIde<0) throw new Error('No encuentro una columna con identificaciones (IDE de 8 a 20 dígitos). Columnas: '+cols.filter(Boolean).join(', '));
   // columnas auxiliares (si existen): COTA, guía, fecha
+  const EXTRAS={ raza:c=>c==='RAZA', sexo:c=>c==='SEXO', categoria:c=>c==='CATEGORIA', proveedor:c=>c==='PROVEEDOR'||c==='PROVEDOR', nacimiento:c=>c==='NAC'||c==='NAC:'||c==='NACIMIENTO'||c==='FECHA NAC' }; const iExtra={}; Object.keys(EXTRAS).forEach(k=>{ const i=ncols.findIndex(EXTRAS[k]); if(i>=0 && i!==iIde && i!==iPeso) iExtra[k]=i; });
   const iCota=ncols.findIndex(c=>/\bCOTA\b/.test(c)&&!/ARCHIVO/.test(c)); let iGuia=ncols.findIndex(c=>/GUIA/.test(c)&&!/COMPRA|VENTA|PROVEEDOR/.test(c)); if(iGuia<0) iGuia=ncols.findIndex(c=>/GUIA/.test(c)); const iFecha=ncols.findIndex(c=>c==='FECHA'||c==='DATE');
   const animales=[], invalidos=[], duplicados=[], seen=new Set(); const cotas=new Map(), guias=new Map(), fechas=new Set(); const cuenta=(m,v)=>m.set(v,(m.get(v)||0)+1);
   for(let r=dataStart;r<lines.length;r++){
@@ -1176,7 +1177,7 @@ function parseBalanza(text, nombre){
     if(!esIde(ide)){ invalidos.push({fila:r+1, ide:rawIde}); continue; }
     if(iCota>=0&&esNroDoc(f[iCota])) cuenta(cotas,f[iCota].trim()); if(iGuia>=0&&esNroDoc(f[iGuia])) cuenta(guias,f[iGuia].trim()); if(iFecha>=0&&f[iFecha]) fechas.add(f[iFecha]);
     if(seen.has(ide)){ duplicados.push({fila:r+1, ide}); continue; } seen.add(ide);
-    animales.push({ ide, peso_kg:(peso===null||isNaN(peso)||peso<=0)?null:peso });
+    const an={ ide, peso_kg:(peso===null||isNaN(peso)||peso<=0)?null:peso }; Object.keys(iExtra).forEach(k=>{ const v=(f[iExtra[k]]||'').trim(); if(v) an[k]=v.slice(0,40); }); animales.push(an);
   }
   if(!animales.length) throw new Error('El archivo no tiene ninguna identificación válida.');
   const pesos=animales.map(a=>a.peso_kg).filter(p=>p!==null);
@@ -1200,9 +1201,11 @@ function renderCsv(){
   p.classList.remove('hidden');
 }
 /* Varios archivos de báscula se consolidan por IDE (último peso cargado manda si se repite); varios de bastón, por IDE. */
+const EXTRA_KEYS=['raza','sexo','categoria','proveedor','nacimiento'];
+const conExtras=(o,a)=>{ EXTRA_KEYS.forEach(k=>{ if(a&&a[k]) o[k]=a[k]; }); return o; };
 function consolidarLista(lista, conPeso){
   if(!lista.length) return null; const map=new Map(); let repesados=0, duplicadosEntre=0;
-  lista.forEach(b=>b.animales.forEach(a=>{ const prev=map.get(a.ide); if(prev){ duplicadosEntre++; if(conPeso && a.peso_kg!==null && prev.peso_kg!==null && a.peso_kg!==prev.peso_kg) repesados++; if(conPeso && a.peso_kg!==null) prev.peso_kg=a.peso_kg; } else map.set(a.ide,{ide:a.ide, peso_kg:conPeso?a.peso_kg:null}); }));
+  lista.forEach(b=>b.animales.forEach(a=>{ const prev=map.get(a.ide); if(prev){ duplicadosEntre++; if(conPeso && a.peso_kg!==null && prev.peso_kg!==null && a.peso_kg!==prev.peso_kg) repesados++; if(conPeso && a.peso_kg!==null) prev.peso_kg=a.peso_kg; EXTRA_KEYS.forEach(k=>{ if(a[k]&&!prev[k]) prev[k]=a[k]; }); } else { const o={ide:a.ide, peso_kg:conPeso?a.peso_kg:null}; EXTRA_KEYS.forEach(k=>{ if(a[k]) o[k]=a[k]; }); map.set(a.ide,o); } }));
   const animales=[...map.values()]; const pesos=animales.map(a=>a.peso_kg).filter(p=>p!==null&&p!==undefined);
   const uni=k=>{ const v=new Set(lista.map(b=>b[k]).filter(Boolean)); return v.size===1?[...v][0]:null; };
   const sinPeso=animales.filter(a=>a.peso_kg===null).map(a=>a.ide);
@@ -1216,10 +1219,10 @@ function consolidar(){ balanza=consolidarLista(balanzas,true); baston=consolidar
 function unionAnimales(){ // lista final de animales
   if(!balanza && !baston) return [];
   if(esMovimiento() && baston){ // en entradas/salidas valen SOLO los animales del bastón; la báscula aporta el peso (left join por IDE)
-    const pesos=new Map(); if(balanza) balanza.animales.forEach(a=>{ if(a.peso_kg!==null&&a.peso_kg!==undefined) pesos.set(a.ide,a.peso_kg); });
-    return baston.animales.map(a=>{ const p=pesos.has(a.ide)?pesos.get(a.ide):null; return {ide:a.ide, peso_kg:p, fuente:p!==null?'ambos':'baston'}; });
+    const pesos=new Map(); if(balanza) balanza.animales.forEach(a=>{ pesos.set(a.ide,a); });
+    return baston.animales.map(a=>{ const q=pesos.get(a.ide); const p=(q&&q.peso_kg!==null&&q.peso_kg!==undefined)?q.peso_kg:null; return conExtras({ide:a.ide, peso_kg:p, fuente:p!==null?'ambos':'baston'}, q||a); });
   }
-  if(balanza) return balanza.animales.map(a=>({ide:a.ide, peso_kg:a.peso_kg, fuente:'bascula'}));
+  if(balanza) return balanza.animales.map(a=>conExtras({ide:a.ide, peso_kg:a.peso_kg, fuente:'bascula'},a));
   return baston.animales.map(a=>({ide:a.ide, peso_kg:null, fuente:'baston'}));
 }
 function conciliacion(){ if(!esMovimiento()||!balanza||!baston) return null; const lista=unionAnimales(); const conPeso=lista.filter(a=>a.peso_kg!==null).length; const sinPeso=lista.filter(a=>a.peso_kg===null).map(a=>a.ide); const sb=new Set(baston.animales.map(a=>a.ide)); const descartados=balanza.animales.filter(a=>!sb.has(a.ide)).length; const n=lista.length; return { baston:n, bascula:balanza.animales.length, con_peso:conPeso, sin_peso:sinPeso, descartados_bascula:descartados, porcentaje:n?Math.round(conPeso/n*1000)/10:0 }; }
@@ -1269,14 +1272,19 @@ function renderCotas(){
   const list=$('cotas-list'); list.innerHTML='';
   cotas.forEach((c,i)=>{ const b=document.createElement('div'); b.className='bloque';
     b.innerHTML='<div class="head"><span></span>'+(cotas.length>1?'<button class="btn small danger" type="button" data-del>✕ Quitar</button>':'')+'</div>'
-      +'<div class="row"><button class="btn" type="button" data-scan>▣ Escanear QR</button><button class="btn" type="button" data-foto>📷 Foto del QR</button></div>'
+      +'<div class="row"><button class="btn" type="button" data-scan>▣ Escanear QR</button><button class="btn" type="button" data-foto>📷 Foto del QR</button><button class="btn" type="button" data-subir>📁 Subir imagen</button></div>'
       +'<div class="msg ok hidden" data-ok></div>'
-      +'<input type="text" data-texto placeholder="Contenido del QR (léalo con la cámara)" autocomplete="off">'
+      +'<input type="text" data-texto placeholder="Contenido del QR (léalo con la cámara)" autocomplete="off" class="hidden">'
+      +'<div class="msg bad hidden" data-fallo></div>'
+      +'<div class="stack hidden" data-manual style="gap:8px"><span class="hint">Como el QR no se pudo leer, cargue los números a mano (los dos son obligatorios):</span><div class="row"><label class="f" style="flex:1"><span class="req">Nº de guía</span><input type="text" data-mguia inputmode="numeric" placeholder="Ej.: 91125268" autocomplete="off"></label><label class="f" style="flex:1"><span class="req">Nº de COTA</span><input type="text" data-mcota inputmode="numeric" placeholder="Ej.: 00101267000857" autocomplete="off"></label></div><button class="btn small" type="button" data-reintentar>↻ Intentar leer el QR de nuevo</button></div>'
       +'<div class="photo"><span style="font-weight:600;font-size:15px;color:var(--ink-2)" class="req">Foto de la primera página de la guía</span><img class="thumb" alt="Foto de la guía"><div class="row"><button class="btn" type="button" data-gcam>📷 Cámara</button><button class="btn" type="button" data-ggal>🖼 Galería</button></div></div>';
     b.querySelector('.head span').textContent = cotas.length>1 ? 'COTA '+(i+1) : 'COTA';
     const inp=b.querySelector('[data-texto]'); inp.value=c.texto||''; inp.addEventListener('input',e=>{ cotas[i].texto=e.target.value; dirty=true; renderCotaPanel(i); checkCotas(); });
-    b.querySelector('[data-scan]').addEventListener('click',()=>openScanner(v=>{ setCota(i,v); toast('COTA leída'); }));
-    b.querySelector('[data-foto]').addEventListener('click',()=>{ cotaIdx=i; $('file-cota').click(); });
+    b.querySelector('[data-scan]').addEventListener('click',()=>openScanner(v=>{ setCota(i,v); toast('COTA leída'); }, ()=>falloQr(i,'La cámara no logró leer el QR en 30 segundos.')));
+    b.querySelector('[data-foto]').addEventListener('click',()=>{ cotaIdx=i; $('file-cota').setAttribute('capture','environment'); $('file-cota').click(); });
+    b.querySelector('[data-subir]').addEventListener('click',()=>{ cotaIdx=i; $('file-cota').removeAttribute('capture'); $('file-cota').click(); });
+    const man=c.manual||{}; const mg=b.querySelector('[data-mguia]'), mc=b.querySelector('[data-mcota]'); mg.value=man.guia||''; mc.value=man.cota||''; mg.addEventListener('input',e=>{ cotas[i].manual=Object.assign({},cotas[i].manual||{},{guia:e.target.value.replace(/\D/g,'')}); dirty=true; renderCotaPanel(i); checkCotas(); }); mc.addEventListener('input',e=>{ cotas[i].manual=Object.assign({},cotas[i].manual||{},{cota:e.target.value.replace(/\D/g,'')}); dirty=true; renderCotaPanel(i); checkCotas(); });
+    b.querySelector('[data-reintentar]').addEventListener('click',()=>{ cotas[i].fallo=false; cotas[i].manual=null; dirty=true; renderCotas(); checkCotas(); });
     const th=b.querySelector('.thumb'); if(c.foto){ th.src=c.foto; th.classList.add('has'); }
     b.querySelector('[data-gcam]').addEventListener('click',()=>{ guiaIdx=i; $('file-guia').setAttribute('capture','environment'); $('file-guia').click(); });
     b.querySelector('[data-ggal]').addEventListener('click',()=>{ guiaIdx=i; $('file-guia').removeAttribute('capture'); $('file-guia').click(); });
@@ -1286,25 +1294,30 @@ function renderCotas(){
 let precintoIdx=0, cotaIdx=0, guiaIdx=0;
 function cotaParsed(c){ const v=(c.texto||'').trim(); return v?window.CotaParser.parseCota(v):null; }
 function renderCotaPanel(i){
-  const b=$('cotas-list').children[i]; if(!b) return; const ok=b.querySelector('[data-ok]'); const c=cotaParsed(cotas[i]); if(!c){ ok.classList.add('hidden'); return; }
+  const b=$('cotas-list').children[i]; if(!b) return; const ok=b.querySelector('[data-ok]'); const ct=cotas[i]; const c=cotaParsed(ct);
+  const fallo=b.querySelector('[data-fallo]'), man=b.querySelector('[data-manual]'); const leido=!!(c&&c.parse_ok);
+  fallo.classList.toggle('hidden', !(ct.fallo && !leido)); if(ct.fallo && !leido) fallo.textContent='⚠ '+(ct.fallo_msg||'No se pudo leer el QR.')+' Puede intentar de nuevo (más cerca, sin reflejos, con el QR bien plano) o cargar a mano el Nº de guía y el Nº de COTA.';
+  man.classList.toggle('hidden', !(ct.fallo && !leido)); b.querySelector('[data-texto]').classList.toggle('hidden', !leido);
+  if(!c){ if(ct.manual && ct.manual.guia && ct.manual.cota){ ok.className='msg warn'; ok.textContent='Cargado a mano (QR no leído): guía '+ct.manual.guia+' · COTA '+ct.manual.cota+'.'; ok.classList.remove('hidden'); } else ok.classList.add('hidden'); return; }
   if(!c.parse_ok){ ok.className='msg warn'; ok.textContent= c.nro_cota ? 'COTA Nº '+c.nro_cota+' (texto sin los demás datos del QR).' : 'No reconozco el formato del QR: '+(cotas[i].texto||'').slice(0,60); ok.classList.remove('hidden'); return; }
   const rows=[['COTA Nº',c.nro_cota],['Guía',c.nro_guia||'—'],['Emitida',c.fecha_emision?fmtDate(c.fecha_emision):'—'],['Origen',(c.establecimiento_origen||'—')+(c.propietario_origen?' · prop. '+c.propietario_origen:'')],['Destino',(c.establecimiento_destino||'—')+(c.propietario_destino?' · prop. '+c.propietario_destino:'')],['Finalidad',c.finalidad||'—'],['Declarados',c.animales_declarados.length?c.animales_declarados.map(x=>x.categoria+' '+x.cantidad).join(', ')+' = '+c.total_declarado:'—']];
   ok.className='msg ok'; ok.innerHTML='<b>QR de la COTA leído</b><dl class="kv" style="margin-top:6px;font-size:14px">'+rows.map(()=>'<dt></dt><dd></dd>').join('')+'</dl>';
   ok.querySelectorAll('dt').forEach((dt,j)=>dt.textContent=rows[j][0]); ok.querySelectorAll('dd').forEach((dd,j)=>dd.textContent=rows[j][1]); ok.classList.remove('hidden');
 }
-function setCota(i,v){ if(!cotas[i]) return; const nro=cotaNro(v); const rep=cotas.findIndex((c,j)=>j!==i && nro && cotaNro(c.texto)===nro); if(rep>=0){ toast('Esa COTA ya está cargada (COTA '+(rep+1)+').'); return; } cotas[i].texto=v; const b=$('cotas-list').children[i]; if(b) b.querySelector('[data-texto]').value=v; renderCotaPanel(i); checkCotas(); dirty=true; }
+function falloQr(i,msg){ if(!cotas[i]) return; cotas[i].fallo=true; cotas[i].fallo_msg=msg; dirty=true; renderCotaPanel(i); toast('No se pudo leer el QR. Intente de nuevo o cargue guía y COTA a mano.'); }
+function setCota(i,v){ if(!cotas[i]) return; const nro=cotaNro(v); const rep=cotas.findIndex((c,j)=>j!==i && nro && cotaNro(c.texto)===nro); if(rep>=0){ toast('Esa COTA ya está cargada (COTA '+(rep+1)+').'); return; } cotas[i].texto=v; cotas[i].fallo=false; cotas[i].manual=null; const b=$('cotas-list').children[i]; if(b) b.querySelector('[data-texto]').value=v; renderCotaPanel(i); checkCotas(); dirty=true; }
 function resumenCotas(){ // agregados de todas las COTAs cargadas
-  const parsed=cotas.map(cotaParsed).filter(Boolean); const nros=parsed.map(c=>c.nro_cota).filter(Boolean); const guias=parsed.map(c=>c.nro_guia).filter(Boolean);
+  const parsed=cotas.map(cotaParsed).filter(Boolean); const manuales=cotas.filter(c=>!cotaParsed(c) && c.manual && c.manual.guia && c.manual.cota); const nros=parsed.map(c=>c.nro_cota).filter(Boolean).concat(manuales.map(c=>c.manual.cota)); const guias=parsed.map(c=>c.nro_guia).filter(Boolean).concat(manuales.map(c=>c.manual.guia));
   const tot=parsed.filter(c=>c.total_declarado!==null); const total=tot.length?tot.reduce((a,c)=>a+c.total_declarado,0):null;
   return {parsed, nros, guias, total, completas:tot.length};
 }
 function checkCotas(){ const hint=$('cota-hint'); hint.style.color=''; hint.className='hint';
-  const rc=resumenCotas(); if(!rc.parsed.length){ hint.textContent='Apunte la cámara al QR de la COTA y espere el aviso. Si hay poca luz, use “Foto del QR”. Si la subida tiene varias guías, agregue una COTA por cada una.'; return; }
+  const rc=resumenCotas(); if(!rc.parsed.length && !rc.nros.length){ hint.textContent='Apunte la cámara al QR de la COTA y espere el aviso. Si hay poca luz, use “Foto del QR”. Si la subida tiene varias guías, agregue una COTA por cada una.'; return; }
   const msgs=[]; const q=parseInt($('f-cantidad').value,10); let bad=false, warn=false;
   if(balanza&&balanza.cota_archivo&&rc.nros.length){ const same=rc.nros.some(n=>cotaLimpia(n)===cotaLimpia(balanza.cota_archivo)); msgs.push(same?'La COTA del archivo de la balanza ('+balanza.cota_archivo+') está entre las cargadas.':'ATENCIÓN: la COTA del archivo de la balanza ('+balanza.cota_archivo+') no coincide con ninguna cargada ('+rc.nros.join(', ')+').'); if(!same) bad=true; }
   if(balanza&&balanza.guia_archivo&&rc.guias.length){ const same=rc.guias.some(g=>cotaLimpia(g)===cotaLimpia(balanza.guia_archivo)); if(!same){ msgs.push('ATENCIÓN: la guía del archivo ('+balanza.guia_archivo+') no coincide con ninguna del QR ('+rc.guias.join(', ')+').'); bad=true; } }
   if(rc.total!==null&&!isNaN(q)){ const lbl=rc.parsed.length>1?'las '+rc.parsed.length+' COTAs declaran en total ':'la COTA declara '; if(rc.total===q) msgs.push('Los '+q+' contados coinciden con los declarados'+(rc.parsed.length>1?' entre las '+rc.parsed.length+' COTAs.':' en la COTA.')); else { msgs.push('ATENCIÓN: '+lbl+rc.total+' animales y se contaron '+q+'.'); warn=true; } }
-  hint.style.color = bad?'var(--bad)':warn?'var(--warn)':'var(--ok)'; hint.textContent = msgs.length?msgs.join(' '):(rc.parsed.length>1?rc.parsed.length+' COTAs cargadas.':'COTA cargada.'); }
+  hint.style.color = bad?'var(--bad)':warn?'var(--warn)':'var(--ok)'; hint.textContent = msgs.length?msgs.join(' '):(rc.nros.length>1?rc.nros.length+' COTAs cargadas.':'COTA cargada.')+(rc.parsed.length<rc.nros.length?' ('+(rc.nros.length-rc.parsed.length)+' a mano, sin datos del QR)':''); }
 
 /* ---------- formulario: reset, estado, borradores ---------- */
 function setTipo(t){ tipo=t; document.querySelectorAll('.tile').forEach(x=>x.classList.toggle('selected',x.dataset.tipo===t)); document.body.className=t?'tipo-'+t:''; dirty=true; }
@@ -1333,7 +1346,7 @@ function setEstancia(v){ if(!v){ $('f-estancia').value=''; $('f-estancia-otra').
 function collectForm(){ // DOM -> estado serializable (borrador)
   return { step, tipo, respondente:respondenteValue(), estancia:estanciaValue(), fecha:$('f-fecha').value, lote:$('f-lote').value.trim(), piquete:$('f-piquete').value.trim(),
     propiedad:segVal('seg-propiedad'), propietario:$('f-propietario').value.trim(), origen_tipo:segVal('seg-origen'), sistema:segVal('seg-sistema'), origen_lote:$('f-origen-lote').value.trim(), origen_piquete:$('f-origen-piquete').value.trim(), destino_lote:$('f-destino-lote').value.trim(), destino_piquete:$('f-destino-piquete').value.trim(), ubicacion,
-    camiones:camiones.map(c=>({chapa:c.chapa||'',fotos:fotosCamion(c)})), cotas:cotas.map(c=>({texto:c.texto||'',foto:c.foto||null})), bastones:bastones.slice(), balanzas:balanzas.slice(), falt_usa:segVal('seg-faltantes'), falt_cantidad:$('f-falt-cantidad').value, falt_peso_medio:$('f-falt-peso-medio').value, falt_ids:$('f-falt-ids').value, falt_fotos:faltFotos.slice(), falt_lugar:$('f-falt-lugar').value.trim(), falt_motivo:$('f-falt-motivo').value.trim(), falt_capataz:$('f-falt-capataz').value.trim(), falt_auditor:$('f-falt-auditor').value.trim(), falt_conforme:$('f-falt-conforme').checked, raza:$('seg-raza').dataset.value||'', cantidad:$('f-cantidad').value,
+    camiones:camiones.map(c=>({chapa:c.chapa||'',fotos:fotosCamion(c)})), cotas:cotas.map(c=>({texto:c.texto||'',foto:c.foto||null,fallo:!!c.fallo,fallo_msg:c.fallo_msg||null,manual:c.manual||null})), bastones:bastones.slice(), balanzas:balanzas.slice(), falt_usa:segVal('seg-faltantes'), falt_cantidad:$('f-falt-cantidad').value, falt_peso_medio:$('f-falt-peso-medio').value, falt_ids:$('f-falt-ids').value, falt_fotos:faltFotos.slice(), falt_lugar:$('f-falt-lugar').value.trim(), falt_motivo:$('f-falt-motivo').value.trim(), falt_capataz:$('f-falt-capataz').value.trim(), falt_auditor:$('f-falt-auditor').value.trim(), falt_conforme:$('f-falt-conforme').checked, raza:$('seg-raza').dataset.value||'', cantidad:$('f-cantidad').value,
     boton:$('f-boton').value, causa:$('f-causa').value, madre:$('f-madre').value, sexo:$('seg-sexo').dataset.value||'', cria_boton:$('f-cria-boton').value, perdida_boton:$('f-perdida-boton').value, obs:$('f-obs').value,
     fotos:Object.assign({},fotos) }; }
 function applyForm(s){ // estado -> DOM
@@ -1342,7 +1355,7 @@ function applyForm(s){ // estado -> DOM
   if(s.estancia) setEstancia(s.estancia); if(s.fecha) $('f-fecha').value=s.fecha; $('f-lote').value=s.lote||''; $('f-piquete').value=s.piquete||''; updateTilesInt();
   setSeg($('seg-propiedad'),s.propiedad||''); $('f-propietario').value=s.propietario||''; setSeg($('seg-origen'),s.origen_tipo||''); setSeg($('seg-sistema'),s.sistema||''); $('f-origen-lote').value=s.origen_lote||''; $('f-origen-piquete').value=s.origen_piquete||''; $('f-destino-lote').value=s.destino_lote||''; $('f-destino-piquete').value=s.destino_piquete||''; ubicacion=s.ubicacion||null; renderUbic();
   camiones=(s.camiones&&s.camiones.length)?s.camiones.map(c=>({chapa:c.chapa||'',fotos:fotosCamion(c)})):[{chapa:s.chapa||'',fotos:(s.fotos&&s.fotos.precinto)?[s.fotos.precinto]:[]}];
-  bastones=(s.bastones||(s.baston?[s.baston]:[])).slice(); balanzas=(s.balanzas||(s.balanza?[s.balanza]:[])).slice(); consolidar(); setSeg($('seg-faltantes'), s.falt_usa||(s.faltantes&&s.faltantes.length?'si':'')); $('f-falt-cantidad').value=s.falt_cantidad||(s.faltantes&&s.faltantes.length?String(s.faltantes.length):''); $('f-falt-peso-medio').value=s.falt_peso_medio||''; $('f-falt-ids').value=s.falt_ids!=null?s.falt_ids:((s.faltantes||[]).map(f=>f.ide).filter(Boolean).join('\n')); faltFotos=(s.falt_fotos||[]).slice(); $('f-falt-lugar').value=s.falt_lugar||''; $('f-falt-motivo').value=s.falt_motivo||''; $('f-falt-capataz').value=s.falt_capataz||''; $('f-falt-auditor').value=s.falt_auditor||''; $('f-falt-conforme').checked=!!s.falt_conforme; renderFaltantes(); renderBaston(); cotas=(s.cotas&&s.cotas.length)?s.cotas.map(c=>({texto:c.texto||'',foto:c.foto||null})):[{texto:s.cota||'',foto:null}]; renderCamiones(); renderCotas(); setSeg($('seg-raza'),s.raza||''); $('f-cantidad').value=s.cantidad||'';
+  bastones=(s.bastones||(s.baston?[s.baston]:[])).slice(); balanzas=(s.balanzas||(s.balanza?[s.balanza]:[])).slice(); consolidar(); setSeg($('seg-faltantes'), s.falt_usa||(s.faltantes&&s.faltantes.length?'si':'')); $('f-falt-cantidad').value=s.falt_cantidad||(s.faltantes&&s.faltantes.length?String(s.faltantes.length):''); $('f-falt-peso-medio').value=s.falt_peso_medio||''; $('f-falt-ids').value=s.falt_ids!=null?s.falt_ids:((s.faltantes||[]).map(f=>f.ide).filter(Boolean).join('\n')); faltFotos=(s.falt_fotos||[]).slice(); $('f-falt-lugar').value=s.falt_lugar||''; $('f-falt-motivo').value=s.falt_motivo||''; $('f-falt-capataz').value=s.falt_capataz||''; $('f-falt-auditor').value=s.falt_auditor||''; $('f-falt-conforme').checked=!!s.falt_conforme; renderFaltantes(); renderBaston(); cotas=(s.cotas&&s.cotas.length)?s.cotas.map(c=>({texto:c.texto||'',foto:c.foto||null,fallo:!!c.fallo,fallo_msg:c.fallo_msg||null,manual:c.manual||null})):[{texto:s.cota||'',foto:null}]; renderCamiones(); renderCotas(); setSeg($('seg-raza'),s.raza||''); $('f-cantidad').value=s.cantidad||'';
   $('f-boton').value=s.boton||''; $('f-causa').value=s.causa||''; $('f-madre').value=s.madre||''; setSeg($('seg-sexo'),s.sexo||''); $('f-cria-boton').value=s.cria_boton||''; $('f-perdida-boton').value=s.perdida_boton||''; $('f-obs').value=s.obs||'';
   fotos={animal:null,boton:null,perdida:null,nacimiento:null}; Object.keys(s.fotos||{}).forEach(k=>{ if(k in fotos) setFoto(k,s.fotos[k]); });
   renderCsv(); renderBaston(); refreshIds(); checkCotas();
@@ -1356,7 +1369,7 @@ function recordToForm(r){ // registro guardado -> estado del formulario (para ed
   const fp=a.fotos_precinto||[]; const fpArr=x=>Array.isArray(x)?x.filter(Boolean):(x?[x]:[]); const cam=(d.camiones&&d.camiones.length)?d.camiones.map((c,i)=>({chapa:c.chapa||'',fotos:fpArr(fp[i])})):(d.chapa_camion?[{chapa:d.chapa_camion,fotos:fpArr(a.foto_precinto).concat(fpArr(fp[0]))}]:[]);
   const bast=(d.baston&&d.baston.ids&&d.baston.ids.length)?{ nombre:d.baston.nombre||'bastón anterior', columna_ide:'IDE', columna_peso:null, filas:d.baston.ids.length, animales:d.baston.ids.map(ide=>({ide,peso_kg:null})), invalidos:[], duplicados:[], ids_sin_peso:[], avisos:[], cota_archivo:null, guia_archivo:null, fecha_pesaje:d.baston.fecha||null, peso_total_kg:null, peso_promedio_kg:null, sin_peso:d.baston.ids.length }:null;
   const fl=d.faltantes||{};
-  const fg=a.fotos_guia||[]; const cts=(d.cotas&&d.cotas.length)?d.cotas.map((c,i)=>({texto:c.cota_qr||c.cota_nro||'',foto:fg[i]||null})):((d.cota_qr||d.cota_nro)?[{texto:d.cota_qr||d.cota_nro,foto:null}]:[]);
+  const fg=a.fotos_guia||[]; const cts=(d.cotas&&d.cotas.length)?d.cotas.map((c,i)=>(c.modo==='manual'||!c.cota_qr)?{texto:'',foto:fg[i]||null,fallo:true,fallo_msg:c.motivo_manual||'QR no leído',manual:{guia:c.nro_guia||'',cota:c.cota_nro||''}}:{texto:c.cota_qr,foto:fg[i]||null}):((d.cota_qr||d.cota_nro)?[{texto:d.cota_qr||d.cota_nro,foto:null}]:[]);
   const intens=esIntensivo(r.tipo_evento);
   return { step:1, tipo:r.tipo_evento, respondente:r.respondente, estancia:r.estancia, fecha:r.fecha_evento, lote:intens?'':(r.lote_controlpasto||''), piquete:intens?'':(r.piquete||''), camiones:cam, cotas:cts, raza:d.raza||'', cantidad:d.cantidad_animales!=null?String(d.cantidad_animales):'',
     bastones:bast?[bast]:[], balanzas:b?[b]:[], falt_usa:(fl.cantidad?'si':(r.tipo_evento==='pesaje'&&fl!==null&&d.faltantes!==undefined?'no':'')), falt_cantidad:fl.cantidad?String(fl.cantidad):'', falt_peso_medio:fl.peso_medio_estimado_kg!=null?String(fl.peso_medio_estimado_kg):'', falt_ids:(fl.ids||(fl.animales||[]).map(x=>x.ide).filter(Boolean)).join('\n'), falt_fotos:(a.fotos_faltantes||[]).slice(), falt_lugar:fl.lugar||'', falt_motivo:fl.motivo||'', falt_capataz:fl.capataz||'', falt_auditor:fl.auditor||'', falt_conforme:!!fl.conformidad,
@@ -1365,7 +1378,7 @@ function recordToForm(r){ // registro guardado -> estado del formulario (para ed
     fotos:{ animal:a.foto_animal||null, boton:a.foto_boton||null, perdida:a.foto_ocurrido||null, nacimiento:a.foto_nacimiento||null } };
 }
 async function saveDraft(silent){
-  const s=collectForm(); const hayCamion=s.camiones.some(c=>c.chapa||(c.fotos&&c.fotos.length)), hayCota=s.cotas.some(c=>c.texto||c.foto); if(!s.tipo && !hayCamion && !hayCota && !s.bastones.length && !s.balanzas.length && !s.falt_usa && !s.piquete && !s.boton && !s.madre && !s.perdida_boton && !s.balanza && !Object.values(s.fotos).some(Boolean) && !s.lote && !s.obs){ if(!silent) toast('No hay nada que guardar todavía.'); return false; }
+  const s=collectForm(); const hayCamion=s.camiones.some(c=>c.chapa||(c.fotos&&c.fotos.length)), hayCota=s.cotas.some(c=>c.texto||c.foto||(c.manual&&(c.manual.guia||c.manual.cota))); if(!s.tipo && !hayCamion && !hayCota && !s.bastones.length && !s.balanzas.length && !s.falt_usa && !s.piquete && !s.boton && !s.madre && !s.perdida_boton && !s.balanza && !Object.values(s.fotos).some(Boolean) && !s.lote && !s.obs){ if(!silent) toast('No hay nada que guardar todavía.'); return false; }
   const prev=await dbGet(formId);
   if(prev && prev.estado!=='borrador'){ return false; } // un registro real en edición no se convierte en borrador
   const w=prev||{id:formId, creado_en:new Date().toISOString(), estado:'borrador', envios:[], historial:[], version:0};
@@ -1432,8 +1445,10 @@ function validate2(){
   if(formUsaCamion()){
     camiones.forEach((c,i)=>{ const n=camiones.length>1?' del camión '+(i+1):' del camión'; if(!(c.chapa||'').trim()) e.push('Falta la chapa'+n+'.'); if(!fotosCamion(c).length) e.push('Falta la foto del precinto'+n+'.'); });
     const chapas=camiones.map(c=>(c.chapa||'').trim().toUpperCase().replace(/\s+/g,' ')).filter(Boolean); if(new Set(chapas).size!==chapas.length) e.push('Hay dos camiones con la misma chapa.');
-    cotas.forEach((c,i)=>{ const n=cotas.length>1?' de la COTA '+(i+1):' de la COTA'; const t=(c.texto||'').trim(); const cp=t?window.CotaParser.parseCota(t):null; if(!t) e.push('Falta leer el QR'+n+' (escanee o saque foto del QR).'); else if(!cp||!cp.parse_ok) e.push('El QR'+n+' no se leyó: escanee el código o saque una foto del QR. El número escrito a mano no alcanza.'); if(!c.foto) e.push('Falta la foto de la primera página de la guía'+n+'.'); });
-    const nros=cotas.map(c=>cotaNro(c.texto)).filter(Boolean); if(new Set(nros).size!==nros.length) e.push('Hay dos COTAs con el mismo número.');
+    cotas.forEach((c,i)=>{ const n=cotas.length>1?' de la COTA '+(i+1):' de la COTA'; const t=(c.texto||'').trim(); const cp=t?window.CotaParser.parseCota(t):null; const leido=!!(cp&&cp.parse_ok); const man=c.manual||{}; const manualOk=!!(man.guia&&man.cota);
+      if(!leido){ if(!c.fallo) e.push('Falta leer el QR'+n+' (escanee, saque foto o suba una imagen del QR).'); else if(!manualOk) e.push('El QR'+n+' no se pudo leer: intente de nuevo o cargue a mano el Nº de guía y el Nº de COTA (los dos).'); else { if(!/^\d{5,20}$/.test(man.guia)) e.push('El Nº de guía'+n+' debe ser numérico.'); if(!/^\d{8,20}$/.test(man.cota)) e.push('El Nº de COTA'+n+' debe ser numérico (8 a 20 dígitos).'); } }
+      if(!c.foto) e.push('Falta la foto de la primera página de la guía'+n+'.'); });
+    const nros=cotas.map(c=>cotaNro(c.texto)||(c.manual&&c.manual.cota)||null).filter(Boolean); if(new Set(nros).size!==nros.length) e.push('Hay dos COTAs con el mismo número.');
     if(tipo==='entrada' && !$('seg-raza').dataset.value) e.push('Elija la raza.');
   }
   if(usaBalanza(tipo)){
@@ -1470,7 +1485,7 @@ function buildRecord(){
   const lote = intens ? $('f-destino-lote').value.trim() : $('f-lote').value.trim(); const piq = intens ? $('f-destino-piquete').value.trim() : $('f-piquete').value.trim();
   const r={ esquema:ESQUEMA, id:formId, tipo_evento:tipo, grupo: intens?'intensivo':'pasto', respondente:respondenteValue(), estancia:estanciaValue(), fecha_evento:$('f-fecha').value, lote_controlpasto:lote||null, piquete:piq||null,
     creado_en:base?base.creado_en:new Date().toISOString(), modificado_en:base?new Date().toISOString():null, version:base?(base.version||1)+1:1, app_version:APP_VERSION, dispositivo:{plataforma:navigator.platform||'', agente:navigator.userAgent}, geo:base?base.geo:null, datos:{}, control:null, observaciones:$('f-obs').value.trim(), adjuntos:{} };
-  const b=balanza; const animales=unionAnimales().map(a=>({ide:a.ide, peso_kg:a.peso_kg, fuente:a.fuente})); const ids=animales.map(a=>a.ide); const conc=conciliacion();
+  const b=balanza; const animales=unionAnimales().map(a=>conExtras({ide:a.ide, peso_kg:a.peso_kg, fuente:a.fuente},a)); const ids=animales.map(a=>a.ide); const conc=conciliacion();
   if(intens){
     const conf=tipo==='entrada_confinamiento'; const prop=conf?segVal('seg-propiedad'):'propio'; const ori=(prop==='propio')?segVal('seg-origen'):null; const sis=(conf&&prop==='propio'&&ori==='misma_propiedad')?segVal('seg-sistema'):(tipo==='entrada_rip'&&ori==='misma_propiedad'?'recria_tradicional':null);
     const misma = prop==='propio' && ori==='misma_propiedad';
@@ -1491,8 +1506,8 @@ function buildRecord(){
   if(formUsaCamion()){
     const q=parseInt($('f-cantidad').value,10);
     const cams=camiones.map((c,i)=>({ nro:i+1, chapa:(c.chapa||'').trim().toUpperCase().replace(/\s+/g,' '), foto_precinto:fotosCamion(c).length>0, fotos_precinto:fotosCamion(c).length }));
-    const ctsSrc=cotas.filter(c=>(c.texto||'').trim());
-    const cts=ctsSrc.map((c,i)=>{ const t=c.texto.trim(); const cp=window.CotaParser.parseCota(t); return { nro:i+1, cota_qr:t, cota_nro:cp.nro_cota||null, nro_guia:cp.nro_guia||null, total_declarado:cp.total_declarado, foto_guia:!!c.foto, cota:cp }; });
+    const ctsSrc=cotas.filter(c=>{ const cp=cotaParsed(c); return (cp&&cp.parse_ok) || (c.manual&&c.manual.guia&&c.manual.cota); });
+    const cts=ctsSrc.map((c,i)=>{ const cp=cotaParsed(c); if(cp&&cp.parse_ok) return { nro:i+1, modo:'qr', cota_qr:c.texto.trim(), cota_nro:cp.nro_cota||null, nro_guia:cp.nro_guia||null, total_declarado:cp.total_declarado, foto_guia:!!c.foto, cota:cp }; return { nro:i+1, modo:'manual', cota_qr:null, cota_nro:c.manual.cota, nro_guia:c.manual.guia, total_declarado:null, foto_guia:!!c.foto, cota:null, motivo_manual:c.fallo_msg||'QR no leído' }; });
     const nros=cts.map(c=>c.cota_nro).filter(Boolean), guias=cts.map(c=>c.nro_guia).filter(Boolean); const conTotal=cts.filter(c=>c.total_declarado!==null&&c.total_declarado!==undefined); const totalDecl=conTotal.length?conTotal.reduce((a,c)=>a+c.total_declarado,0):null;
     Object.assign(r.datos,{ chapa_camion:cams.map(c=>c.chapa).join(' / '), cantidad_camiones:cams.length, camiones:cams,
       cota_qr:cts.length?cts[0].cota_qr:null, cota_nro:nros.length?nros.join(' / '):(b?b.cota_archivo:null), cota:cts.length?cts[0].cota:null, cantidad_cotas:cts.length, cotas:cts, total_declarado_cotas:totalDecl });
@@ -1523,7 +1538,7 @@ function kvRows(r){
     const fp=(r.adjuntos&&r.adjuntos.fotos_precinto)||[]; const cams=(d.camiones&&d.camiones.length)?d.camiones:[{nro:1,chapa:d.chapa_camion,foto_precinto:!!(r.adjuntos&&r.adjuntos.foto_precinto)}];
     cams.forEach((c,i)=>{ const nf=Array.isArray(fp[i])?fp[i].filter(Boolean).length:(fp[i]?1:(c.fotos_precinto||(c.foto_precinto?1:0))); rows.push([cams.length>1?'Camión '+(i+1):'Camión',(c.chapa||'—')+(nf?' · precinto: '+nf+(nf===1?' foto':' fotos'):' · sin foto del precinto')]); });
     const cts=(d.cotas&&d.cotas.length)?d.cotas:(d.cota||d.cota_nro||d.cota_qr?[{nro:1,cota_qr:d.cota_qr,cota_nro:d.cota_nro,cota:d.cota}]:[]);
-    cts.forEach((ct,i)=>{ const c=ct.cota; const lbl=cts.length>1?'COTA '+(i+1):'COTA'; rows.push([lbl,(ct.cota_nro||ct.cota_qr||'—')+(ct.foto_guia?' · guía: foto adjunta':'')]); if(c&&c.parse_ok) rows.push([lbl+' · guía',c.nro_guia||'—'],[lbl+' · emitida',c.fecha_emision?fmtDate(c.fecha_emision):'—'],[lbl+' · origen',c.establecimiento_origen||'—'],[lbl+' · destino',c.establecimiento_destino||'—'],[lbl+' · finalidad',c.finalidad||'—'],[lbl+' · declarados',c.total_declarado!==null?c.animales_declarados.map(x=>x.categoria+' '+x.cantidad).join(', ')+' = '+c.total_declarado:'—']); });
+    cts.forEach((ct,i)=>{ const c=ct.cota; const lbl=cts.length>1?'COTA '+(i+1):'COTA'; rows.push([lbl,(ct.cota_nro||ct.cota_qr||'—')+(ct.modo==='manual'?' · guía '+(ct.nro_guia||'—')+' · ⚠ cargada a mano (QR no leído)':'')+(ct.foto_guia?' · guía: foto adjunta':'')]); if(c&&c.parse_ok) rows.push([lbl+' · guía',c.nro_guia||'—'],[lbl+' · emitida',c.fecha_emision?fmtDate(c.fecha_emision):'—'],[lbl+' · origen',c.establecimiento_origen||'—'],[lbl+' · destino',c.establecimiento_destino||'—'],[lbl+' · finalidad',c.finalidad||'—'],[lbl+' · declarados',c.total_declarado!==null?c.animales_declarados.map(x=>x.categoria+' '+x.cantidad).join(', ')+' = '+c.total_declarado:'—']); });
     if(cts.length>1 && d.total_declarado_cotas!=null) rows.push(['Declarados en total',d.total_declarado_cotas+(r.control&&r.control.declarado_coincide===false?' (≠ contados)':'')]);
     if(d.cota_archivo) rows.push(['COTA en archivo',d.cota_archivo+(r.control&&r.control.cota_coincide===false?' (≠ COTAs cargadas)':'')]); if(d.guia_archivo&&r.control&&r.control.guia_coincide===false) rows.push(['Guía en archivo',d.guia_archivo+' (≠ QR)']);
     if(d.origen && !intens) rows.push(['Origen',d.origen]); if(d.destino && !intens) rows.push(['Destino',d.destino]); if(d.raza) rows.push(['Raza',d.raza]);
@@ -1574,20 +1589,21 @@ function decodeCanvas(src, sw, sh, maxSide){
   return null;
 }
 let detector=null; try{ if('BarcodeDetector' in window) detector=new BarcodeDetector({formats:['qr_code']}); }catch(e){ detector=null; }
-async function openScanner(onResult){
+async function openScanner(onResult, onFail){
   const sc=$('scanner'); sc.classList.add('on'); $('scan-msg').textContent='Apunte al código y manténgalo dentro del recuadro…';
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ closeScanner(); toast('Este navegador no permite usar la cámara aquí. Use “Sacar foto del QR”.'); return; }
   try{
     scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
     const v=$('scan-video'); v.srcObject=scanStream; await v.play();
     try{ const track=scanStream.getVideoTracks()[0]; const caps=track.getCapabilities?track.getCapabilities():{}; if(caps.focusMode && caps.focusMode.includes('continuous')) track.applyConstraints({advanced:[{focusMode:'continuous'}]}).catch(()=>{}); }catch(e){}
-    let frames=0;
+    let frames=0; const scanInicio=Date.now();
     const tick=async()=>{ if(!scanStream) return; if(!scanBusy && v.readyState>=2 && v.videoWidth){ scanBusy=true; frames++; let val=null;
         try{ if(detector){ const codes=await detector.detect(v); if(codes && codes.length && codes[0].rawValue) val=codes[0].rawValue; } }catch(e){}
         if(!val){ try{ val=decodeCanvas(v, v.videoWidth, v.videoHeight, 800); }catch(e){} }
         scanBusy=false;
         if(val){ closeScanner(); if(navigator.vibrate) navigator.vibrate(80); onResult(val); return; }
-        if(frames===40) $('scan-msg').textContent='Todavía no leo el código: acérquese un poco, evite reflejos y mantenga el teléfono quieto.'; }
+        if(frames===40) $('scan-msg').textContent='Todavía no leo el código: acérquese un poco, evite reflejos y mantenga el teléfono quieto.';
+        if(Date.now()-scanInicio>30000){ closeScanner(); if(onFail) onFail(); return; } }
       scanTimer=setTimeout(tick, 120); };
     scanTimer=setTimeout(tick, 200);
   }catch(e){ closeScanner(); toast('No se pudo abrir la cámara ('+(e.name||e.message||e)+'). Use “Sacar foto del QR”.'); }
@@ -1612,7 +1628,7 @@ $('btn-quitar-baston').addEventListener('click',()=>{ bastones=[]; consolidar();
 $('file-baston').addEventListener('change',e=>{ const files=Array.from(e.target.files||[]); e.target.value=''; if(!files.length) return; const err=$('baston-err'); let pend=files.length; files.forEach(f=>{ const rd=new FileReader(); rd.onload=()=>{ try{ const b=parseBalanza(decodeText(rd.result), f.name); if(bastones.some(x=>x.nombre===b.nombre)) toast('El archivo '+f.name+' ya estaba cargado; se reemplaza.'); bastones=bastones.filter(x=>x.nombre!==b.nombre).concat([b]); err.classList.add('hidden'); dirty=true; toast(b.animales.length+' identificaciones del bastón cargadas ('+f.name+')'); }catch(ex){ err.textContent=f.name+': '+ex.message; err.classList.remove('hidden'); } if(--pend===0){ consolidar(); renderBaston(); refreshIds(); } }; rd.readAsArrayBuffer(f); }); });
 $('file-ids').addEventListener('change',e=>{ const files=Array.from(e.target.files||[]); e.target.value=''; if(!files.length) return; const err=$('csv-err'); let pend=files.length; files.forEach(f=>{ const rd=new FileReader(); rd.onload=()=>{ try{ const b=parseBalanza(decodeText(rd.result), f.name); if(balanzas.some(x=>x.nombre===b.nombre)) toast('El archivo '+f.name+' ya estaba cargado; se reemplaza.'); balanzas=balanzas.filter(x=>x.nombre!==b.nombre).concat([b]); err.classList.add('hidden'); dirty=true; toast(b.animales.length+' animales cargados ('+f.name+')'+(b.sin_peso?' · '+b.sin_peso+' sin peso':'')); }catch(ex){ err.textContent=f.name+': '+ex.message; err.classList.remove('hidden'); } if(--pend===0){ consolidar(); renderCsv(); renderBaston(); refreshIds(); checkCotas(); } }; rd.readAsArrayBuffer(f); }); });
 $('f-cantidad').addEventListener('input',()=>{ refreshIds(); checkCotas(); dirty=true; });
-$('file-cota').addEventListener('change',async e=>{ const f=e.target.files[0]; if(!f) return; e.target.value=''; toast('Leyendo el QR de la foto…'); try{ const v=await decodeFromFile(f); if(v) setCota(cotaIdx,v); else toast('No se pudo leer el QR en la foto. Acérquese más y evite reflejos, o escriba el número.'); }catch(ex){ toast('No se pudo leer la foto'); } });
+$('file-cota').addEventListener('change',async e=>{ const f=e.target.files[0]; if(!f) return; e.target.value=''; toast('Leyendo el QR de la foto…'); try{ const v=await decodeFromFile(f); if(v) setCota(cotaIdx,v); else falloQr(cotaIdx,'No se pudo leer el QR en la imagen (poca nitidez, reflejos o QR muy chico).'); }catch(ex){ falloQr(cotaIdx,'No se pudo abrir la imagen.'); } });
 document.querySelectorAll('#scr-form input, #scr-form select, #scr-form textarea').forEach(el=>el.addEventListener('input',()=>{ dirty=true; }));
 
 /* ---------- animales no arreados / faltantes en corral (pesaje de auditoría) ---------- */
@@ -1718,7 +1734,7 @@ async function makePdf(r){
       if(c.coord_destino){ page.drawCircle({x:lx+3,y:ly+2.5,size:3,color:rgb(.05,.05,.05)}); page.drawText(ansi('Destino '+(c.establecimiento_destino||'')),{x:lx+10,y:ly,size:7.5,font:bold,color:ink}); ly-=10; page.drawText(ansi(c.coord_destino.lat+', '+c.coord_destino.lon),{x:lx+10,y:ly,size:7,font,color:grey}); ly-=13; }
       if(c.coord_origen&&c.coord_destino){ const R=6371, toR=v=>v*Math.PI/180; const dLat=toR(c.coord_destino.lat-c.coord_origen.lat), dLon=toR(c.coord_destino.lon-c.coord_origen.lon); const a=Math.sin(dLat/2)**2+Math.cos(toR(c.coord_origen.lat))*Math.cos(toR(c.coord_destino.lat))*Math.sin(dLon/2)**2; const km=2*R*Math.asin(Math.sqrt(a)); page.drawText(ansi(Math.round(km)+' km en línea recta'),{x:lx,y:ly,size:7,font,color:grey}); ly-=10; }
       rightBottom=ly-4; rightPage=pageNo; kvRight=RIGHT_W; }
-    kv('COTA Nº',ct.cota_nro||'no leída'); if(c&&c.parse_ok){ kv('Guía Nº',c.nro_guia||'—'); kv('Fecha de emisión',c.fecha_emision?fmtDate(c.fecha_emision):'—'); kv('Propietario origen',c.propietario_origen||'—'); kv('Establecimiento origen',c.establecimiento_origen||'—'); if(c.coord_origen) kv('Coordenadas origen',c.coord_origen.lat+', '+c.coord_origen.lon); kv('Propietario destino',c.propietario_destino||'—'); kv('Establecimiento destino',c.establecimiento_destino||'—'); if(c.coord_destino) kv('Coordenadas destino',c.coord_destino.lat+', '+c.coord_destino.lon); kv('Finalidad',c.finalidad||'—'); kv('Animales declarados',c.total_declarado!==null?c.animales_declarados.map(x=>x.categoria+' '+x.cantidad).join(', ')+'  (total '+c.total_declarado+')':'—'); }
+    kv('COTA Nº',(ct.cota_nro||'no leída')+(ct.modo==='manual'?'  (cargada a mano: el QR no se pudo leer)':'')); if(ct.modo==='manual') kv('Guía Nº',ct.nro_guia||'—'); if(c&&c.parse_ok){ kv('Guía Nº',c.nro_guia||'—'); kv('Fecha de emisión',c.fecha_emision?fmtDate(c.fecha_emision):'—'); kv('Propietario origen',c.propietario_origen||'—'); kv('Establecimiento origen',c.establecimiento_origen||'—'); if(c.coord_origen) kv('Coordenadas origen',c.coord_origen.lat+', '+c.coord_origen.lon); kv('Propietario destino',c.propietario_destino||'—'); kv('Establecimiento destino',c.establecimiento_destino||'—'); if(c.coord_destino) kv('Coordenadas destino',c.coord_destino.lat+', '+c.coord_destino.lon); kv('Finalidad',c.finalidad||'—'); kv('Animales declarados',c.total_declarado!==null?c.animales_declarados.map(x=>x.categoria+' '+x.cantidad).join(', ')+'  (total '+c.total_declarado+')':'—'); }
     else if(ct.cota_qr && ct.cota_qr!==ct.cota_nro) kv('Contenido del QR',ct.cota_qr);
     if(pageNo===rightPage && y>rightBottom) y=rightBottom; kvRight=0;
     const fg=(r.adjuntos&&r.adjuntos.fotos_guia)||[]; if(fg[i]){ try{ const img=await embedDataUrl(fg[i]); const maxW=W-M*2, maxH=300; const sc=Math.min(maxW/img.width, maxH/img.height); const iw=img.width*sc, ih=img.height*sc; need(ih+30); page.drawText(ansi('FOTO DE LA GUÍA'+(cts.length>1?' '+(i+1):'')),{x:M,y,size:8,font:bold,color:grey}); y-=ih+6; page.drawImage(img,{x:M,y,width:iw,height:ih}); page.drawRectangle({x:M,y,width:iw,height:ih,borderColor:line,borderWidth:.5}); y-=14; }catch(e){} } }
