@@ -1,17 +1,23 @@
-Contraseñas de publicación por estancia (app Registro de manejo)
+Contraseñas de 4 números (app Registro de manejo · versión 3.9)
 Cada capataz recibe SOLO la de su estancia. La clave maestra es para administración.
+NO subir este archivo a GitHub.
 
-Ypoti           potrero-25
-Ybypora         sombra-85
-Cafetalera      guampa-78
-La Esperanza    rodeo-93
-Santa Clara     marca-74
-Lusipar         tropilla-72
-Oro Verde       pastura-97
-Santa Maria     molino-89
-Cielo Azul      estribo-80
-Bella Vista     bramadero-87
+Ypoti           1051
+Ybypora         6216
+Cafetalera      4458
+La Esperanza    4444
+Santa Clara     7926
+Lusipar         9171
+Oro Verde       2842
+Santa Maria     8295
+Cielo Azul      5460
+Bella Vista     6824
+Cerro Memby     4998
+Otra            5883   (estancias escritas a mano)
 
-Clave maestra (todas las estancias): boigordo
+Clave maestra (todas las estancias):          2803
+Clave de aprobación de solicitudes (Ronei):   7629
 
-Para cambiar una clave: editar CONFIG.CLAVES en servidor_apps_script.gs (texto claro) y CLAVES_HASH en index.html (SHA-256 de la clave), y volver a publicar ambos.
+Para cambiar una clave: editar CONFIG.CLAVES / CLAVE_MAESTRA / CLAVE_APROBACION en servidor_apps_script.gs
+y publicar una nueva versión del script. El app no guarda las claves: no hace falta tocar index.html.
+Después de 8 claves incorrectas en 15 minutos, el servidor bloquea esa estancia durante 15 minutos.
