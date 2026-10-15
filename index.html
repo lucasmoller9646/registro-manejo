@@ -193,6 +193,11 @@ input.locked{background:var(--surface-2);color:var(--ink-2);border-style:dashed;
 .chk input{width:22px;height:22px;margin-top:2px;flex:none}
 .bloque{border:1px dashed var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px}
 .bloque .head{display:flex;justify-content:space-between;align-items:center;font-weight:700;color:var(--ink-2)}
+.med-tit{font-weight:700;font-size:15px;color:var(--ink-2)}
+.med-fila{display:flex;gap:8px;align-items:flex-start}
+.med-fila>label{flex:1 1 auto;min-width:0;position:relative}
+.med-fila>.btn.small{flex:0 0 auto;width:auto;min-width:50px;min-height:50px;padding:0 12px;font-size:15px}
+.bloque .head .btn{width:auto;flex:0 0 auto}
 .btn.small{padding:6px 10px;font-size:13px;min-height:0}
 .photo .thumb{width:100%;max-width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);display:none}
 .photo .thumb.has{display:block}
@@ -542,23 +547,18 @@ details.archivos > summary{cursor:pointer;font-family:var(--font-display);font-w
         <div class="section-title"><span class="dot"></span><h3>Aplicación de medicamento</h3></div>
         <div class="card stack">
           <label class="f"><span class="req">¿Cómo carga?</span>
-            <div class="seg" id="seg-medic-modo"><button type="button" data-v="simple">Carga simple<small>un animal, acá mismo</small></button><button type="button" data-v="masiva">Carga masiva<small>planilla Excel con varios</small></button></div>
+            <div class="seg" id="seg-medic-modo"><button type="button" data-v="simple">Carga simple<small>uno o varios, acá mismo</small></button><button type="button" data-v="masiva">Carga masiva<small>planilla Excel con varios</small></button></div>
           </label>
           <div class="stack" id="medic-simple">
-            <label class="f" style="position:relative"><span class="req">Brinco del animal</span>
-              <input type="text" id="f-med-brinco" class="upper" placeholder="Nº de brinco / caravana / IDE" autocomplete="off" autocapitalize="characters">
-              <div class="sugs hidden" id="med-brinco-sugs"></div>
-              <span class="hint" id="med-brinco-estado"></span>
-            </label>
-            <label class="f" style="position:relative"><span class="req">Medicamento utilizado</span>
-              <input type="text" id="f-med-nombre" placeholder="Escriba para buscar en la lista…" autocomplete="off">
-              <div class="sugs hidden" id="med-sugs"></div>
-              <span class="hint" id="med-estado">Empiece a escribir: se filtra la lista del depósito. Si no está en la lista, escriba el nombre completo.</span>
-            </label>
-            <div class="row">
-              <label class="f" style="flex:2 1 160px"><span class="req">Dosis aplicada</span><input type="number" id="f-med-dosis" inputmode="decimal" step="any" min="0" placeholder="Ej.: 5"></label>
-              <label class="f" style="flex:1 1 110px"><span class="req">Unidad</span><select id="f-med-unidad"><option value="">—</option><option value="un.">un.</option><option value="L">L</option><option value="ml">ml</option><option value="g">g</option><option value="mg">mg</option><option value="µg">µg</option></select></label>
-            </div>
+            <div class="med-tit req">Animales tratados (brincos)</div>
+            <span class="hint" style="margin-top:-6px">Si el mismo tratamiento se dio a varios animales, agregue un brinco por animal.</span>
+            <div id="med-brincos-list" class="stack" style="gap:8px"></div>
+            <button class="btn" type="button" id="btn-add-brinco">+ Agregar otro brinco</button>
+            <div class="med-tit req" style="margin-top:6px">Medicamentos aplicados</div>
+            <span class="hint" style="margin-top:-6px">Si el animal recibió varios medicamentos, agregue uno por uno, cada uno con su dosis.</span>
+            <div id="med-items-list" class="stack"></div>
+            <button class="btn" type="button" id="btn-add-med">+ Agregar otro medicamento</button>
+            <div class="msg ok hidden" id="med-resumen"></div>
             <div class="photo" data-foto="medic">
               <span style="font-weight:600;font-size:15px;color:var(--ink-2)">Foto (opcional)</span>
               <img class="thumb" id="thumb-medic" alt="Foto">
@@ -1427,7 +1427,7 @@ window.MEDICAMENTOS=[{"c":"VET-000001","n":"RABATVAC BOVIS 100ML"},{"c":"VET-000
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '3.9.0';
+const APP_VERSION = '3.9.1';
 const ESQUEMA = 'manejo-ypoti/3.7';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
@@ -1500,6 +1500,7 @@ let step=1, tipo=null, fotos={animal:null, boton:null, perdida:null, nacimiento:
 const esMovimiento = () => usaBalanza(tipo) && !esPesaje(tipo);
 let inc={just:{}, modo:'', manual:{}, hist:{}, hist_msg:'', hist_buscado:false}; // paso de inconformidades
 let solToken=null; // enlace de aprobación de la solicitud de transferencia (se genera en el teléfono)
+let medBrincos=[''], medItems=[{nombre:'',dosis:'',unidad:''}], medBrincoAyudas=[]; // carga simple: N brincos × M medicamentos
 let medArchivo=null; // carga masiva de medicamentos: {nombre, filas:[{brinco,medicamento,dosis,unidad,...}], errores:[]}
 const incVacio=()=>({just:{}, modo:'', manual:{}, hist:{}, hist_msg:'', hist_buscado:false});
 function faltIds(){ return $('f-falt-ids').value.split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean); }
@@ -1705,7 +1706,7 @@ function checkCotas(){ const hint=$('cota-hint'); hint.style.color=''; hint.clas
 function setTipo(t){ tipo=t; document.querySelectorAll('.tile').forEach(x=>x.classList.toggle('selected',x.dataset.tipo===t)); document.body.className=(t?'tipo-'+t:'')+(esSolicitud(t)?' modo-solicitud':''); dirty=true; }
 function setFoto(key, dataUrl){ fotos[key]=dataUrl||null; const th=$('thumb-'+key); if(dataUrl){ th.src=dataUrl; th.classList.add('has'); } else { th.classList.remove('has'); th.removeAttribute('src'); } }
 function resetForm(){
-  step=1; tipo=null; fotos={animal:null,boton:null,perdida:null,nacimiento:null,medic:null}; medArchivo=null; balanza=null; baston=null; balanzas=[]; bastones=[]; camiones=[{chapa:'',fotos:[]}]; cotas=[{texto:'',foto:null}]; ubicacion=null; faltFotos=[]; inc=incVacio(); solToken=uuid(); formId=uuid(); editing=null; dirty=false;
+  step=1; tipo=null; fotos={animal:null,boton:null,perdida:null,nacimiento:null,medic:null}; medArchivo=null; medBrincos=['']; medItems=[{nombre:'',dosis:'',unidad:''}]; balanza=null; baston=null; balanzas=[]; bastones=[]; camiones=[{chapa:'',fotos:[]}]; cotas=[{texto:'',foto:null}]; ubicacion=null; faltFotos=[]; inc=incVacio(); solToken=uuid(); formId=uuid(); editing=null; dirty=false;
   const listaNames = cfg.lista.length?cfg.lista:(cfg.respondente?[cfg.respondente]:[]);
   fillSelect($('f-respondente'), listaNames.concat(['Otro…']), '— Elegir —');
   if(cfg.respondente && listaNames.includes(cfg.respondente)) $('f-respondente').value=cfg.respondente;
@@ -1718,7 +1719,7 @@ function resetForm(){
   $('csv-err').classList.add('hidden'); $('baston-err').classList.add('hidden'); renderCsv(); renderBaston(); renderCamiones(); renderCotas(); checkCotas(); renderFaltantes();
   fillSelect($('f-causa'), CAUSAS_MUERTE, '— Elegir causa —');
   document.body.classList.remove('modo-solicitud'); $('lbl-estancia').textContent='Estancia'; fillSelect($('f-sol-origen'), ESTANCIAS.concat([OTRA]), '— Elegir origen —'); fillSelect($('f-sol-destino'), ESTANCIAS.concat([OTRA]), '— Elegir destino —'); ['f-sol-categoria','f-sol-origen','f-sol-origen-otra','f-sol-origen-cod','f-sol-destino-otra','f-sol-destino-cod','f-sol-guias','f-sol-por-guia','f-sol-total','f-sol-naturaleza','f-sol-lugar'].forEach(id=>{ $(id).value=''; delete $(id).dataset.manual; }); $('wrap-sol-destino-otra').style.display='none'; $('wrap-sol-origen-otra').style.display='none'; solCodigo('origen'); solCodigo('destino'); solRecalcular();
-  setSeg($('seg-raza'),''); setSeg($('seg-sexo'),''); setSeg($('seg-medic-modo'),''); ['f-med-brinco','f-med-nombre','f-med-dosis','f-med-unidad'].forEach(id=>$(id).value=''); renderMedEstado(); renderMedPanel();
+  setSeg($('seg-raza'),''); setSeg($('seg-sexo'),''); setSeg($('seg-medic-modo'),''); renderMedSimple(); renderMedPanel();
   ['animal','boton','perdida','nacimiento','medic'].forEach(k=>setFoto(k,null));
   $('err1').classList.add('hidden'); $('err2').classList.add('hidden'); $('edit-banner').classList.add('hidden');
   $('det-lote').open=false; refreshIds(); renderStep(); dirty=false; autoOff=false; pintarAutosave();
@@ -1732,7 +1733,7 @@ function collectForm(){ // DOM -> estado serializable (borrador)
     camiones:camiones.map(c=>({chapa:c.chapa||'',fotos:fotosCamion(c)})), cotas:cotas.map(c=>({texto:c.texto||'',foto:c.foto||null,fallo:!!c.fallo,fallo_msg:c.fallo_msg||null,manual:c.manual||null})), bastones:bastones.slice(), balanzas:balanzas.slice(), falt_usa:segVal('seg-faltantes'), falt_cantidad:$('f-falt-cantidad').value, falt_peso_medio:$('f-falt-peso-medio').value, falt_ids:$('f-falt-ids').value, falt_fotos:faltFotos.slice(), falt_lugar:$('f-falt-lugar').value.trim(), falt_motivo:$('f-falt-motivo').value.trim(), falt_capataz:$('f-falt-capataz').value.trim(), falt_auditor:$('f-falt-auditor').value.trim(), falt_conforme:$('f-falt-conforme').checked, raza:$('seg-raza').dataset.value||'', cantidad:$('f-cantidad').value,
     boton:$('f-boton').value, causa:$('f-causa').value, madre:$('f-madre').value, sexo:$('seg-sexo').dataset.value||'', cria_boton:$('f-cria-boton').value, perdida_boton:$('f-perdida-boton').value, obs:$('f-obs').value,
     sol:{ categoria:$('f-sol-categoria').value, origen:solOrigenValue(), origen_cod:$('f-sol-origen-cod').value, destino:solDestinoValue(), destino_cod:$('f-sol-destino-cod').value, guias:$('f-sol-guias').value, por_guia:$('f-sol-por-guia').value, total:$('f-sol-total').value, naturaleza:$('f-sol-naturaleza').value, lugar:$('f-sol-lugar').value, token:solToken },
-    med_modo:segVal('seg-medic-modo'), med_brinco:$('f-med-brinco').value, med_nombre:$('f-med-nombre').value, med_dosis:$('f-med-dosis').value, med_unidad:$('f-med-unidad').value, med_archivo:medArchivo,
+    med_modo:segVal('seg-medic-modo'), med_brincos:medBrincos.slice(), med_items:medItems.map(x=>Object.assign({},x)), med_archivo:medArchivo,
     inc:JSON.parse(JSON.stringify(inc)), fotos:Object.assign({},fotos) }; }
 function applyForm(s){ // estado -> DOM
   if(s.tipo) setTipo(s.tipo); inc=Object.assign(incVacio(), s.inc||{});
@@ -1743,7 +1744,7 @@ function applyForm(s){ // estado -> DOM
   bastones=(s.bastones||(s.baston?[s.baston]:[])).slice(); balanzas=(s.balanzas||(s.balanza?[s.balanza]:[])).slice(); consolidar(); setSeg($('seg-faltantes'), s.falt_usa||(s.faltantes&&s.faltantes.length?'si':'')); $('f-falt-cantidad').value=s.falt_cantidad||(s.faltantes&&s.faltantes.length?String(s.faltantes.length):''); $('f-falt-peso-medio').value=s.falt_peso_medio||''; $('f-falt-ids').value=s.falt_ids!=null?s.falt_ids:((s.faltantes||[]).map(f=>f.ide).filter(Boolean).join('\n')); faltFotos=(s.falt_fotos||[]).slice(); $('f-falt-lugar').value=s.falt_lugar||''; $('f-falt-motivo').value=s.falt_motivo||''; $('f-falt-capataz').value=s.falt_capataz||''; $('f-falt-auditor').value=s.falt_auditor||''; $('f-falt-conforme').checked=!!s.falt_conforme; renderFaltantes(); renderBaston(); cotas=(s.cotas&&s.cotas.length)?s.cotas.map(c=>({texto:c.texto||'',foto:c.foto||null,fallo:!!c.fallo,fallo_msg:c.fallo_msg||null,manual:c.manual||null})):[{texto:s.cota||'',foto:null}]; renderCamiones(); renderCotas(); setSeg($('seg-raza'),s.raza||''); $('f-cantidad').value=s.cantidad||'';
   $('f-boton').value=s.boton||''; $('f-causa').value=s.causa||''; $('f-madre').value=s.madre||''; setSeg($('seg-sexo'),s.sexo||''); $('f-cria-boton').value=s.cria_boton||''; $('f-perdida-boton').value=s.perdida_boton||''; $('f-obs').value=s.obs||'';
   if(s.sol){ const q=s.sol; $('f-sol-categoria').value=q.categoria||''; solSetLado('origen', q.origen||''); solSetLado('destino', q.destino||''); if(!$('f-sol-origen-cod').readOnly) $('f-sol-origen-cod').value=q.origen_cod||''; if(!$('f-sol-destino-cod').readOnly) $('f-sol-destino-cod').value=q.destino_cod||''; $('f-sol-guias').value=q.guias||''; $('f-sol-por-guia').value=q.por_guia||''; $('f-sol-total').value=q.total||''; if(q.total) $('f-sol-total').dataset.manual='1'; $('f-sol-naturaleza').value=q.naturaleza||''; if(q.naturaleza) $('f-sol-naturaleza').dataset.manual='1'; $('f-sol-lugar').value=q.lugar||''; solToken=q.token||solToken; solRecalcular(); } if(esSolicitud(s.tipo)) modoSolicitud(true);
-  setSeg($('seg-medic-modo'),s.med_modo||''); $('f-med-brinco').value=s.med_brinco||''; $('f-med-nombre').value=s.med_nombre||''; $('f-med-dosis').value=s.med_dosis||''; $('f-med-unidad').value=s.med_unidad||''; medArchivo=s.med_archivo||null; renderMedEstado(); renderMedPanel();
+  setSeg($('seg-medic-modo'),s.med_modo||''); medBrincos=(s.med_brincos&&s.med_brincos.length)?s.med_brincos.slice():[s.med_brinco||'']; medItems=(s.med_items&&s.med_items.length)?s.med_items.map(x=>({nombre:x.nombre||'',dosis:x.dosis!=null?String(x.dosis):'',unidad:x.unidad||''})):[{nombre:s.med_nombre||'',dosis:s.med_dosis||'',unidad:s.med_unidad||''}]; medArchivo=s.med_archivo||null; renderMedSimple(); renderMedPanel();
   fotos={animal:null,boton:null,perdida:null,nacimiento:null,medic:null}; Object.keys(s.fotos||{}).forEach(k=>{ if(k in fotos) setFoto(k,s.fotos[k]); });
   renderCsv(); renderBaston(); refreshIds(); checkCotas();
   step=Math.min(Math.max(s.step||1,1),2); renderStep(); dirty=false;
@@ -1764,7 +1765,7 @@ function recordToForm(r){ // registro guardado -> estado del formulario (para ed
     propiedad:d.propiedad||'', propietario:d.propietario||'', origen_tipo:d.origen_tipo||'', sistema:d.origen_sistema||'', origen_lote:d.origen_lote||'', origen_piquete:d.origen_piquete||'', destino_lote:d.destino_lote||'', destino_piquete:d.destino_piquete||'', ubicacion:d.ubicacion||null,
     boton:d.nro_boton||'', causa:d.causa_probable||'', madre:d.madre||'', sexo:d.sexo_cria||'', cria_boton:d.nro_boton_cria||'', perdida_boton:r.tipo_evento==='perdida_boton'?(d.nro_boton||''):'', obs:r.observaciones||'',
     sol: esSolicitud(r.tipo_evento) ? { categoria:d.categoria||'', origen:d.origen_nombre||'', origen_cod:d.origen_codigo||'', destino:d.destino_nombre||'', destino_cod:d.destino_codigo||'', guias:d.cantidad_guias!=null?String(d.cantidad_guias):'', por_guia:d.animales_por_guia!=null?String(d.animales_por_guia):'', total:d.total_animales!=null?String(d.total_animales):'', naturaleza:d.naturaleza||'', lugar:d.lugar||'', token:d.token||null } : null,
-    med_modo:d.modo||'', med_brinco:(d.modo==='simple'&&d.aplicaciones&&d.aplicaciones[0])?d.aplicaciones[0].brinco:'', med_nombre:(d.modo==='simple'&&d.aplicaciones&&d.aplicaciones[0])?d.aplicaciones[0].medicamento:'', med_dosis:(d.modo==='simple'&&d.aplicaciones&&d.aplicaciones[0]&&d.aplicaciones[0].dosis!=null)?String(d.aplicaciones[0].dosis):'', med_unidad:(d.modo==='simple'&&d.aplicaciones&&d.aplicaciones[0])?d.aplicaciones[0].unidad:'', med_archivo:(d.modo==='masiva'&&d.aplicaciones)?{ nombre:(d.archivo&&d.archivo.nombre)||'planilla anterior', filas:d.aplicaciones.map(p=>({brinco:p.brinco,medicamento:p.medicamento,codigo_articulo:p.codigo_articulo||null,en_lista:!!p.en_lista,dosis:p.dosis,unidad:p.unidad})), errores:[] }:null,
+    med_modo:d.modo||'', med_brincos:(d.modo==='simple'&&d.aplicaciones&&d.aplicaciones.length)?[...new Set(d.aplicaciones.map(p=>p.brinco))]:[''], med_items:(d.modo==='simple'&&d.aplicaciones&&d.aplicaciones.length)?medItemsDe(d.aplicaciones).map(x=>({nombre:x.medicamento||'',dosis:x.dosis!=null?String(x.dosis):'',unidad:x.unidad||''})):[{nombre:'',dosis:'',unidad:''}], med_archivo:(d.modo==='masiva'&&d.aplicaciones)?{ nombre:(d.archivo&&d.archivo.nombre)||'planilla anterior', filas:d.aplicaciones.map(p=>({brinco:p.brinco,medicamento:p.medicamento,codigo_articulo:p.codigo_articulo||null,en_lista:!!p.en_lista,dosis:p.dosis,unidad:p.unidad})), errores:[] }:null,
     fotos:{ animal:a.foto_animal||null, boton:a.foto_boton||null, perdida:a.foto_ocurrido||null, nacimiento:a.foto_nacimiento||null, medic:a.foto_medicamento||null } };
 }
 async function saveDraft(silent){
@@ -1806,7 +1807,7 @@ function renderGroups(){ // qué bloques del paso 2 se ven, según el tipo y las
   $('grp-camion-title').textContent = tipo==='salida' ? 'Camión que salió' : 'Camión que llegó'; sh('wrap-raza', tipo==='entrada');
   sh('grp-animales', usaBalanza(tipo)); sh('wrap-cantidad', usaBalanza(tipo) && tipo!=='pesaje_simple'); $('grp-animales-title').textContent = tipo==='pesaje' ? 'Pesaje y conteo' : tipo==='pesaje_simple' ? 'Pesaje simple' : 'Animales'; sh('wrap-baston', usaBalanza(tipo) && !esPesaje(tipo)); $('lbl-bascula').textContent = tipo==='pesaje_simple' ? 'Archivos de la báscula (IDE y peso)' : tipo==='pesaje' ? 'Archivo de la báscula (IDE y peso)' : 'Archivo de la báscula (IDE y peso) · obligatorio para cerrar el registro'; $('hint-pesaje-simple').classList.toggle('hidden', tipo!=='pesaje_simple'); sh('grp-faltantes', tipo==='pesaje');
   sh('grp-destino-int', intens); $('lbl-destino-lote').textContent = conf ? 'Lote Confinamiento BovinOS' : 'Lote BovinOS'; $('lbl-destino-piquete').textContent = conf ? 'Piquete Confinamiento' : 'Piquete';
-  if(tipo==='mortalidad'||tipo==='medicamento'){ cargarBrincos(estanciaValue()).then(()=>{ ayudaBoton.refrescar(); ayudaMedBrinco.refrescar(); }); }
+  if(tipo==='mortalidad'||tipo==='medicamento'){ cargarBrincos(estanciaValue()).then(()=>{ ayudaBoton.refrescar(); medBrincoAyudas.forEach(x=>x.refrescar()); }); }
   sh('grp-muerte', tipo==='mortalidad'); sh('grp-nac', tipo==='nacimiento'); sh('grp-perdida', tipo==='perdida_boton');
   sh('grp-sol', esSolicitud(tipo)); if(esSolicitud(tipo)) solPrefill();
   sh('grp-medic', tipo==='medicamento'); const mm=segVal('seg-medic-modo'); sh('medic-simple', tipo==='medicamento' && mm==='simple'); sh('medic-masiva', tipo==='medicamento' && mm==='masiva');
@@ -1946,7 +1947,7 @@ function validate2(){
     const g=parseInt($('f-sol-guias').value,10), p=parseInt($('f-sol-por-guia').value,10), t=parseInt($('f-sol-total').value,10); if(isNaN(g)||g<1) e.push('Indique la cantidad de guías.'); if(isNaN(p)||p<1) e.push('Indique los animales por guía.'); if(isNaN(t)||t<1) e.push('Indique el total de animales.'); else if(!isNaN(g)&&!isNaN(p)&&(t>g*p||t<=(g-1)*p)) e.push('El total ('+t+') no es coherente con '+g+' guías de '+p+' animales (debería estar entre '+((g-1)*p+1)+' y '+(g*p)+').');
     if(!$('f-sol-naturaleza').value.trim()) e.push('Indique la naturaleza de la operación.'); if(!$('f-sol-lugar').value.trim()) e.push('Indique el lugar de firma.'); }
   if(tipo==='medicamento'){ const mm=segVal('seg-medic-modo'); if(!mm) e.push('Indique si es carga simple o carga masiva.');
-    else if(mm==='simple'){ if(!$('f-med-brinco').value.trim()) e.push('Escriba el brinco del animal.'); if(!$('f-med-nombre').value.trim()) e.push('Indique el medicamento utilizado.'); const ds=Number(String($('f-med-dosis').value).replace(',','.')); if($('f-med-dosis').value==='' || isNaN(ds) || ds<=0) e.push('Indique la dosis aplicada (número mayor que cero).'); if(!$('f-med-unidad').value) e.push('Elija la unidad de la dosis (un., L, ml, g, mg, µg).'); }
+    else if(mm==='simple'){ medValidarSimple().forEach(x=>e.push(x)); }
     else { if(!medArchivo) e.push('Falta cargar la planilla con las aplicaciones.'); else { if(medArchivo.errores.length) e.push('La planilla tiene '+medArchivo.errores.length+(medArchivo.errores.length===1?' fila con error':' filas con error')+': corríjala en Excel y vuelva a cargarla.'); if(!medArchivo.filas.length) e.push('La planilla no tiene ninguna fila válida.'); } } }
   return e;
 }
@@ -1998,7 +1999,7 @@ function buildRecord(){
     r.datos={ emisora:Object.assign({},SOL_EMISORA), categoria:$('f-sol-categoria').value.trim(), origen_nombre:solOrigenValue(), origen_codigo:$('f-sol-origen-cod').value.trim(), destino_nombre:dest, destino_codigo:$('f-sol-destino-cod').value.trim(), cantidad_guias:g, animales_por_guia:p, total_animales:t, total_letras:numeroALetras(t), naturaleza:$('f-sol-naturaleza').value.trim(), lugar:$('f-sol-lugar').value.trim(), token:solToken||(solToken=uuid()), cantidad_animales:t, origen:solOrigenValue()+' ['+$('f-sol-origen-cod').value.trim()+']', destino:dest+' ['+$('f-sol-destino-cod').value.trim()+']', solicitante:respondenteValue() };
     r.control={ cantidad_guias:g, total_animales:t, coherente:(t<=g*p && t>(g-1)*p) }; r.adjuntos={}; }
   if(tipo==='medicamento'){ const mm=segVal('seg-medic-modo'); let apl=[];
-    if(mm==='simple'){ const nom=$('f-med-nombre').value.trim(); const it=medEnLista(nom); apl=[{ brinco:$('f-med-brinco').value.trim().toUpperCase().replace(/\s+/g,''), medicamento:it?it.n:nom, codigo_articulo:it?it.c:null, en_lista:!!it, dosis:Number(String($('f-med-dosis').value).replace(',','.')), unidad:$('f-med-unidad').value }]; }
+    if(mm==='simple'){ const its=medItemsValidos().map(x=>{ const nom=x.nombre.trim(); const it=medEnLista(nom); return { medicamento:it?it.n:nom, codigo_articulo:it?it.c:null, en_lista:!!it, dosis:Number(String(x.dosis).replace(',','.')), unidad:x.unidad }; }); medBrincosValidos().forEach(b=>its.forEach(x=>apl.push(Object.assign({brinco:b},x)))); }
     else if(medArchivo) apl=medArchivo.filas.map(f=>({ brinco:f.brinco, medicamento:f.medicamento, codigo_articulo:f.codigo_articulo||null, en_lista:!!f.en_lista, dosis:f.dosis, unidad:f.unidad }));
     const brincos=[...new Set(apl.map(p=>p.brinco))]; const meds=[...new Set(apl.map(p=>p.medicamento))];
     r.datos={ modo:mm, aplicaciones:apl, cantidad_aplicaciones:apl.length, cantidad_animales:brincos.length, brincos, medicamentos:meds, fuera_de_lista:apl.filter(p=>!p.en_lista).length, archivo:(mm==='masiva'&&medArchivo)?{nombre:medArchivo.nombre, filas:medArchivo.filas.length}:null };
@@ -2038,7 +2039,7 @@ function kvRows(r){
   if(r.tipo_evento==='nacimiento'){ rows.push(['Madre',d.madre],['Sexo',d.sexo_cria||'—'],['Botón cría',d.nro_boton_cria||'—'],['Foto',(r.adjuntos||{}).foto_nacimiento?'adjunta':'sin foto']); }
   if(r.tipo_evento==='perdida_boton'){ rows.push(['Botón perdido',d.nro_boton],['Foto',(r.adjuntos||{}).foto_ocurrido?'adjunta':'sin foto']); }
   if(esSolicitud(r.tipo_evento)){ rows.push(['Emisora',(d.emisora||SOL_EMISORA).razon_social+' · RUC '+(d.emisora||SOL_EMISORA).ruc],['Categoría',d.categoria||'—'],['Origen',(d.origen_nombre||'—')+' · cód. '+(d.origen_codigo||'—')],['Destino',(d.destino_nombre||'—')+' · cód. '+(d.destino_codigo||'—')],['Guías',d.cantidad_guias+' guías de '+d.animales_por_guia+' animales'],['Total',d.total_animales+' animales ('+(d.total_letras||'')+')'],['Naturaleza',d.naturaleza||'—'],['Lugar de firma',d.lugar||'—']); }
-  if(r.tipo_evento==='medicamento'){ const apl=d.aplicaciones||[]; rows.push(['Carga',d.modo==='masiva'?'masiva (planilla'+(d.archivo?' '+d.archivo.nombre:'')+')':'simple']); if(d.modo==='simple'&&apl[0]){ rows.push(['Brinco',apl[0].brinco],['Medicamento',apl[0].medicamento+(apl[0].en_lista?' ('+apl[0].codigo_articulo+')':' · escrito a mano, fuera de la lista')],['Dosis',apl[0].dosis+' '+apl[0].unidad],['Foto',(r.adjuntos||{}).foto_medicamento?'adjunta':'sin foto']); } else { rows.push(['Aplicaciones',apl.length+' en '+(d.cantidad_animales||0)+(d.cantidad_animales===1?' animal':' animales')],['Medicamentos',(d.medicamentos||[]).join(', ')]); if(d.fuera_de_lista) rows.push(['Fuera de la lista',d.fuera_de_lista+(d.fuera_de_lista===1?' aplicación con medicamento escrito a mano':' aplicaciones con medicamento escrito a mano')]); } }
+  if(r.tipo_evento==='medicamento'){ const apl=d.aplicaciones||[]; rows.push(['Carga',d.modo==='masiva'?'masiva (planilla'+(d.archivo?' '+d.archivo.nombre:'')+')':'simple']); if(d.modo==='simple'&&apl.length===1){ rows.push(['Brinco',apl[0].brinco],['Medicamento',apl[0].medicamento+(apl[0].en_lista?' ('+apl[0].codigo_articulo+')':' · escrito a mano, fuera de la lista')],['Dosis',apl[0].dosis+' '+apl[0].unidad],['Foto',(r.adjuntos||{}).foto_medicamento?'adjunta':'sin foto']); } else if(d.modo==='simple'&&apl.length){ const br=[...new Set(apl.map(p=>p.brinco))], its=medItemsDe(apl); rows.push([br.length===1?'Brinco':'Brincos ('+br.length+')',br.join(', ')],['Medicamentos ('+its.length+')',its.map(x=>x.medicamento+' · '+x.dosis+' '+x.unidad+(x.en_lista?'':' (fuera de la lista)')).join('; ')],['Aplicaciones',apl.length+' ('+br.length+(br.length===1?' animal':' animales')+' × '+its.length+(its.length===1?' medicamento':' medicamentos')+')'],['Foto',(r.adjuntos||{}).foto_medicamento?'adjunta':'sin foto']); } else { rows.push(['Aplicaciones',apl.length+' en '+(d.cantidad_animales||0)+(d.cantidad_animales===1?' animal':' animales')],['Medicamentos',(d.medicamentos||[]).join(', ')]); if(d.fuera_de_lista) rows.push(['Fuera de la lista',d.fuera_de_lista+(d.fuera_de_lista===1?' aplicación con medicamento escrito a mano':' aplicaciones con medicamento escrito a mano')]); } }
   if(r.observaciones) rows.push(['Obs.',r.observaciones]);
   if(r.version&&r.version>1) rows.push(['Versión',String(r.version)+' (editado '+fmtDT(r.modificado_en)+')']);
   return rows;
@@ -2046,7 +2047,7 @@ function kvRows(r){
 function renderKv(el, r, withIds){
   el.innerHTML=''; kvRows(r).forEach(([k,v])=>{ const dt=document.createElement('dt'); dt.textContent=k; const dd=document.createElement('dd'); dd.textContent=v; el.appendChild(dt); el.appendChild(dd); });
   if(withIds && r.datos.animales && r.datos.animales.length){ const dt=document.createElement('dt'); dt.textContent='Lista'; const dd=document.createElement('dd'); dd.className='mono'; dd.textContent=r.datos.animales.map(a=>a.ide+(a.peso_kg!==null&&a.peso_kg!==undefined?'  '+a.peso_kg+' kg':'  (sin peso)')+(a.peso_fuente&&a.peso_fuente!=='bascula'?'  · '+PESO_FUENTE_LABEL[a.peso_fuente]+(a.peso_fecha?' ('+fmtDate(a.peso_fecha)+')':''):a.fuente==='baston'&&r.datos.conciliacion&&a.peso_kg==null?'  · solo bastón':a.fuente==='bascula'&&r.datos.conciliacion?'  · solo báscula':'')).join('\n'); el.appendChild(dt); el.appendChild(dd); }
-  if(withIds && r.tipo_evento==='medicamento' && r.datos.modo==='masiva' && r.datos.aplicaciones && r.datos.aplicaciones.length){ const dt=document.createElement('dt'); dt.textContent='Lista'; const dd=document.createElement('dd'); dd.className='mono'; dd.textContent=r.datos.aplicaciones.slice(0,300).map(p=>p.brinco+'  '+p.medicamento+'  '+p.dosis+' '+p.unidad).join('\n')+(r.datos.aplicaciones.length>300?'\n…':''); el.appendChild(dt); el.appendChild(dd); }
+  if(withIds && r.tipo_evento==='medicamento' && (r.datos.modo==='masiva'||(r.datos.aplicaciones&&r.datos.aplicaciones.length>1)) && r.datos.aplicaciones && r.datos.aplicaciones.length){ const dt=document.createElement('dt'); dt.textContent='Lista'; const dd=document.createElement('dd'); dd.className='mono'; dd.textContent=r.datos.aplicaciones.slice(0,300).map(p=>p.brinco+'  '+p.medicamento+'  '+p.dosis+' '+p.unidad).join('\n')+(r.datos.aplicaciones.length>300?'\n…':''); el.appendChild(dt); el.appendChild(dd); }
   if(withIds && r.datos.faltantes && r.datos.faltantes.animales && r.datos.faltantes.animales.length){ const dt=document.createElement('dt'); dt.textContent='No arreados'; const dd=document.createElement('dd'); dd.className='mono'; dd.textContent=r.datos.faltantes.animales.map(a=>a.ide).join('\n'); el.appendChild(dt); el.appendChild(dd); }
 }
 function renderReview(){ const r=buildRecord(); renderKv($('review'), r, true);
@@ -2182,34 +2183,79 @@ async function cargarBrincos(est, forzar){ if(!est) return null; let c=BRINCOS[e
   BRINCOS[est]=c||null; return BRINCOS[est]; }
 const soloDigitos=s=>String(s||'').replace(/\D/g,'');
 function buscarBrincos(est, q){ const c=BRINCOS[est]; const d=soloDigitos(q); if(!c||!c.lista||d.length<3) return []; const r=[]; for(const it of c.lista){ const ide=String(it[0]); const i=ide.indexOf(d); if(i<0) continue; r.push({it, rank: ide===d?0 : ide.endsWith(d)?1 : ide.startsWith(d)?2 : 3, pos:i}); } r.sort((x,y)=>x.rank-y.rank || x.it[0].localeCompare(y.it[0])); return r.slice(0,8).map(x=>Object.assign({pos:x.pos, d}, {ide:String(x.it[0]), lote:x.it[1]||'', cat:x.it[2]||''})); }
-function brincoAyuda(inputId, sugsId, estadoId, alElegir){
-  const inp=$(inputId), box=$(sugsId), est=$(estadoId);
+function brincoAyuda(inputId, sugsId, estadoId, alElegir){ return brincoAyudaEl($(inputId), $(sugsId), $(estadoId), alElegir); }
+function brincoAyudaEl(inp, box, est, alElegir, sinAyudaVacio){
   const pintarEstado=()=>{ const e=estanciaValue(); const c=BRINCOS[e]; const d=soloDigitos(inp.value); est.style.color='';
-    if(!d){ est.textContent = c&&c.lista&&c.lista.length ? 'Escriba unos números del botón: se sugieren los '+c.lista.length+' brincos activos de '+e+'.' : (navigator.onLine?'':'Sin señal: escriba el número completo.'); return; }
+    if(!d){ if(sinAyudaVacio){ est.textContent=''; return; } est.textContent = c&&c.lista&&c.lista.length ? 'Escriba unos números del botón: se sugieren los '+c.lista.length+' brincos activos de '+e+'.' : (navigator.onLine?'':'Sin señal: escriba el número completo.'); return; }
     const exacto=c&&c.lista&&c.lista.find(it=>String(it[0])===d);
     if(exacto){ est.textContent='✓ Brinco activo en '+e+(exacto[1]?' · lote '+exacto[1]:'')+(exacto[2]?' · '+exacto[2]:''); est.style.color='var(--ok)'; }
     else if(c&&c.lista&&c.lista.length){ est.textContent = d.length<3 ? '' : (buscarBrincos(e,d).length ? 'Toque el brinco correcto en la lista, o siga escribiendo.' : 'No figura entre los brincos activos de '+e+': se guarda tal como lo escribió.'); if(d.length>=3 && !buscarBrincos(e,d).length) est.style.color='var(--warn)'; }
-    else est.textContent='Sin la lista de brincos de '+(e||'la estancia')+' (falta señal o todavía no hay datos): escriba el número completo.'; };
+    else est.textContent= sinAyudaVacio ? '' : 'Sin la lista de brincos de '+(e||'la estancia')+' (falta señal o todavía no hay datos): escriba el número completo.'; };
   const pintarSugs=()=>{ const e=estanciaValue(); const d=soloDigitos(inp.value); const c=BRINCOS[e]; const res=(c&&c.lista&&c.lista.some(it=>String(it[0])===d)) ? [] : buscarBrincos(e,d); box.innerHTML='';
     if(!res.length){ box.classList.add('hidden'); pintarEstado(); return; }
     res.forEach(s=>{ const b=document.createElement('button'); b.type='button'; const ide=document.createElement('span'); ide.className='ide'; ide.appendChild(document.createTextNode(s.ide.slice(0,s.pos))); const k=document.createElement('b'); k.className='coincide'; k.textContent=s.ide.slice(s.pos,s.pos+s.d.length); ide.appendChild(k); ide.appendChild(document.createTextNode(s.ide.slice(s.pos+s.d.length))); b.appendChild(ide); const sm=document.createElement('small'); sm.textContent=[s.lote?'lote '+s.lote:'', s.cat].filter(Boolean).join(' · ')||'activo en '+e; b.appendChild(sm);
-      b.addEventListener('mousedown',ev=>ev.preventDefault()); b.addEventListener('click',()=>{ inp.value=s.ide; dirty=true; box.classList.add('hidden'); pintarEstado(); if(alElegir) alElegir(); }); box.appendChild(b); });
+      b.addEventListener('mousedown',ev=>ev.preventDefault()); b.addEventListener('click',()=>{ inp.value=s.ide; dirty=true; inp.dispatchEvent(new Event('change')); box.classList.add('hidden'); pintarEstado(); if(alElegir) alElegir(); }); box.appendChild(b); });
     box.classList.remove('hidden'); pintarEstado(); };
   inp.addEventListener('input',pintarSugs); inp.addEventListener('focus',async()=>{ await cargarBrincos(estanciaValue()); pintarSugs(); }); inp.addEventListener('blur',()=>setTimeout(()=>box.classList.add('hidden'),150));
   return { refrescar:()=>{ box.classList.add('hidden'); pintarEstado(); } };
 }
 const ayudaBoton=brincoAyuda('f-boton','boton-sugs','boton-estado',()=>{ $('f-causa').focus(); });
-const ayudaMedBrinco=brincoAyuda('f-med-brinco','med-brinco-sugs','med-brinco-estado',()=>{ $('f-med-nombre').focus(); });
 function brincoEnBase(v){ const c=BRINCOS[estanciaValue()]; const d=soloDigitos(v); return (c&&c.lista&&d) ? c.lista.some(it=>String(it[0])===d) : null; }
 
 /* ---------- aplicación de medicamento: lista del depósito, carga simple y masiva ---------- */
 const medNorm=s=>norm(s).replace(/[^A-Z0-9 ]+/g,' ').replace(/\s+/g,' ').trim();
 function medBuscar(q){ const toks=medNorm(q).split(' ').filter(Boolean); if(!toks.length) return []; return (window.MEDICAMENTOS||[]).filter(it=>{ const n=medNorm(it.n); return toks.every(t=>n.includes(t)); }).slice(0,12); }
 function medEnLista(nombre){ const n=medNorm(nombre); if(!n) return null; return (window.MEDICAMENTOS||[]).find(it=>medNorm(it.n)===n)||null; }
-function renderMedEstado(){ const v=$('f-med-nombre').value.trim(); const el=$('med-estado'); if(!v){ el.textContent='Empiece a escribir: se filtra la lista del depósito. Si no está en la lista, escriba el nombre completo.'; el.style.color=''; return; } const it=medEnLista(v); if(it){ el.textContent='✓ En la lista del depósito ('+it.c+').'; el.style.color='var(--ok)'; } else { const n=medBuscar(v).length; el.textContent= n ? n+(n===1?' coincidencia en la lista: tóquela para elegirla, o siga escribiendo si es otro producto.':' coincidencias en la lista: toque una para elegirla, o siga escribiendo si es otro producto.') : 'No está en la lista del depósito: se guarda tal como lo escribió.'; el.style.color= n ? '' : 'var(--warn)'; } }
-function renderMedSugs(){ const box=$('med-sugs'); const v=$('f-med-nombre').value; const res=medEnLista(v)?[]:medBuscar(v); box.innerHTML=''; if(!res.length){ box.classList.add('hidden'); return; } res.forEach(it=>{ const b=document.createElement('button'); b.type='button'; b.innerHTML='<span></span><small></small>'; b.querySelector('span').textContent=it.n; b.querySelector('small').textContent=it.c; b.addEventListener('mousedown',e=>e.preventDefault()); b.addEventListener('click',()=>{ $('f-med-nombre').value=it.n; dirty=true; box.classList.add('hidden'); renderMedEstado(); $('f-med-dosis').focus(); }); box.appendChild(b); }); box.classList.remove('hidden'); }
-$('f-med-nombre').addEventListener('input',()=>{ renderMedSugs(); renderMedEstado(); }); $('f-med-nombre').addEventListener('focus',renderMedSugs); $('f-med-nombre').addEventListener('blur',()=>setTimeout(()=>$('med-sugs').classList.add('hidden'),150));
-$('f-med-brinco').addEventListener('input',e=>{ const p=e.target.selectionStart; e.target.value=e.target.value.toUpperCase(); try{e.target.setSelectionRange(p,p);}catch(x){} });
+const MED_HINT='Empiece a escribir: se filtra la lista del depósito. Si no está en la lista, escriba el nombre completo.';
+function medEstadoEl(inp, est){ const v=inp.value.trim(); if(!v){ est.textContent=MED_HINT; est.style.color=''; return; } const it=medEnLista(v); if(it){ est.textContent='✓ En la lista del depósito ('+it.c+').'; est.style.color='var(--ok)'; } else { const n=medBuscar(v).length; est.textContent= n ? n+(n===1?' coincidencia en la lista: tóquela para elegirla, o siga escribiendo si es otro producto.':' coincidencias en la lista: toque una para elegirla, o siga escribiendo si es otro producto.') : 'No está en la lista del depósito: se guarda tal como lo escribió.'; est.style.color= n ? '' : 'var(--warn)'; } }
+function medAyudaEl(inp, box, est, alCambiar, alElegir){
+  const sugs=()=>{ const v=inp.value; const res=medEnLista(v)?[]:medBuscar(v); box.innerHTML=''; if(!res.length){ box.classList.add('hidden'); return; } res.forEach(it=>{ const b=document.createElement('button'); b.type='button'; b.innerHTML='<span></span><small></small>'; b.querySelector('span').textContent=it.n; b.querySelector('small').textContent=it.c; b.addEventListener('mousedown',e=>e.preventDefault()); b.addEventListener('click',()=>{ inp.value=it.n; dirty=true; box.classList.add('hidden'); medEstadoEl(inp,est); alCambiar(); if(alElegir) alElegir(); }); box.appendChild(b); }); box.classList.remove('hidden'); };
+  inp.addEventListener('input',()=>{ dirty=true; alCambiar(); sugs(); medEstadoEl(inp,est); }); inp.addEventListener('focus',sugs); inp.addEventListener('blur',()=>setTimeout(()=>box.classList.add('hidden'),150));
+  medEstadoEl(inp,est);
+}
+const medBrincoNorm=s=>String(s||'').trim().toUpperCase().replace(/\s+/g,'');
+function medBrincosValidos(){ return [...new Set(medBrincos.map(medBrincoNorm).filter(Boolean))]; }
+function medItemsValidos(){ return medItems.filter(x=>String(x.nombre||'').trim()||String(x.dosis||'').trim()||x.unidad); }
+function medItemsDe(apl){ const vis=new Set(), out=[]; (apl||[]).forEach(p=>{ const k=p.medicamento+'|'+p.dosis+'|'+p.unidad; if(vis.has(k)) return; vis.add(k); out.push({medicamento:p.medicamento, codigo_articulo:p.codigo_articulo, en_lista:p.en_lista, dosis:p.dosis, unidad:p.unidad}); }); return out; }
+function medDetCorto(apl){ const br=[...new Set(apl.map(p=>p.brinco))], ms=[...new Set(apl.map(p=>p.medicamento))]; return (br.length===1?'brinco '+br[0]:br.length+' animales ('+br.slice(0,3).join(', ')+(br.length>3?'…':'')+')')+' · '+ms.join(' + '); }
+function medValidarSimple(){ const e=[]; const brs=medBrincos.map(medBrincoNorm).filter(Boolean);
+  if(!brs.length) e.push(medBrincos.length>1?'Escriba al menos un brinco.':'Escriba el brinco del animal.');
+  const rep=[...new Set(brs.filter((b,i)=>brs.indexOf(b)!==i))]; rep.forEach(b=>e.push('El brinco '+b+' está repetido: cada animal va una sola vez.'));
+  let its=medItemsValidos(); const varios=medItems.length>1; if(!its.length) its=[medItems[0]||{nombre:'',dosis:'',unidad:''}];
+  its.forEach(x=>{ const k=medItems.indexOf(x), pre=varios&&k>=0?'Medicamento '+(k+1)+': ':''; if(!String(x.nombre||'').trim()) e.push(pre+(pre?'indique el nombre.':'Indique el medicamento utilizado.')); const ds=Number(String(x.dosis||'').replace(',','.')); if(String(x.dosis||'')==='' || isNaN(ds) || ds<=0) e.push(pre+(pre?'indique la dosis (número mayor que cero).':'Indique la dosis aplicada (número mayor que cero).')); if(!x.unidad) e.push(pre+(pre?'elija la unidad.':'Elija la unidad de la dosis (un., L, ml, g, mg, µg).')); });
+  const noms=its.map(x=>{ const it=medEnLista(x.nombre); return medNorm(it?it.n:x.nombre); }).filter(Boolean); [...new Set(noms.filter((n,i)=>noms.indexOf(n)!==i))].forEach(n=>{ const x=its.find(y=>{ const it=medEnLista(y.nombre); return medNorm(it?it.n:y.nombre)===n; }); e.push('El medicamento '+x.nombre.trim()+' está repetido: anótelo una sola vez con la dosis total.'); });
+  return e; }
+function renderMedResumen(){ const el=$('med-resumen'); const nb=medBrincosValidos().length, nm=medItemsValidos().filter(x=>String(x.nombre||'').trim()).length;
+  if(nb<1||nm<1||(nb===1&&nm===1)){ el.classList.add('hidden'); return; }
+  el.textContent='Se van a registrar '+(nb*nm)+' aplicaciones: '+nb+(nb===1?' animal':' animales')+' × '+nm+(nm===1?' medicamento':' medicamentos')+'. '+(nb>1&&nm>1?'Cada animal recibe todos los medicamentos de la lista.':nb>1?'Todos los animales reciben el mismo medicamento y dosis.':'El animal recibe todos los medicamentos de la lista.'); el.classList.remove('hidden'); }
+function renderMedSimple(){
+  const lb=$('med-brincos-list'); lb.innerHTML=''; medBrincoAyudas=[];
+  medBrincos.forEach((v,i)=>{ const f=document.createElement('div'); f.className='med-fila';
+    f.innerHTML='<label class="f"><input type="text" class="upper" data-brinco autocomplete="off" autocapitalize="characters"><div class="sugs hidden" data-sugs></div><span class="hint" data-estado></span></label>'+(medBrincos.length>1?'<button class="btn small danger" type="button" data-del title="Quitar este brinco">✕</button>':'');
+    const inp=f.querySelector('[data-brinco]'); inp.value=v||''; inp.placeholder=medBrincos.length>1?'Brinco '+(i+1):'Nº de brinco / caravana / IDE'; inp.setAttribute('aria-label','Brinco '+(i+1));
+    const upd=()=>{ medBrincos[i]=inp.value; dirty=true; renderMedResumen(); };
+    inp.addEventListener('input',e=>{ const p=e.target.selectionStart; e.target.value=e.target.value.toUpperCase(); try{e.target.setSelectionRange(p,p);}catch(x){} upd(); }); inp.addEventListener('change',upd);
+    const ay=brincoAyudaEl(inp,f.querySelector('[data-sugs]'),f.querySelector('[data-estado]'),()=>{ const sig=lb.querySelectorAll('[data-brinco]')[i+1]; if(sig&&!sig.value) sig.focus(); else { const n=$('med-items-list').querySelector('[data-nombre]'); if(n&&!n.value) n.focus(); } }, i>0); ay.refrescar(); medBrincoAyudas.push(ay);
+    const del=f.querySelector('[data-del]'); if(del) del.addEventListener('click',()=>{ medBrincos.splice(i,1); dirty=true; renderMedSimple(); });
+    lb.appendChild(f); });
+  const li=$('med-items-list'); li.innerHTML='';
+  medItems.forEach((x,i)=>{ const b=document.createElement('div'); b.className='bloque';
+    b.innerHTML='<div class="head"><span></span>'+(medItems.length>1?'<button class="btn small danger" type="button" data-del>✕ Quitar</button>':'')+'</div>'
+      +'<label class="f" style="position:relative"><span class="req">Medicamento</span><input type="text" data-nombre placeholder="Escriba para buscar en la lista…" autocomplete="off"><div class="sugs hidden" data-sugs></div><span class="hint" data-estado></span></label>'
+      +'<div class="row"><label class="f" style="flex:2 1 160px"><span class="req">Dosis aplicada</span><input type="number" data-dosis inputmode="decimal" step="any" min="0" placeholder="Ej.: 5"></label><label class="f" style="flex:1 1 110px"><span class="req">Unidad</span><select data-unidad><option value="">—</option>'+UNIDADES_MED.map(u=>'<option value="'+u+'">'+u+'</option>').join('')+'</select></label></div>';
+    b.querySelector('.head span').textContent = medItems.length>1 ? 'Medicamento '+(i+1) : 'Medicamento';
+    if(medItems.length===1) b.querySelector('.head').style.display='none';
+    const nom=b.querySelector('[data-nombre]'), dos=b.querySelector('[data-dosis]'), uni=b.querySelector('[data-unidad]');
+    nom.value=x.nombre||''; dos.value=x.dosis||''; uni.value=x.unidad||'';
+    medAyudaEl(nom,b.querySelector('[data-sugs]'),b.querySelector('[data-estado]'),()=>{ medItems[i].nombre=nom.value; renderMedResumen(); },()=>dos.focus());
+    dos.addEventListener('input',()=>{ medItems[i].dosis=dos.value; dirty=true; });
+    uni.addEventListener('change',()=>{ medItems[i].unidad=uni.value; dirty=true; renderMedResumen(); });
+    const del=b.querySelector('[data-del]'); if(del) del.addEventListener('click',()=>{ medItems.splice(i,1); dirty=true; renderMedSimple(); });
+    li.appendChild(b); });
+  renderMedResumen();
+}
+$('btn-add-brinco').addEventListener('click',()=>{ medBrincos.push(''); dirty=true; renderMedSimple(); const l=$('med-brincos-list').querySelectorAll('[data-brinco]'); const last=l[l.length-1]; if(last){ last.scrollIntoView({block:'center'}); last.focus(); } });
+$('btn-add-med').addEventListener('click',()=>{ medItems.push({nombre:'',dosis:'',unidad:''}); dirty=true; renderMedSimple(); const last=$('med-items-list').lastElementChild; if(last){ last.scrollIntoView({block:'center'}); last.querySelector('[data-nombre]').focus(); } });
 function unidadMed(v){ const u=String(v||'').trim().toLowerCase().replace(/\.$/,''); const map={'un':'un.','und':'un.','unid':'un.','unidad':'un.','unidades':'un.','u':'un.','dosis':'un.','ds':'un.','l':'L','lt':'L','lts':'L','litro':'L','litros':'L','ml':'ml','cc':'ml','mililitro':'ml','mililitros':'ml','g':'g','gr':'g','gramo':'g','gramos':'g','mg':'mg','miligramo':'mg','miligramos':'mg','µg':'µg','ug':'µg','mcg':'µg','microgramo':'µg','microgramos':'µg'}; return map[u]||null; }
 function parseMedTabla(text, nombre){
   text=text.replace(/^\uFEFF/,''); const lines=text.split(/\r\n|\n|\r/).filter(l=>l.trim().length && !/^;*$/.test(l.trim())); if(!lines.length) throw new Error('La planilla está vacía.');
@@ -2400,8 +2446,10 @@ async function makePdf(r){
     parr('En fe de lo cual, y para los fines que correspondan, se suscribe el presente documento.'); page.drawText(ansi((d.lugar||'')+', '+fmtDate(r.fecha_evento)),{x:W-M-font.widthOfTextAtSize((d.lugar||'')+', '+fmtDate(r.fecha_evento),10.5),y,size:10.5,font,color:ink}); y-=40;
     need(60); page.drawLine({start:{x:M,y},end:{x:M+220,y},thickness:.6,color:line}); y-=14; page.drawText(ansi('Representante Legal · '+em.razon_social),{x:M,y,size:9.5,font:bold,color:ink}); y-=12; page.drawText(ansi('Pendiente de aprobación: este documento no tiene validez hasta que el aprobador lo firme digitalmente desde el enlace del correo.'),{x:M,y,size:8,font,color:grey}); y-=18; }
   if(r.tipo_evento==='medicamento'){ const apl=d.aplicaciones||[]; title('Aplicación de medicamento'); kv('Carga',d.modo==='masiva'?'masiva (planilla'+(d.archivo?' '+d.archivo.nombre:'')+')':'simple');
-    if(d.modo==='simple'&&apl[0]){ const fm=r.adjuntos&&r.adjuntos.foto_medicamento; if(fm){ kvRight=RIGHT_W; const yTop=y; const rb=await fotoDerecha(fm,'FOTO'); const yF=rb; y=yTop; kvRight=RIGHT_W; kv('Brinco',apl[0].brinco); kv('Medicamento',apl[0].medicamento+(apl[0].en_lista?'  ('+apl[0].codigo_articulo+')':'  (escrito a mano, fuera de la lista)')); kv('Dosis',apl[0].dosis+' '+apl[0].unidad); if(y>yF) y=yF; kvRight=0; } else { kv('Brinco',apl[0].brinco); kv('Medicamento',apl[0].medicamento+(apl[0].en_lista?'  ('+apl[0].codigo_articulo+')':'  (escrito a mano, fuera de la lista)')); kv('Dosis',apl[0].dosis+' '+apl[0].unidad); } }
-    else { kv('Aplicaciones',apl.length+' en '+(d.cantidad_animales||0)+' animales'); kv('Medicamentos',(d.medicamentos||[]).join(', ')); if(d.fuera_de_lista) kv('Fuera de la lista',d.fuera_de_lista+' con medicamento escrito a mano');
+    if(d.modo==='simple'&&apl.length===1){ const fm=r.adjuntos&&r.adjuntos.foto_medicamento; if(fm){ kvRight=RIGHT_W; const yTop=y; const rb=await fotoDerecha(fm,'FOTO'); const yF=rb; y=yTop; kvRight=RIGHT_W; kv('Brinco',apl[0].brinco); kv('Medicamento',apl[0].medicamento+(apl[0].en_lista?'  ('+apl[0].codigo_articulo+')':'  (escrito a mano, fuera de la lista)')); kv('Dosis',apl[0].dosis+' '+apl[0].unidad); if(y>yF) y=yF; kvRight=0; } else { kv('Brinco',apl[0].brinco); kv('Medicamento',apl[0].medicamento+(apl[0].en_lista?'  ('+apl[0].codigo_articulo+')':'  (escrito a mano, fuera de la lista)')); kv('Dosis',apl[0].dosis+' '+apl[0].unidad); } }
+    else { const fm=d.modo==='simple'&&r.adjuntos&&r.adjuntos.foto_medicamento; let yF=null; if(fm){ kvRight=RIGHT_W; const yTop=y; yF=await fotoDerecha(fm,'FOTO'); y=yTop; kvRight=RIGHT_W; }
+      if(d.modo==='simple'){ const br=[...new Set(apl.map(p=>p.brinco))], its=medItemsDe(apl); kv(br.length===1?'Brinco':'Brincos ('+br.length+')',br.join(', ')); kv('Medicamentos ('+its.length+')',its.map(x=>x.medicamento+' '+x.dosis+' '+x.unidad).join('; ')); kv('Aplicaciones',apl.length+' ('+br.length+' x '+its.length+', cada animal recibe todos)'); } else { kv('Aplicaciones',apl.length+' en '+(d.cantidad_animales||0)+' animales'); kv('Medicamentos',(d.medicamentos||[]).join(', ')); }
+      if(fm){ if(y>yF) y=yF; kvRight=0; } if(d.fuera_de_lista) kv('Fuera de la lista',d.fuera_de_lista+' con medicamento escrito a mano');
       y-=6; title('Detalle ('+apl.length+')'); const rowH=12.5, c1=M, c2=M+40, c3=M+150, c4=W-M; need(rowH); page.drawText('#',{x:c1,y,size:8,font:bold,color:grey}); page.drawText(ansi('Brinco'),{x:c2,y,size:8,font:bold,color:grey}); page.drawText(ansi('Medicamento'),{x:c3,y,size:8,font:bold,color:grey}); page.drawText(ansi('Dosis'),{x:c4-font.widthOfTextAtSize('Dosis',8),y,size:8,font:bold,color:grey}); y-=rowH;
       apl.forEach((p,i)=>{ need(rowH); page.drawText(ansi(String(i+1)),{x:c1,y,size:8.5,font,color:grey}); page.drawText(ansi(p.brinco),{x:c2,y,size:9,font,color:ink}); page.drawText(ansi((p.medicamento||'').slice(0,60)+(p.en_lista?'':' *')),{x:c3,y,size:9,font,color:ink}); const t=p.dosis+' '+p.unidad; page.drawText(ansi(t),{x:c4-font.widthOfTextAtSize(t,9),y,size:9,font:bold,color:ink}); y-=rowH; });
       if(d.fuera_de_lista){ y-=2; page.drawText(ansi('* medicamento escrito a mano (no figura en la lista del depósito)'),{x:M,y,size:7.5,font,color:grey}); y-=12; } }
@@ -2453,7 +2501,7 @@ function resumen(r){ const d=r.datos||{}; let s='*'+TIPO_LABEL[r.tipo_evento]+'*
   if(r.tipo_evento==='nacimiento') s+='Madre: '+d.madre+(d.sexo_cria?' · '+d.sexo_cria:'')+'\n';
   if(r.tipo_evento==='perdida_boton') s+='Botón perdido: '+d.nro_boton+'\n';
   if(esSolicitud(r.tipo_evento)) s+=(d.categoria||'')+' · '+(d.origen_nombre||'')+' → '+(d.destino_nombre||'')+' · '+d.cantidad_guias+' guías · '+d.total_animales+' animales\n';
-  if(r.tipo_evento==='medicamento') s+=(d.modo==='simple'&&d.aplicaciones&&d.aplicaciones[0]?'Brinco '+d.aplicaciones[0].brinco+' · '+d.aplicaciones[0].medicamento+' · '+d.aplicaciones[0].dosis+' '+d.aplicaciones[0].unidad:(d.cantidad_aplicaciones||0)+' aplicaciones en '+(d.cantidad_animales||0)+' animales · '+(d.medicamentos||[]).join(', '))+'\n';
+  if(r.tipo_evento==='medicamento') s+=(d.modo==='simple'&&d.aplicaciones&&d.aplicaciones.length===1?'Brinco '+d.aplicaciones[0].brinco+' · '+d.aplicaciones[0].medicamento+' · '+d.aplicaciones[0].dosis+' '+d.aplicaciones[0].unidad:d.modo==='simple'&&d.aplicaciones&&d.aplicaciones.length?'Brincos '+[...new Set(d.aplicaciones.map(p=>p.brinco))].join(', ')+' · '+medItemsDe(d.aplicaciones).map(x=>x.medicamento+' '+x.dosis+' '+x.unidad).join(' + '):(d.cantidad_aplicaciones||0)+' aplicaciones en '+(d.cantidad_animales||0)+' animales · '+(d.medicamentos||[]).join(', '))+'\n';
   if(r.observaciones) s+='Obs.: '+r.observaciones+'\n';
   return s+'ID '+r.id.slice(0,8)+(r.version&&r.version>1?' v'+r.version:''); }
 
@@ -2551,7 +2599,7 @@ async function renderHome(){
     if(w.tipo==='informe'){ b.className='item tipo-informe'; b.innerHTML='<div class="main"><b></b><span></span></div><span class="badge informe"></span>'; b.querySelector('b').textContent='Informe de trazabilidad · '+w.estancia; b.querySelector('span').textContent=fmtDate(w.desde)+' al '+fmtDate(w.hasta)+(w.cantidad!=null?' · '+w.cantidad+' registros':'')+' · pedido '+fmtDT(w.creado_en); const bd=b.querySelector('.badge'); if(w.estado==='listo'){ bd.textContent='Listo · toque para abrir'; bd.className='badge ok'; } else if(w.estado==='error'){ bd.textContent='Error'; bd.className='badge bad'; } else { bd.innerHTML='<span class="spin"></span>'+(navigator.onLine?'Generando…':'Esperando señal'); } b.addEventListener('click',()=>abrirInforme(w)); list.appendChild(envolverSwipe(b, w)); return; }
     if(w.estado==='borrador'){ const s=w.borrador||{}; b.className='item'+(s.tipo?' tipo-'+s.tipo:''); b.innerHTML='<div class="main"><b></b><span></span></div><span class="badge draft">Borrador</span>'; b.querySelector('b').textContent=(s.tipo?TIPO_LABEL[s.tipo]:'Sin tipo')+(s.estancia?' · '+s.estancia:''); b.querySelector('span').textContent='guardado '+fmtDT(w.actualizado_en||w.creado_en)+(s.fecha?' · evento '+fmtDate(s.fecha):''); b.addEventListener('click',()=>openDraft(w)); list.appendChild(envolverSwipe(b, w)); return; }
     const r=w.registro; const d=r.datos||{}; b.className='item tipo-'+r.tipo_evento;
-    const det = esIntensivo(r.tipo_evento) ? d.cantidad_animales+' animales · '+(d.origen||'')+' → lote '+(d.destino_lote||'') : esCamion(r.tipo_evento) ? d.cantidad_animales+' animales · chapa '+d.chapa_camion+(d.origen?' · de '+d.origen:'')+(d.destino?' · a '+d.destino:'') : r.tipo_evento==='mortalidad' ? 'botón '+d.nro_boton : r.tipo_evento==='nacimiento' ? 'madre '+d.madre : esPesaje(r.tipo_evento) ? (d.ids_individuales||[]).length+' animales pesados' : esSolicitud(r.tipo_evento) ? (d.total_animales||0)+' '+(d.categoria||'animales').toLowerCase()+' · '+(d.origen_nombre||'')+' → '+(d.destino_nombre||'') : r.tipo_evento==='medicamento' ? (d.modo==='simple'&&d.aplicaciones&&d.aplicaciones[0] ? 'brinco '+d.aplicaciones[0].brinco+' · '+d.aplicaciones[0].medicamento : (d.cantidad_aplicaciones||0)+' aplicaciones · '+(d.medicamentos||[]).slice(0,2).join(', ')) : 'botón '+d.nro_boton;
+    const det = esIntensivo(r.tipo_evento) ? d.cantidad_animales+' animales · '+(d.origen||'')+' → lote '+(d.destino_lote||'') : esCamion(r.tipo_evento) ? d.cantidad_animales+' animales · chapa '+d.chapa_camion+(d.origen?' · de '+d.origen:'')+(d.destino?' · a '+d.destino:'') : r.tipo_evento==='mortalidad' ? 'botón '+d.nro_boton : r.tipo_evento==='nacimiento' ? 'madre '+d.madre : esPesaje(r.tipo_evento) ? (d.ids_individuales||[]).length+' animales pesados' : esSolicitud(r.tipo_evento) ? (d.total_animales||0)+' '+(d.categoria||'animales').toLowerCase()+' · '+(d.origen_nombre||'')+' → '+(d.destino_nombre||'') : r.tipo_evento==='medicamento' ? (d.modo==='simple'&&d.aplicaciones&&d.aplicaciones.length ? medDetCorto(d.aplicaciones) : (d.cantidad_aplicaciones||0)+' aplicaciones · '+(d.medicamentos||[]).slice(0,2).join(', ')) : 'botón '+d.nro_boton;
     b.innerHTML='<div class="main"><b></b><span></span></div><span class="badge"></span>'; b.querySelector('b').textContent=TIPO_LABEL[r.tipo_evento]+' · '+r.estancia+(r.version>1?' · v'+r.version:''); b.querySelector('span').textContent=fmtDate(r.fecha_evento)+' · '+det+(r.lote_controlpasto&&!esIntensivo(r.tipo_evento)?' · lote '+r.lote_controlpasto:'')+(r.piquete&&!esIntensivo(r.tipo_evento)?' · '+r.piquete:'');
     const bd=b.querySelector('.badge'); if(esSolicitud(r.tipo_evento)){ const st=solEstadoInfo(w); bd.textContent=st.txt; bd.classList.add(st.cls); } else { bd.textContent = w.estado==='enviado'?'En la base':w.publicar?'En cola':w.estado==='compartido'?'Compartido':'Sin guardar en la base'; bd.classList.add(w.estado==='enviado'?'ok':(w.publicar||w.estado==='compartido')?'warn':'bad'); }
     b.addEventListener('click',()=>openDone(w)); list.appendChild(envolverSwipe(b, w)); });
