@@ -235,6 +235,7 @@ body.modo-solicitud #wrap-tipos{display:none}
 .actionbar .inner{max-width:560px;margin:0 auto;display:flex;gap:10px}
 .actionbar .inner .btn{flex:1}
 .actionbar .inner .btn.back{flex:0 0 auto;width:auto;padding:14px 16px}
+#mapa-msg.aviso-py{color:#F2D33A;font-weight:700}
 #mapa-modal{position:fixed;inset:0;height:100vh;height:100dvh;background:#000;z-index:21;display:none;flex-direction:column}
 #mapa-modal.on{display:flex}
 #mapa-modal .lienzo{position:relative;flex:1 1 0;min-height:0;overflow:hidden}
@@ -440,6 +441,7 @@ details.archivos > summary{cursor:pointer;font-family:var(--font-display);font-w
     <div class="stack">
       <button class="btn primary big" id="btn-new">＋ Nuevo registro</button>
       <button class="btn big" id="btn-informe" style="border-color:var(--brand);color:var(--brand)">📑 Informe de trazabilidad</button>
+      <button class="btn big" id="btn-guia" style="border-color:var(--brand);color:var(--brand)">🗺 Ver guía de la estancia</button>
       <button class="btn big" id="btn-solicitud" style="border-color:var(--solicitud_transferencia);color:var(--solicitud_transferencia)">📨 Solicitud de transferencia</button>
       <div id="pend-msg" class="msg warn hidden"></div>
       <div class="section-title"><span class="dot"></span><h3>Registros en este teléfono</h3></div>
@@ -977,6 +979,15 @@ details.archivos > summary{cursor:pointer;font-family:var(--font-display);font-w
     <button class="btn ghost" id="pwd-cancel">Cancelar</button>
   </div>
 </div>
+<div id="guia-modal" class="modal hidden">
+  <div class="card stack" style="max-width:420px;width:100%">
+    <h2>🗺 Guía de la estancia</h2>
+    <p style="font-size:15px;color:var(--ink-2)">PDF con los animales a pasto según el ControlPasto: cabezas, carga por potrero (mapa de hoy y media de 12 meses), carga mes a mes, entradas, salidas y mortandad, y los últimos movimientos. No pide contraseña.</p>
+    <label class="f"><span class="req">Estancia</span><select id="guia-estancia"></select></label>
+    <div class="msg bad hidden" id="guia-err"></div>
+    <div class="row"><button class="btn ghost" id="guia-cancel">Cancelar</button><button class="btn primary" id="guia-ok">Ver guía</button></div>
+  </div>
+</div>
 <div id="inf-modal" class="modal hidden">
   <div class="card stack" style="max-width:420px;width:100%">
     <h2>Informe de trazabilidad</h2>
@@ -1425,9 +1436,115 @@ if(typeof module!=='undefined'&&module.exports) module.exports=api; else root.Xl
 window.MEDICAMENTOS=[{"c":"VET-000001","n":"RABATVAC BOVIS 100ML"},{"c":"VET-000002","n":"CLOSTRISAN"},{"c":"VET-000003","n":"BIOPOLIGEN HS"},{"c":"VET-000004","n":"IVOMEC G 3,15 1LTS"},{"c":"VET-000005","n":"ZUPREVO 180 MG X 100ML"},{"c":"VET-000006","n":"HEPATOXAN 100ML"},{"c":"VET-000007","n":"SOLUTION LA 3,5 % 500ML"},{"c":"VET-000008","n":"ECTOLINE 5LTS"},{"c":"VET-000009","n":"VACUNA NEUMOSAN DE 20/50DOSIS"},{"c":"VET-000010","n":"DECTOMAX INY X 500 ML"},{"c":"VET-000011","n":"IVERGEN PLAT 3.15 500 ML"},{"c":"VET-000012","n":"CIDENTAL 250 ML"},{"c":"VET-000013","n":"POLICLOSTRIGEN 250 ML 50 DOSIS"},{"c":"VET-000014","n":"MACROSYN 100 ML"},{"c":"VET-000015","n":"VACUNA GALAFTO BIVALENTE"},{"c":"VET-000016","n":"DIMIDOCARBO 250ML"},{"c":"VET-000017","n":"FLUMAX 50ml"},{"c":"VET-000018","n":"MERCEPTON 100ml"},{"c":"VET-000019","n":"TERRA-CORTIL SPRAY 125ml"},{"c":"VET-000020","n":"CEFTIOZUL 250ml"},{"c":"VET-000021","n":"CLAMOXyL 100ml"},{"c":"VET-000022","n":"BLO-TROL 150ml"},{"c":"VET-000023","n":"TERRAMICINA 50ML"},{"c":"VET-000024","n":"AZIUM 10ml"},{"c":"VET-000025","n":"ROFLIN 50ML"},{"c":"VET-000026","n":"AGROVET PLUS 50ml"},{"c":"VET-000027","n":"TERRAPEN PPU 50ml"},{"c":"VET-000028","n":"DECTOMAX 500ml"},{"c":"VET-000029","n":"CURABICHERAS PLATA"},{"c":"VET-000030","n":"FRIGO BOI POUR 5L"},{"c":"VET-000031","n":"CURAPEZUÑAS CONCENTRADO 50ml"},{"c":"VET-000032","n":"VACUNA CLOSTISAN 11"},{"c":"VET-000033","n":"CIDENTAL UNGUENTO 250g"},{"c":"VET-000034","n":"ECTOLINE POUR DE 5L"},{"c":"VET-000035","n":"BERTAC DE 1L"},{"c":"VET-000036","n":"TANIDIL 200G"},{"c":"VET-000037","n":"CIDENTAL LIQUIDO 250ML"},{"c":"VET-000038","n":"TIGUVON SPOTON DE 1L"},{"c":"VET-000039","n":"SORO ANTITETANICO"},{"c":"VET-000040","n":"IMIZOL 15ml ganaseg"},{"c":"VET-000041","n":"OLEO CANFORADO 20ml"},{"c":"VET-000042","n":"SORO ANTIOFIDICO-MASTER SORO PLUS 20ml"},{"c":"VET-000043","n":"SUERO GALMEVIT 500ML"},{"c":"VET-000044","n":"MONOVIN B1 20ML"},{"c":"VET-000045","n":"CATOSAL B12 100ml"},{"c":"VET-000046","n":"FORMOL DE 1L"},{"c":"VET-000047","n":"TINTURA DE YODO DE 1L"},{"c":"VET-000048","n":"GUANTES DESECHABLE"},{"c":"VET-000049","n":"LUVA MANUFACTURAS"},{"c":"VET-000050","n":"SERINGA DESCARTABLE 20ml"},{"c":"VET-000051","n":"SERINGA DESCARTABLE 10ML"},{"c":"VET-000052","n":"AGUJAS HIPODERMICAS 12X1,8MM"},{"c":"VET-000053","n":"AGUJA DESCARTABLE 18X1 1/2"},{"c":"VET-000054","n":"BOTON ELECTRONICO-HEMBRA"},{"c":"VET-000055","n":"BOTON MACHO"},{"c":"VET-000056","n":"BIO BAC 34G"},{"c":"VET-000057","n":"SOLUTION 3,5% 1LITRO"},{"c":"VET-000058","n":"CORTVET 50 ML"},{"c":"VET-000059","n":"TRICLORSIL 500GR"},{"c":"VET-000060","n":"TOPLINE POUR-ON 5L"},{"c":"VET-000061","n":"VACUNA RABATVAC BOVIS 100 ML-50 DOSIS"},{"c":"VET-000062","n":"CARAVANA NARANJA"},{"c":"VET-000063","n":"CARAVANA BERMELLO"},{"c":"VET-000064","n":"CARAVANA VERDE"},{"c":"VET-000065","n":"TUBO DE VIDRIO 50 ML PARA JERINGA"},{"c":"VET-000066","n":"BIOXAN 500 ML"},{"c":"VET-000067","n":"CALFON 200ml"},{"c":"VET-000068","n":"PENCIVET PLUS PPU 50ml"},{"c":"VET-000069","n":"MONOVIN K 20ML"},{"c":"VET-000070","n":"SILVERBAC PRATA SPRAY 500ML"},{"c":"VET-000071","n":"RACUMIN PO 1KG"},{"c":"VET-000072","n":"APLICADOR DE POUR"},{"c":"VET-000073","n":"AGUJA HIPORDEMICAS 15X1,8MM"},{"c":"VET-000074","n":"TOPLINE SPRAY 400ML"},{"c":"VET-000075","n":"ALFORJA"},{"c":"VET-000076","n":"MODIFICADOR ORGANICO-VALLEE 500 ml"},{"c":"VET-000077","n":"VENCOSAT-SORO ANTITETANICA"},{"c":"VET-000078","n":"CARAVANA VERDE LIMON"},{"c":"VET-000079","n":"CARAVANA LILA"},{"c":"VET-000080","n":"CARAVANA ROSA"},{"c":"VET-000081","n":"SERINGA PREMIUM 2ML"},{"c":"VET-000082","n":"CREOLINA DE 1LTRS"},{"c":"VET-000083","n":"CREOLINA DE 500ML"},{"c":"VET-000084","n":"MONOVIN A 20ML"},{"c":"VET-000085","n":"ANESTESICO VARSIL FR C 50ML"},{"c":"VET-000086","n":"ACEITE HOPPNER MULT.LUB.35ML"},{"c":"VET-000087","n":"ALCOHOL RECTIFICADO FCS-1L"},{"c":"VET-000088","n":"GOMA DE HOPPNER 55CC"},{"c":"VET-000089","n":"FRANELA ALGODON P/MANO"},{"c":"VET-000090","n":"JERINGAS AUTOMATICO HOPPNER 50ML"},{"c":"VET-000091","n":"AEROCID SPRAY PRATA 500ML"},{"c":"VET-000092","n":"GANASEG 7 30ML"},{"c":"VET-000093","n":"ROFLIN 300MG 100 ML"},{"c":"VET-000094","n":"SERINGA DESCARTABLE 50 ML"},{"c":"VET-000095","n":"ANABOLIC 500ML"},{"c":"VET-000096","n":"VACUNA BOVILIS VISTA ONCE SQ MSD 100 ML-50 DOSIS"},{"c":"VET-000097","n":"CARAVANA CON M"},{"c":"VET-000098","n":"VACUNA BOVI-SHIELD GOLD ZOETIS 100 ML-50 DOSIS"},{"c":"VET-000099","n":"CARIMBO DE MARCAS ABCDEFGHIJK"},{"c":"VET-000100","n":"DRAXXIN 100ML"},{"c":"VET-000101","n":"BULLMAX PREMIUM 500ML"},{"c":"VET-000102","n":"DICLOVAN 1L"},{"c":"VET-000103","n":"B12 50.000 MCG DE 50ML"},{"c":"VET-000104","n":"ECTOSULES PLUS POUR ON 3L"},{"c":"VET-000105","n":"LIDOFARM 50ML"},{"c":"VET-000106","n":"FOS+ZN 500ML"},{"c":"VET-000107","n":"BOVILIS VISTA ONCE 20 ML 10DOSIS"},{"c":"VET-000108","n":"IVOMEC GOLD 3,15 1L"},{"c":"VET-000109","n":"APLICADOR DE BRINCO"},{"c":"VET-000110","n":"UMBICURA 250 ML"},{"c":"VET-000111","n":"GLUCAFOS 200ML"},{"c":"VET-000112","n":"BASTAO MARCADOR CORES VARIADAS"},{"c":"VET-000113","n":"ESPECIFICO FR 50ML"},{"c":"VET-000114","n":"FORMOPED 400ML SPRAY"},{"c":"VET-000115","n":"PRONTO STREP 50ML"},{"c":"VET-000116","n":"BACHEIRO CHIPA"},{"c":"VET-000117","n":"BACHEIRO DE ESPUMA"},{"c":"VET-000118","n":"CREOLINA 850ML"},{"c":"VET-000119","n":"INSEMAX POUR"},{"c":"VET-000120","n":"CATOSAL B12 20ML"},{"c":"VET-000121","n":"ANESTESICO BRAVET 50ML"},{"c":"VET-000122","n":"LAZO TORCIDO CORDAVILLE BLANCO"},{"c":"VET-000123","n":"AGULHA DESC.40X1,2MM"},{"c":"VET-000124","n":"SERINGA DOSADORA HOPPNER 50ML"},{"c":"VET-000125","n":"DIMIDOCARBO 100ML"},{"c":"VET-000126","n":"AJUSTE EMBOLO HP/011"},{"c":"VET-000127","n":"UÑA DE GATILLO HP/007"},{"c":"VET-000128","n":"VARILLA INTERIOR HP/015"},{"c":"VET-000129","n":"PERNO DOSIF.HP/019"},{"c":"VET-000130","n":"ESCALA GRADUADORA HP/010"},{"c":"VET-000131","n":"ENCEFALOGEN 1DS"},{"c":"VET-000132","n":"INFLUENZA HORSE 1DS"},{"c":"VET-000133","n":"LEXINGTON GOLD 1DS"},{"c":"VET-000134","n":"RABMUNE 25DS"},{"c":"VET-000135","n":"ALICATE PARA CASCO"},{"c":"VET-000136","n":"BOLSA P/KIT FERRADOR"},{"c":"VET-000137","n":"RINETA P/CASCO"},{"c":"VET-000138","n":"CANIVETE PASTOR 6CM"},{"c":"VET-000139","n":"GROSA MEIA LIMA PARA CASCO"},{"c":"VET-000140","n":"LIMA RANILHA"},{"c":"VET-000141","n":"SERINGA DESC.3ML"},{"c":"VET-000142","n":"TEXVET MAX POUR-ON"},{"c":"VET-000143","n":"TROCATER HOPPNER"},{"c":"VET-000144","n":"TIJERA TUSAR 26CM"},{"c":"VET-000145","n":"VACUNA NEUMOSAN"},{"c":"VET-000146","n":"VACUNA POLICLOSTRIGEN 50ds"},{"c":"VET-000147","n":"FLUMAX 100ML"},{"c":"VET-000148","n":"CARIMBO INOX JUEGO DE 5"},{"c":"VET-000149","n":"KINETOMAX 50 ML"},{"c":"VET-000150","n":"ACTYL PUOR"},{"c":"VET-000151","n":"PROBACTER 34G"},{"c":"VET-000152","n":"CORTVET 10ML"},{"c":"VET-000153","n":"BACTROVET PRATA 500ML SPRAY"},{"c":"VET-000154","n":"IZOOT B12 50ML"},{"c":"VET-000155","n":"ENERGECT 500 ml-modificador"},{"c":"VET-000156","n":"BIOFOR 1L YODO"},{"c":"VET-000157","n":"BIOVIT 500ML BIOXAN"},{"c":"VET-000158","n":"TURBO CALCIO 500ML"},{"c":"VET-000159","n":"BORGAL 50ML"},{"c":"VET-000160","n":"EIXO EXTERIOR AUT.50ML"},{"c":"VET-000161","n":"REGULADOR DEL DOSIFICACION HOPPNER 50 ML"},{"c":"VET-000162","n":"CANULA ORAL HOPPNER"},{"c":"VET-000163","n":"TERMOMETRO DIGITAL"},{"c":"VET-000164","n":"EFFIPRO POUR"},{"c":"VET-000165","n":"IZOOT B12 15ML"},{"c":"VET-000166","n":"ENERGECT 1L"},{"c":"VET-000167","n":"NPT 1L-FORMOL"},{"c":"VET-000168","n":"CARIMBO INOX LETRA"},{"c":"VET-000169","n":"FERRODEX 50ML"},{"c":"VET-000170","n":"LAZO AMERICANA 4T"},{"c":"VET-000171","n":"TROCATER ESTOCADOR ESTOMACAL CABO DE MADERA"},{"c":"VET-000172","n":"TROCATER ESTOCADOR ESTOMACAL 09 MMX 22"},{"c":"VET-000173","n":"TUBOS PARA EXTRACCION DE SANGRE"},{"c":"VET-000174","n":"AGUJAS HIPODERMICAS 10X1,8MM"},{"c":"VET-000175","n":"TUBO DE VIDRIO 30 ML PARA JERINGA"},{"c":"VET-000176","n":"PRABEZERRO X 50 ML"},{"c":"VET-000177","n":"BICO LOOK PARA JERINGA HOPPNER"},{"c":"VET-000178","n":"FUNDO PARA JERINGA HOPPNER"},{"c":"VET-000179","n":"MANGO PARA JERINGA HOPPNER"},{"c":"VET-000180","n":"APLICADOR DE SUERO"},{"c":"VET-000181","n":"RATICIDA EN POLVO DE CONTACTO"},{"c":"VET-000182","n":"DIMINOCARBO 250 ML"},{"c":"VET-000183","n":"MONOVIN B12 20ML"}];
 </script>
 <script>
+/* ---------- Guía de la estancia: PDF de carga animal a pasto (datos del ControlPasto calculados por el servidor) ---------- */
+const GUIA_FAIXAS=[[0,'#2F6FD0'],[0.5,'#D7301F'],[1.0,'#F28E2B'],[1.5,'#F2D33A'],[2.0,'#5DB548'],[Infinity,'#1B6B2F']];
+const GUIA_ROT=['0 - descansando','hasta 0,5 UA/ha','0,5 a 1 UA/ha','1 a 1,5 UA/ha','1,5 a 2 UA/ha','más de 2 UA/ha'];
+const GUIA_MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const GUIA_OPS={Entrada:'Entrada',Salida:'Salida',Muerte:'Muerte',Transferencia:'Transferencia','Cambio de Piquete':'Cambio de potrero',Pesaje:'Pesaje','Previsión':'Previsión de GMD'};
+function guiaFaixa(lot){ if(lot==null||!(lot>0)) return 0; for(let i=1;i<GUIA_FAIXAS.length;i++) if(lot<=GUIA_FAIXAS[i][0]+1e-9) return i; return GUIA_FAIXAS.length-1; }
+function guiaNum(v,k,suf){ if(v==null||v===''||!isFinite(Number(v))) return '-'; const x=Number(v); const s=x.toLocaleString('es-PY',{minimumFractionDigits:k||0,maximumFractionDigits:k||0}); return s+(suf||''); }
+function guiaMes(ym){ const p=String(ym).slice(0,7).split('-'); return GUIA_MESES[+p[1]-1]+'/'+p[0].slice(2); }
+function guiaAnsi(s){ return String(s==null?'':s).replace(/[\u2013\u2014]/g,'-').replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"').replace(/[^\x20-\x7E\xA0-\xFF€]/g,'?'); }
+async function makeGuiaPdf(w, data){
+  const ansi=guiaAnsi, fmtDate=iso=>iso?String(iso).slice(0,10).split('-').reverse().join('/'):'', fmtDT=iso=>{ try{ return new Date(iso).toLocaleString('es-PY',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(e){ return iso; } };
+  const {PDFDocument, StandardFonts, rgb} = window.PDFLib;
+  const hex=h=>{ const n=parseInt(String(h).slice(1),16); return rgb(((n>>16)&255)/255,((n>>8)&255)/255,(n&255)/255); };
+  const pdf=await PDFDocument.create(); pdf.setTitle('Guía de la estancia - '+w.estancia); pdf.setAuthor('Rural Bioenergía S.A. · App Registro de manejo');
+  const font=await pdf.embedFont(StandardFonts.Helvetica), bold=await pdf.embedFont(StandardFonts.HelveticaBold), ital=await pdf.embedFont(StandardFonts.HelveticaOblique);
+  const W=595.28, H=841.89, M=34, CW=W-2*M, BOT=40; const ink=hex('#16201B'), grey=hex('#5E6963'), line=hex('#D7DDD8'), campo=hex('#F3F5F2'), branco=rgb(1,1,1);
+  const d=data.datos||{}; const pages=[]; let page, y;
+  const nueva=()=>{ page=pdf.addPage([W,H]); pages.push(page); y=H-M; };
+  const need=h=>{ if(y-h<BOT){ nueva(); return true; } return false; };
+  const tw=(t,s,f)=>(f||font).widthOfTextAtSize(ansi(t),s);
+  const txt=(t,x,yy,s,f,c)=>page.drawText(ansi(t),{x,y:yy,size:s,font:f||font,color:c||ink});
+  const wrap=(t,size,f,maxW)=>{ const words=ansi(String(t==null?'':t)).split(/\s+/); const out=[]; let cur=''; words.forEach(wd=>{ while(f.widthOfTextAtSize(wd,size)>maxW && wd.length>1){ let k=wd.length; while(k>1 && f.widthOfTextAtSize(wd.slice(0,k),size)>maxW) k--; if(cur){ out.push(cur); cur=''; } out.push(wd.slice(0,k)); wd=wd.slice(k); } const test=cur?cur+' '+wd:wd; if(f.widthOfTextAtSize(test,size)>maxW && cur){ out.push(cur); cur=wd; } else cur=test; }); if(cur) out.push(cur); return out.length?out:['']; };
+  const parrafo=(t,size,f,c,gap)=>{ wrap(t,size,f,CW).forEach(l=>{ need(size+3); txt(l,M,y-size,size,f,c); y-=size+2.6; }); y-=(gap==null?4:gap); };
+  const subtitulo=(t,cor)=>{ need(30); y-=6; wrap(t,10.5,bold,CW).forEach(l=>{ txt(l,M,y-10.5,10.5,bold,cor); y-=13.5; }); y-=3; };
+  const fechaTxt=iso=>iso?fmtDate(String(iso).slice(0,10)):'-';
+  // ---- tabla genérica: cols [{t,w,a}] ; filas: [[celda]] (celda = texto o {t, bg, c, b}) ----
+  const tabla=(cols, filas, cor)=>{ const tot=cols.reduce((a,c)=>a+c.w,0); const cw=cols.map(c=>c.w/tot*CW); const size=7.4, lh=8.9, pad=3.2;
+    const cab=()=>{ const ls=cols.map((c,i)=>wrap(c.t,7.2,bold,cw[i]-pad*2)); const n=Math.max(...ls.map(l=>l.length)); const h=n*8.4+pad*2; need(h+lh+pad*2); page.drawRectangle({x:M,y:y-h,width:CW,height:h,color:cor}); let x=M; ls.forEach((l,i)=>{ l.forEach((s,k)=>txt(s,x+pad,y-pad-7.2-k*8.4,7.2,bold,branco)); x+=cw[i]; }); y-=h; };
+    cab();
+    filas.forEach((f,ri)=>{ const cel=f.map(v=>(v!==null && typeof v==='object')?v:{t:v}); const ls=cel.map((c,i)=>wrap(c.t==null?'':String(c.t),size,c.b?bold:font,cw[i]-pad*2)); const n=Math.max(1,...ls.map(l=>l.length)); const h=n*lh+pad*2;
+      if(y-h<BOT){ nueva(); cab(); }
+      if(ri%2===1) page.drawRectangle({x:M,y:y-h,width:CW,height:h,color:campo});
+      let x=M; cel.forEach((c,i)=>{ if(c.bg) page.drawRectangle({x:x+0.6,y:y-h+0.6,width:cw[i]-1.2,height:h-1.2,color:hex(c.bg)}); ls[i].forEach((s,k)=>{ const fw=c.b?bold:font; const xx=cols[i].a==='r'?x+cw[i]-pad-fw.widthOfTextAtSize(s,size):x+pad; txt(s,xx,y-pad-size+0.6-k*lh,size,fw,c.c?hex(c.c):ink); }); x+=cw[i]; });
+      page.drawLine({start:{x:M,y:y-h},end:{x:M+CW,y:y-h},thickness:0.4,color:line}); y-=h; });
+    y-=8; };
+  const celFaixa=v=>{ if(v==null) return '-'; const k=guiaFaixa(v); return {t:guiaNum(v,2), bg:GUIA_FAIXAS[k][1], c:(k===0||k===1||k===5)?'#FFFFFF':'#16201B', b:true}; };
+  // ---- mapa ----
+  const mapa=(pols, cont, modo, altMax)=>{ const todos=pols.map(p=>p.g).concat(cont.map(a=>[a])); const pts=[]; todos.forEach(g=>g.forEach(an=>an.forEach(c=>pts.push(c)))); if(!pts.length) return;
+    const lat0=pts.reduce((s,c)=>s+c[1],0)/pts.length; const kx=Math.cos(lat0*Math.PI/180); const xs=pts.map(c=>c[0]*kx), ys=pts.map(c=>c[1]);
+    let x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys); const dx=Math.max(x1-x0,1e-4), dy=Math.max(y1-y0,1e-4); x0-=dx*0.02; x1+=dx*0.02; y0-=dy*0.02; y1+=dy*0.02;
+    const s=Math.min(CW/(x1-x0), altMax/(y1-y0)); const mw=(x1-x0)*s, mh=(y1-y0)*s; need(mh+26); const left=M+(CW-mw)/2, top=y;
+    const path=an=>an.map((c,i)=>(i?'L':'M')+((c[0]*kx-x0)*s).toFixed(2)+' '+((y1-c[1])*s).toFixed(2)).join(' ')+' Z';
+    pols.forEach(p=>{ const lot=p.a? (modo==='hoy'?p.ua_h:p.ua_m)/p.a : null; const k=guiaFaixa(lot); p._k=k; p.g.forEach(an=>page.drawSvgPath(path(an),{x:left,y:top,color:hex(GUIA_FAIXAS[k][1]),opacity:k===0?0.62:0.9,borderColor:branco,borderWidth:0.5})); });
+    cont.forEach(an=>page.drawSvgPath(path(an),{x:left,y:top,borderColor:hex('#04522B'),borderWidth:1.1}));
+    const fs=pols.length<=30?5.6:pols.length<=70?4.6:3.7;
+    pols.forEach(p=>{ if(!p.nm||p.nv!=='piquete') return; const cs=[].concat(...p.g); const lx=cs.map(c=>c[0]*kx), ly=cs.map(c=>c[1]); const cx=((Math.min(...lx)+Math.max(...lx))/2-x0)*s, cy=(y1-(Math.min(...ly)+Math.max(...ly))/2)*s; const k=p._k; const t=ansi(p.nm); const wt=bold.widthOfTextAtSize(t,fs); page.drawText(t,{x:left+cx-wt/2,y:top-cy-fs*0.35,size:fs,font:bold,color:(k===0||k===1||k===5)?branco:ink}); });
+    y=top-mh-6;
+    const rot=GUIA_ROT.slice(); if(modo==='media') rot[0]='0 - sin uso en 12 meses'; const ws=rot.map(r=>tw(r,6.6)+16); const totw=ws.reduce((a,b)=>a+b,0); let lx=M+(CW-totw)/2;
+    rot.forEach((r,k)=>{ page.drawRectangle({x:lx,y:y-7,width:9,height:7,color:hex(GUIA_FAIXAS[k][1]),opacity:k===0?0.62:0.9}); txt(r,lx+12,y-6.5,6.6,font,ink); lx+=ws[k]; }); y-=16; };
+  // ---- gráfico mes a mes ----
+  const grafico=(sec, alto)=>{ const pts=sec.serie.pts, gr=sec.serie.grupo; if(!pts.length) return; need(alto+34); const cor=hex(sec.cor);
+    const L=M+30, R=M+CW-36, T=y-6, B=y-alto; const dmin=pts[0].d<(gr[0]?gr[0].d:pts[0].d)?pts[0].d:gr[0].d; const t0=Date.parse(dmin)-20*864e5, t1=Date.parse(data.hoje)+25*864e5;
+    const X=d=>L+(Date.parse(d)-t0)/(t1-t0)*(R-L); const ymax=Math.max(2.4,...pts.map(p=>p.ua_ha||0))*1.1; const Y=v=>B+(v/ymax)*(T-B); const cmax=Math.max(1,...pts.map(p=>p.cab||0))*3.2; const Yc=v=>B+(v/cmax)*(T-B);
+    for(let i=1;i<GUIA_FAIXAS.length;i++){ const lo=GUIA_FAIXAS[i-1][0], hi=Math.min(GUIA_FAIXAS[i][0],ymax); if(lo>=ymax) break; page.drawRectangle({x:L,y:Y(lo),width:R-L,height:Y(hi)-Y(lo),color:hex(GUIA_FAIXAS[i][1]),opacity:0.08}); }
+    for(let v=0; v<=ymax+1e-9; v+=0.5){ page.drawLine({start:{x:L,y:Y(v)},end:{x:R,y:Y(v)},thickness:0.4,color:hex('#E4E8E5')}); const t=guiaNum(v,1); txt(t,L-4-tw(t,6.3),Y(v)-2,6.3,font,grey); }
+    txt('UA/ha',M-2,T+4,6.5,font,grey); const tc='cabezas'; txt(tc,R+4,T+4,6.5,font,grey);
+    const pasoC=[500,1000,2000,5000,10000,20000,50000].find(p=>cmax/p<=6)||100000; for(let v=0; v<=cmax; v+=pasoC){ const t=guiaNum(v,0); txt(t,R+4,Yc(v)-2,6,font,grey); }
+    const bw=Math.max(3,(R-L)/(pts.length*2.6)); pts.forEach(p=>{ if(p.cab>0) page.drawRectangle({x:X(p.d)-bw/2,y:B,width:bw,height:Yc(p.cab)-B,color:hex('#B9C2BC'),opacity:0.55}); });
+    page.drawLine({start:{x:L,y:B},end:{x:R,y:B},thickness:0.6,color:grey}); page.drawLine({start:{x:L,y:B},end:{x:L,y:T},thickness:0.6,color:grey}); page.drawLine({start:{x:R,y:B},end:{x:R,y:T},thickness:0.6,color:grey});
+    const ini=new Date(t0), fim=new Date(t1); let m=new Date(Date.UTC(ini.getUTCFullYear(),ini.getUTCMonth()+1,1)); let k=0; while(m<fim){ const iso=m.toISOString().slice(0,10); const x=X(iso); page.drawLine({start:{x,y:B},end:{x,y:B-2.5},thickness:0.5,color:grey}); if(k%2===0){ const t=guiaMes(iso); txt(t,x-tw(t,6.3)/2,B-10,6.3,font,grey); } k++; m=new Date(Date.UTC(m.getUTCFullYear(),m.getUTCMonth()+1,1)); }
+    const xh=X(data.hoje); for(let yy=B; yy<T; yy+=3) page.drawLine({start:{x:xh,y:yy},end:{x:xh,y:Math.min(yy+1.2,T)},thickness:0.6,color:hex('#8A948E')});
+    for(let i=1;i<gr.length;i++){ const a=gr[i-1], b=gr[i]; const xa=X(a.d), ya=Y(a.ua_ha), xb=X(b.d), yb=Y(b.ua_ha); const len=Math.hypot(xb-xa,yb-ya); const n=Math.max(1,Math.floor(len/6)); for(let j=0;j<n;j+=1){ if(j%2) continue; const f0=j/n, f1=Math.min(1,(j+1)/n); page.drawLine({start:{x:xa+(xb-xa)*f0,y:ya+(yb-ya)*f0},end:{x:xa+(xb-xa)*f1,y:ya+(yb-ya)*f1},thickness:1.4,color:ink}); } }
+    for(let i=1;i<pts.length;i++) page.drawLine({start:{x:X(pts[i-1].d),y:Y(pts[i-1].ua_ha)},end:{x:X(pts[i].d),y:Y(pts[i].ua_ha)},thickness:2,color:cor});
+    pts.forEach(p=>{ page.drawCircle({x:X(p.d),y:Y(p.ua_ha),size:2,color:cor}); const t=guiaNum(p.ua_ha,2); txt(t,X(p.d)-tw(t,5.4)/2,Y(p.ua_ha)+4,5.4,font,ink); });
+    y=B-18; const l1='Media del grupo (UA total ÷ área total)', l2=sec.fazenda; const wl=22+tw(l1,6.4)+30+tw(l2,6.4); let lx=M+(CW-wl)/2;
+    for(let j=0;j<3;j++) page.drawLine({start:{x:lx+j*6,y:y+2.5},end:{x:lx+j*6+3.5,y:y+2.5},thickness:1.4,color:ink}); txt(l1,lx+20,y,6.4,font,ink); lx+=22+tw(l1,6.4)+12;
+    page.drawLine({start:{x:lx,y:y+2.5},end:{x:lx+14,y:y+2.5},thickness:2,color:cor}); page.drawCircle({x:lx+7,y:y+2.5,size:2,color:cor}); txt(l2,lx+18,y,6.4,font,ink); y-=12; };
+  // ---- tira de indicadores ----
+  const tira=(cards, tonoUltimo)=>{ const gap=0, cw=CW/cards.length, h=44; need(h+4); cards.forEach((c,i)=>{ const x=M+i*cw; page.drawRectangle({x,y:y-h,width:cw,height:h,color:(tonoUltimo&&i===cards.length-1)?hex('#EAF1EC'):branco,borderColor:line,borderWidth:0.6}); txt(c[0],x+7,y-11,7.4,font,grey); txt(c[1],x+7,y-27,14.5,bold,ink); wrap(c[2],6.6,font,cw-12).slice(0,2).forEach((l,k)=>txt(l,x+7,y-36.5-k*7.5,6.6,font,grey)); }); y-=h+4; };
+  // ================= armado =================
+  nueva();
+  const secs=data.secciones||[];
+  if(data.sinc && !data.sinc.ok && data.sinc.error){ parrafo('Aviso: no se pudo leer el ControlPasto ahora ('+data.sinc.error+'). La guía usa los datos guardados en el servidor (movimientos hasta '+fechaTxt(d.manejo_ate)+').',7.6,ital,hex('#9A6B12'),6); }
+  secs.forEach((sec,si)=>{ if(si>0) nueva(); const cor=hex(['#8FB996','#D9A441'].includes(sec.cor)?'#04522B':sec.cor); const i=sec.ind; const mr=guiaMes(i.mes);
+    txt('Guía de la estancia - '+sec.fazenda,M,y-18,18,bold,cor); y-=24;
+    const fonte=['posición al '+fechaTxt(data.hoje), d.manejo_ate?'movimientos del ControlPasto hasta '+fechaTxt(d.manejo_ate):'', d.fech_ate?'último cierre de stock '+fechaTxt(d.fech_ate):'', 'área: '+(sec.area_fonte||'sin área')].filter(Boolean).join(' · ');
+    wrap(fonte,8,font,CW).forEach(l=>{ txt(l,M,y-8,8,font,grey); y-=10.5; }); y-=2; page.drawLine({start:{x:M,y},end:{x:M+CW,y},thickness:1.2,color:cor}); y-=7;
+    tira([['Cabezas hoy',guiaNum(i.cab),i.lotes+' lotes · '+i.piquetes+' potreros ocupados'],['UA hoy',guiaNum(i.ua),'PV medio '+guiaNum(i.pv,0,' kg')+' · UA = PV ÷ 450 kg'],
+      ['Área de pasto',i.area?guiaNum(i.area,0,' ha'):'-',i.area?guiaNum(i.cab_ha,2)+' cab/ha':'sin área informada (sin mapa)'],
+      ['Carga hoy',i.ua_ha!=null?guiaNum(i.ua_ha,2,' UA/ha'):'-',i.area?(i.ua_ha_media!=null?'media 12 meses '+guiaNum(i.ua_ha_media,2)+' UA/ha':'sin cierres en 12 meses'):'sin área de pasto']],true);
+    tira([['Entradas en '+mr,guiaNum(i.entradas),guiaNum(i.compra)+' compras · '+guiaNum(i.transf_rec)+' transf. recibidas'],['Salidas en '+mr,guiaNum(i.saidas),guiaNum(i.venda)+' ventas · '+guiaNum(i.transf_env)+' transf. enviadas'],
+      ['Muertes en '+mr,guiaNum(i.mortes),i.mort_mes!=null?'mortandad '+guiaNum(i.mort_mes,2,' %')+' del stock inicial':'sin stock inicial del mes'],
+      ['Mortandad 12 meses',i.mort_12m!=null?guiaNum(i.mort_12m,2,' %'):'-',i.mort_ant!=null?'mes anterior '+guiaNum(i.mort_ant,2,' %')+' ('+guiaNum(i.mortes_ant)+' muertes)':'muertes ÷ stock medio']]);
+    if(sec.mapa){ subtitulo('Carga instantánea por potrero (hoy)',cor); mapa(sec.mapa.pols, sec.mapa.cont, 'hoy', y-BOT-30);
+      nueva(); subtitulo('Carga media por potrero - cierres de los últimos 12 meses ('+sec.mapa.meses_media+' meses)',cor); mapa(sec.mapa.pols, sec.mapa.cont, 'media', 380); }
+    else { y-=4; parrafo('Estancia sin mapa de potreros: la carga se calcula por la área informada en los parámetros, cuando la hay.',8,font,grey); }
+    if(sec.serie.pts.length){ subtitulo('Carga mes a mes (UA/ha el día 1º de cada mes; el último punto es hoy) - barras grises: cabezas',cor); grafico(sec,175); }
+    if(sec.pastos){ subtitulo('Carga por potrero - hoy y media de los últimos 12 meses (celda coloreada según la franja de carga)',cor);
+      tabla([{t:'Potrero',w:10},{t:'Área (ha)',w:9,a:'r'},{t:'Cabezas',w:8,a:'r'},{t:'UA',w:7,a:'r'},{t:'UA/ha hoy',w:10,a:'r'},{t:'UA/ha media 12m',w:12,a:'r'},{t:'Lotes hoy',w:44}],
+        sec.pastos.map(p=>[p.nm,guiaNum(p.a,1),p.cab?guiaNum(p.cab):'-',p.ua?guiaNum(p.ua,0):'-',celFaixa(p.lot_h),celFaixa(p.lot_m),p.lotes.join(', ')||'descansando']),cor);
+      if(sec.sem_pol&&sec.sem_pol.length){ y+=4; parrafo('Potreros con animales hoy sin polígono en el mapa ('+sec.sem_pol.length+'): '+sec.sem_pol.slice(0,40).join(', ')+(sec.sem_pol.length>40?'…':''),6.8,font,grey); } }
+    else if(sec.piquetes){ subtitulo('Potreros ocupados hoy',cor); tabla([{t:'Potrero',w:14},{t:'Cabezas',w:10,a:'r'},{t:'UA',w:8,a:'r'},{t:'PV medio (kg)',w:12,a:'r'},{t:'Lotes',w:56}], sec.piquetes.map(p=>[p.piquete,guiaNum(p.cab),guiaNum(p.ua,0),guiaNum(p.pv,0),p.lotes]),cor); }
+    subtitulo('Entradas, salidas y mortandad por mes (competencia: el movimiento del día 1º entra en el mes anterior)',cor);
+    tabla([{t:'Mes',w:14},{t:'Stock el día 1º',w:13,a:'r'},{t:'Compras',w:10,a:'r'},{t:'Transf. recibidas',w:12,a:'r'},{t:'Ventas',w:10,a:'r'},{t:'Transf. enviadas',w:12,a:'r'},{t:'Muertes',w:9,a:'r'},{t:'Mortandad',w:11,a:'r'},{t:'Saldo',w:9,a:'r'}],
+      sec.movs.map(m=>[guiaMes(m.mes)+(m.parcial?' (parcial)':''),m.ini?guiaNum(m.ini):'-',guiaNum(m.compra),guiaNum(m.transf_rec),guiaNum(m.venda),guiaNum(m.transf_env),guiaNum(m.mortes),m.mort!=null?guiaNum(m.mort,2,' %'):'-',guiaNum(m.saldo)]),cor);
+    subtitulo('Últimos movimientos del ControlPasto - '+sec.lanc.nota,cor);
+    if(sec.lanc.filas.length) tabla([{t:'Fecha',w:9.5},{t:'Hora',w:6},{t:'Operación',w:12},{t:'Lote',w:17},{t:'Potrero',w:13},{t:'Cab',w:6,a:'r'},{t:'PV (kg)',w:7,a:'r'},{t:'Origen / proveedor',w:29.5}],
+      sec.lanc.filas.map(l=>[fechaTxt(l.data),l.hora||'-',GUIA_OPS[l.op]||l.op,l.lote||'-',l.piquete||'-',l.qtd!=null?guiaNum(l.qtd):'-',l.peso?guiaNum(l.peso,0):'-',l.origem||'-']),cor);
+    else parrafo('Sin movimientos.',8,font,grey);
+  });
+  const pie='Rural Bioenergía S.A. - Guía de la estancia '+w.estancia+' - '+fechaTxt(data.hoje)+' - datos del ControlPasto'+(d.api_leida?' (API leída '+fmtDT(d.api_leida)+')':'')+' - generado '+new Date().toLocaleString('es-PY');
+  pages.forEach((p,i)=>{ p.drawText(ansi(pie),{x:M,y:18,size:6.6,font,color:hex('#777777')}); const t='Página '+(i+1)+' de '+pages.length; p.drawText(t,{x:W-M-font.widthOfTextAtSize(t,6.6),y:18,size:6.6,font,color:hex('#777777')}); });
+  return await pdf.save();
+}
+</script>
+<script>
 (function(){
 'use strict';
-const APP_VERSION = '3.9.1';
+const APP_VERSION = '3.10.1';
 const ESQUEMA = 'manejo-ypoti/3.7';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
@@ -1939,7 +2056,7 @@ function validate2(){
     if(!$('f-causa').value) e.push('Elija la causa de muerte.');
     if(!fotos.animal) e.push('Falta la foto del animal.');
     if(!fotos.boton) e.push('Falta la foto del botón.');
-    if(!ubicacion) e.push('Falta la ubicación de lo ocurrido (ubicación del teléfono o punto en el mapa).');
+    if(!ubicacion) e.push('Falta la ubicación de lo ocurrido (ubicación del teléfono o punto en el mapa).'); else if(!dentroPY(ubicacion.lat,ubicacion.lon)) e.push('La ubicación quedó fuera del Paraguay: corríjala en el mapa.');
   }
   if(tipo==='nacimiento'){ if(!$('f-madre').value.trim()) e.push('Indique la madre.'); if(!fotos.nacimiento) e.push('Falta la foto del nacimiento.'); }
   if(tipo==='perdida_boton'){ if(!$('f-perdida-boton').value.trim()) e.push('Escriba el número del botón perdido.'); if(!fotos.perdida) e.push('Falta la foto de lo ocurrido.'); }
@@ -2302,10 +2419,23 @@ $('file-faltantes').addEventListener('change', async e=>{ const files=Array.from
 function renderUbic(){ const b=$('ubic-badge'); b.className='badge'; if(!ubicacion){ b.textContent='Sin ubicación'; return; } b.classList.add('ok'); b.textContent=ubicTxt(ubicacion); }
 function setUbic(u){ ubicacion=u; renderUbic(); dirty=true; }
 function gpsActual(){ return new Promise((res,rej)=>{ if(!navigator.geolocation) return rej(new Error('Este teléfono no permite usar la ubicación aquí.')); navigator.geolocation.getCurrentPosition(p=>res({lat:+p.coords.latitude.toFixed(6), lon:+p.coords.longitude.toFixed(6), precision_m:Math.round(p.coords.accuracy)}), e=>rej(new Error(e.code===1?'Permiso de ubicación denegado.':e.code===2?'Sin señal de GPS.':'La ubicación tardó demasiado.')), {enableHighAccuracy:true, timeout:15000, maximumAge:0}); }); }
-$('btn-ubic-gps').addEventListener('click',async()=>{ const b=$('ubic-badge'); b.textContent='Buscando la ubicación…'; try{ const u=await gpsActual(); setUbic(Object.assign(u,{fuente:'gps', tomada_en:new Date().toISOString()})); toast('Ubicación tomada'); }catch(e){ renderUbic(); toast(e.message+' Puede elegir el punto en el mapa.'); } });
+$('btn-ubic-gps').addEventListener('click',async()=>{ const b=$('ubic-badge'); b.textContent='Buscando la ubicación…'; try{ const u=await gpsActual(); if(!dentroPY(u.lat,u.lon)){ renderUbic(); toast('La ubicación del teléfono está fuera del Paraguay ('+u.lat.toFixed(4)+', '+u.lon.toFixed(4)+'). Marque el punto en el mapa.'); return; } setUbic(Object.assign(u,{fuente:'gps', tomada_en:new Date().toISOString()})); toast('Ubicación tomada'); }catch(e){ renderUbic(); toast(e.message+' Puede elegir el punto en el mapa.'); } });
 $('btn-ubic-mapa').addEventListener('click',()=>openMapa(ubicacion, u=>setUbic(u)));
 /* mapa: se arrastra el punto rojo hasta el lugar (o se toca el mapa para ponerlo ahí); arrastrar fuera del punto mueve el mapa */
-const MAPA={ z:15, lat:-23.33, lon:-56.71, plat:-23.33, plon:-56.71, tiles:{}, cb:null, drag:null, raf:0, capa:'mapa' };
+const MAPA={ z:15, lat:-23.33, lon:-56.71, plat:-23.33, plon:-56.71, tiles:{}, cb:null, drag:null, raf:0, capa:'mapa', aviso:0 };
+/* Paraguay: contorno de mapa.js ([lon,lat], ~500 vértices). El punto de la mortandad tiene que quedar dentro del país; se tolera
+   PY_TOL_KM de la línea porque el contorno es aproximado (los ríos de frontera). La vista no sale del rectángulo del país. */
+const PY_POL=(window.MapaPY&&window.MapaPY.PY_OUTLINE)||[]; const PY_TOL_KM=1.5;
+const PY_BB=PY_POL.reduce((b,c)=>({lonMin:Math.min(b.lonMin,c[0]),lonMax:Math.max(b.lonMax,c[0]),latMin:Math.min(b.latMin,c[1]),latMax:Math.max(b.latMax,c[1])}),{lonMin:180,lonMax:-180,latMin:90,latMax:-90});
+function enPY(lat,lon){ let d=false; for(let i=0,j=PY_POL.length-1;i<PY_POL.length;j=i++){ const xi=PY_POL[i][0], yi=PY_POL[i][1], xj=PY_POL[j][0], yj=PY_POL[j][1]; if(((yi>lat)!==(yj>lat)) && (lon<(xj-xi)*(lat-yi)/(yj-yi)+xi)) d=!d; } return d; }
+function bordePY(lat,lon){ const k=Math.cos(lat*Math.PI/180); const px=lon*k, py=lat; let best=null, bd=Infinity;
+  for(let i=0,j=PY_POL.length-1;i<PY_POL.length;j=i++){ const ax=PY_POL[j][0]*k, ay=PY_POL[j][1], bx=PY_POL[i][0]*k, by=PY_POL[i][1]; const vx=bx-ax, vy=by-ay; const L=vx*vx+vy*vy; let t=L?((px-ax)*vx+(py-ay)*vy)/L:0; t=Math.max(0,Math.min(1,t)); const qx=ax+t*vx, qy=ay+t*vy; const dd=(px-qx)*(px-qx)+(py-qy)*(py-qy); if(dd<bd){ bd=dd; best={lat:qy, lon:qx/k}; } }
+  return Object.assign(best||{lat,lon},{km:Math.sqrt(bd)*111.2}); }
+function dentroPY(lat,lon){ if(!PY_POL.length) return true; if(!(isFinite(lat)&&isFinite(lon))) return false; return enPY(lat,lon) || bordePY(lat,lon).km<=PY_TOL_KM; }
+function ajustarPY(lat,lon){ if(dentroPY(lat,lon)) return {lat,lon,fuera:false}; const b=bordePY(lat,lon); const dl=b.lat-lat, dn=b.lon-lon, n=Math.hypot(dl,dn)||1; // un paso de ~300 m hacia adentro desde la frontera
+  const c={lat:b.lat+dl/n*0.003, lon:b.lon+dn/n*0.003}; return dentroPY(c.lat,c.lon)?Object.assign(c,{fuera:true}):{lat:b.lat,lon:b.lon,fuera:true}; }
+function centrarEnPY(){ MAPA.lat=Math.max(PY_BB.latMin,Math.min(PY_BB.latMax,MAPA.lat)); MAPA.lon=Math.max(PY_BB.lonMin,Math.min(PY_BB.lonMax,MAPA.lon)); }
+function ponerPin(lat,lon){ const r=ajustarPY(lat,lon); MAPA.plat=r.lat; MAPA.plon=r.lon; if(r.fuera) MAPA.aviso=Date.now(); return !r.fuera; }
 const TILE_URL={ mapa:(z,x,y)=>'https://tile.openstreetmap.org/'+z+'/'+x+'/'+y+'.png', sat:(z,x,y)=>'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/'+z+'/'+y+'/'+x };
 const TILE_ATTR={ mapa:'© OpenStreetMap', sat:'Imagen: Esri World Imagery (Maxar, Earthstar Geographics)' };
 const lon2x=(lon,z)=>(lon+180)/360*Math.pow(2,z), lat2y=(lat,z)=>(1-Math.log(Math.tan(lat*Math.PI/180)+1/Math.cos(lat*Math.PI/180))/Math.PI)/2*Math.pow(2,z);
@@ -2318,32 +2448,36 @@ function mapaDraw(){ const cv=$('mapa-canvas'); const W=cv.clientWidth, H=cv.cli
   const z=MAPA.z, cx=lon2x(MAPA.lon,z), cy=lat2y(MAPA.lat,z);
   const x0=Math.floor(cx-W/2/256), x1=Math.floor(cx+W/2/256), y0=Math.floor(cy-H/2/256), y1=Math.floor(cy+H/2/256);
   let faltan=0; for(let tx=x0;tx<=x1;tx++) for(let ty=y0;ty<=y1;ty++){ const px=W/2+(tx-cx)*256, py=H/2+(ty-cy)*256; const t=mapaTile(z,tx,ty); if(t&&t.ok) g.drawImage(t.img,px,py,256,256); else { g.strokeStyle='#33403a'; g.strokeRect(px,py,256,256); if(t&&t.err) faltan++; } }
+  if(PY_POL.length){ g.save(); g.beginPath(); g.rect(0,0,W,H); PY_POL.forEach((c,i)=>{ const q=mapaXY(c[1],c[0]); if(i) g.lineTo(q.x,q.y); else g.moveTo(q.x,q.y); }); g.closePath(); g.fillStyle='rgba(15,20,17,.55)'; g.fill('evenodd');
+    g.beginPath(); PY_POL.forEach((c,i)=>{ const q=mapaXY(c[1],c[0]); if(i) g.lineTo(q.x,q.y); else g.moveTo(q.x,q.y); }); g.closePath(); g.lineWidth=2.5; g.strokeStyle='rgba(242,211,58,.95)'; g.setLineDash([8,5]); g.stroke(); g.restore(); }
   // el punto: una gota roja con la punta en el lugar elegido
   const p=mapaXY(MAPA.plat,MAPA.plon); const arrastrando=MAPA.drag&&MAPA.drag.pin; const R=arrastrando?16:13, cyP=p.y-R-12;
   g.save(); g.fillStyle='rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(p.x,p.y,8,3,0,0,Math.PI*2); g.fill();
   g.beginPath(); g.moveTo(p.x,p.y); g.lineTo(p.x-R*0.62,cyP+R*0.75); g.arc(p.x,cyP,R,Math.PI*0.78,Math.PI*0.22); g.closePath(); g.fillStyle='#E03A2A'; g.fill(); g.lineWidth=3; g.strokeStyle='#fff'; g.stroke();
   g.beginPath(); g.arc(p.x,cyP,R*0.38,0,Math.PI*2); g.fillStyle='#fff'; g.fill(); g.restore();
-  $('mapa-msg').textContent = (faltan ? 'Sin señal: el mapa no se ve. Use ◎ para ir a su ubicación y apriete OK. ' : 'Arrastre el punto rojo hasta el lugar (o toque el mapa) y apriete OK. ')+MAPA.plat.toFixed(5)+', '+MAPA.plon.toFixed(5);
+  const avisoPY=Date.now()-MAPA.aviso<4000;
+  $('mapa-msg').textContent = (avisoPY ? '⚠ El punto tiene que quedar dentro del Paraguay: quedó en la frontera. ' : faltan ? 'Sin señal: el mapa no se ve. Use ◎ para ir a su ubicación y apriete OK. ' : 'Arrastre el punto rojo hasta el lugar (o toque el mapa) y apriete OK. ')+MAPA.plat.toFixed(5)+', '+MAPA.plon.toFixed(5);
+  $('mapa-msg').classList.toggle('aviso-py', avisoPY); if(avisoPY) setTimeout(()=>{ if(Date.now()-MAPA.aviso>=4000) mapaDraw(); },4100);
   $('mapa-attr').textContent=TILE_ATTR[MAPA.capa];
 }
-function mapaPan(dx,dy){ const z=MAPA.z; const x=lon2x(MAPA.lon,z)-dx/256, y=lat2y(MAPA.lat,z)-dy/256; MAPA.lon=x2lon(x,z); MAPA.lat=Math.max(-85,Math.min(85,y2lat(y,z))); mapaDraw(); }
+function mapaPan(dx,dy){ const z=MAPA.z; const x=lon2x(MAPA.lon,z)-dx/256, y=lat2y(MAPA.lat,z)-dy/256; MAPA.lon=x2lon(x,z); MAPA.lat=Math.max(-85,Math.min(85,y2lat(y,z))); centrarEnPY(); mapaDraw(); }
 function openMapa(inicial, cb){ MAPA.cb=cb; const m=$('mapa-modal'); m.classList.add('on');
-  const go=(lat,lon)=>{ MAPA.lat=lat; MAPA.lon=lon; MAPA.plat=lat; MAPA.plon=lon; mapaDraw(); };
-  if(inicial){ go(inicial.lat,inicial.lon); } else { go(MAPA.lat,MAPA.lon); gpsActual().then(u=>{ if(!MAPA.movido) go(u.lat,u.lon); }).catch(()=>{}); }
+  const go=(lat,lon)=>{ ponerPin(lat,lon); MAPA.lat=MAPA.plat; MAPA.lon=MAPA.plon; centrarEnPY(); mapaDraw(); };
+  if(inicial){ go(inicial.lat,inicial.lon); } else { go(MAPA.lat,MAPA.lon); gpsActual().then(u=>{ if(!MAPA.movido && dentroPY(u.lat,u.lon)) go(u.lat,u.lon); }).catch(()=>{}); }
   MAPA.movido=false; setTimeout(mapaDraw,50); }
 function closeMapa(){ $('mapa-modal').classList.remove('on'); MAPA.cb=null; MAPA.drag=null; }
 (function(){ const cv=$('mapa-canvas'); const rel=e=>{ const r=cv.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; };
   cv.addEventListener('pointerdown',e=>{ const q=rel(e), p=mapaXY(MAPA.plat,MAPA.plon); const cerca=Math.hypot(q.x-p.x,q.y-(p.y-25))<38 || Math.hypot(q.x-p.x,q.y-p.y)<26; MAPA.drag={x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,pin:cerca,movio:false,ox:q.x-p.x,oy:q.y-p.y}; /* se agarra la gota por donde se tocó: la punta no salta */ try{ cv.setPointerCapture(e.pointerId); }catch(x){} if(cerca) mapaDraw(); });
   cv.addEventListener('pointermove',e=>{ const d=MAPA.drag; if(!d) return; const dx=e.clientX-d.x, dy=e.clientY-d.y; d.x=e.clientX; d.y=e.clientY; if(Math.hypot(e.clientX-d.x0,e.clientY-d.y0)>6) d.movio=true;
-    if(d.pin){ const q=rel(e); const ll=mapaLL(q.x-d.ox,q.y-d.oy); MAPA.plat=ll.lat; MAPA.plon=ll.lon; MAPA.movido=true; mapaDraw(); } else mapaPan(dx,dy); });
-  const up=e=>{ const d=MAPA.drag; MAPA.drag=null; if(d && !d.pin && !d.movio && e && e.type==='pointerup'){ const q=rel(e); const ll=mapaLL(q.x,q.y); MAPA.plat=ll.lat; MAPA.plon=ll.lon; MAPA.movido=true; } mapaDraw(); };
+    if(d.pin){ const q=rel(e); const ll=mapaLL(q.x-d.ox,q.y-d.oy); ponerPin(ll.lat,ll.lon); MAPA.movido=true; mapaDraw(); } else mapaPan(dx,dy); });
+  const up=e=>{ const d=MAPA.drag; MAPA.drag=null; if(d && !d.pin && !d.movio && e && e.type==='pointerup'){ const q=rel(e); const ll=mapaLL(q.x,q.y); ponerPin(ll.lat,ll.lon); MAPA.movido=true; } mapaDraw(); };
   cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up);
-  cv.addEventListener('wheel',e=>{ e.preventDefault(); MAPA.z=Math.max(5,Math.min(18,MAPA.z+(e.deltaY<0?1:-1))); mapaDraw(); },{passive:false});
-  $('mapa-zin').addEventListener('click',()=>{ MAPA.z=Math.min(18,MAPA.z+1); mapaDraw(); }); $('mapa-zout').addEventListener('click',()=>{ MAPA.z=Math.max(5,MAPA.z-1); mapaDraw(); });
-  $('mapa-loc').addEventListener('click',async()=>{ try{ const u=await gpsActual(); MAPA.lat=u.lat; MAPA.lon=u.lon; MAPA.plat=u.lat; MAPA.plon=u.lon; MAPA.movido=true; MAPA.z=Math.max(MAPA.z,16); mapaDraw(); }catch(e){ toast(e.message); } });
+  cv.addEventListener('wheel',e=>{ e.preventDefault(); MAPA.z=Math.max(6,Math.min(18,MAPA.z+(e.deltaY<0?1:-1))); mapaDraw(); },{passive:false});
+  $('mapa-zin').addEventListener('click',()=>{ MAPA.z=Math.min(18,MAPA.z+1); mapaDraw(); }); $('mapa-zout').addEventListener('click',()=>{ MAPA.z=Math.max(6,MAPA.z-1); mapaDraw(); });
+  $('mapa-loc').addEventListener('click',async()=>{ try{ const u=await gpsActual(); if(!dentroPY(u.lat,u.lon)){ toast('Su ubicación está fuera del Paraguay: marque el punto en el mapa.'); return; } MAPA.lat=u.lat; MAPA.lon=u.lon; MAPA.plat=u.lat; MAPA.plon=u.lon; MAPA.movido=true; MAPA.z=Math.max(MAPA.z,16); mapaDraw(); }catch(e){ toast(e.message); } });
   $('mapa-cancel').addEventListener('click',closeMapa);
   $('mapa-capa').addEventListener('click',()=>{ MAPA.capa = MAPA.capa==='sat'?'mapa':'sat'; $('mapa-capa').textContent = MAPA.capa==='sat'?'🗺 Mapa':'🛰 Satélite'; mapaDraw(); });
-  $('mapa-ok').addEventListener('click',()=>{ const u={lat:+MAPA.plat.toFixed(6), lon:+MAPA.plon.toFixed(6), precision_m:null, fuente:'mapa', tomada_en:new Date().toISOString()}; const cb=MAPA.cb; closeMapa(); if(cb) cb(u); toast('Ubicación elegida'); });
+  $('mapa-ok').addEventListener('click',()=>{ ponerPin(MAPA.plat,MAPA.plon); const u={lat:+MAPA.plat.toFixed(6), lon:+MAPA.plon.toFixed(6), precision_m:null, fuente:'mapa', tomada_en:new Date().toISOString()}; const cb=MAPA.cb; closeMapa(); if(cb) cb(u); toast('Ubicación elegida'); });
   window.addEventListener('resize',()=>{ if($('mapa-modal').classList.contains('on')) mapaDraw(); });
 })();
 
@@ -2596,7 +2730,7 @@ async function renderHome(){
   if(sin) partes.push(sin+(sin===1?' registro sin guardar en la base':' registros sin guardar en la base'));
   if(partes.length){ pm.classList.remove('hidden'); pm.textContent=partes.join(' · ')+'.'; } else pm.classList.add('hidden');
   all.forEach(w=>{ const b=document.createElement('button');
-    if(w.tipo==='informe'){ b.className='item tipo-informe'; b.innerHTML='<div class="main"><b></b><span></span></div><span class="badge informe"></span>'; b.querySelector('b').textContent='Informe de trazabilidad · '+w.estancia; b.querySelector('span').textContent=fmtDate(w.desde)+' al '+fmtDate(w.hasta)+(w.cantidad!=null?' · '+w.cantidad+' registros':'')+' · pedido '+fmtDT(w.creado_en); const bd=b.querySelector('.badge'); if(w.estado==='listo'){ bd.textContent='Listo · toque para abrir'; bd.className='badge ok'; } else if(w.estado==='error'){ bd.textContent='Error'; bd.className='badge bad'; } else { bd.innerHTML='<span class="spin"></span>'+(navigator.onLine?'Generando…':'Esperando señal'); } b.addEventListener('click',()=>abrirInforme(w)); list.appendChild(envolverSwipe(b, w)); return; }
+    if(w.tipo==='informe'){ b.className='item tipo-informe'; b.innerHTML='<div class="main"><b></b><span></span></div><span class="badge informe"></span>'; if(w.clase==='guia'){ b.querySelector('b').textContent='🗺 Guía de la estancia · '+w.estancia; b.querySelector('span').textContent=(w.estado==='listo'?'armada '+fmtDT(w.generado_en)+(w.datos_hasta?' · ControlPasto hasta '+fmtDate(w.datos_hasta):''):'pedida '+fmtDT(w.creado_en))+(w.aviso?' · '+w.aviso:''); } else { b.querySelector('b').textContent='Informe de trazabilidad · '+w.estancia; b.querySelector('span').textContent=fmtDate(w.desde)+' al '+fmtDate(w.hasta)+(w.cantidad!=null?' · '+w.cantidad+' registros':'')+' · pedido '+fmtDT(w.creado_en); } const bd=b.querySelector('.badge'); if(w.estado==='listo'){ bd.textContent='Listo · toque para abrir'; bd.className='badge ok'; } else if(w.estado==='error'){ bd.textContent='Error'; bd.className='badge bad'; } else { bd.innerHTML='<span class="spin"></span>'+(navigator.onLine?'Generando…':'Esperando señal'); } b.addEventListener('click',()=>abrirInforme(w)); list.appendChild(envolverSwipe(b, w)); return; }
     if(w.estado==='borrador'){ const s=w.borrador||{}; b.className='item'+(s.tipo?' tipo-'+s.tipo:''); b.innerHTML='<div class="main"><b></b><span></span></div><span class="badge draft">Borrador</span>'; b.querySelector('b').textContent=(s.tipo?TIPO_LABEL[s.tipo]:'Sin tipo')+(s.estancia?' · '+s.estancia:''); b.querySelector('span').textContent='guardado '+fmtDT(w.actualizado_en||w.creado_en)+(s.fecha?' · evento '+fmtDate(s.fecha):''); b.addEventListener('click',()=>openDraft(w)); list.appendChild(envolverSwipe(b, w)); return; }
     const r=w.registro; const d=r.datos||{}; b.className='item tipo-'+r.tipo_evento;
     const det = esIntensivo(r.tipo_evento) ? d.cantidad_animales+' animales · '+(d.origen||'')+' → lote '+(d.destino_lote||'') : esCamion(r.tipo_evento) ? d.cantidad_animales+' animales · chapa '+d.chapa_camion+(d.origen?' · de '+d.origen:'')+(d.destino?' · a '+d.destino:'') : r.tipo_evento==='mortalidad' ? 'botón '+d.nro_boton : r.tipo_evento==='nacimiento' ? 'madre '+d.madre : esPesaje(r.tipo_evento) ? (d.ids_individuales||[]).length+' animales pesados' : esSolicitud(r.tipo_evento) ? (d.total_animales||0)+' '+(d.categoria||'animales').toLowerCase()+' · '+(d.origen_nombre||'')+' → '+(d.destino_nombre||'') : r.tipo_evento==='medicamento' ? (d.modo==='simple'&&d.aplicaciones&&d.aplicaciones.length ? medDetCorto(d.aplicaciones) : (d.cantidad_aplicaciones||0)+' aplicaciones · '+(d.medicamentos||[]).slice(0,2).join(', ')) : 'botón '+d.nro_boton;
@@ -2611,6 +2745,18 @@ function pedirInforme(){ return new Promise(res=>{ const m=$('inf-modal'); fillS
   $('inf-estancia').onchange=()=>{ $('wrap-inf-otra').style.display=$('inf-estancia').value===OTRA?'flex':'none'; };
   $('inf-cancel').onclick=()=>done(null);
   $('inf-ok').onclick=()=>{ const est=$('inf-estancia').value===OTRA?$('inf-estancia-otra').value.trim():$('inf-estancia').value; const desde=$('inf-desde').value, hasta=$('inf-hasta').value; const err=$('inf-err'); const e=[]; if(!est) e.push('Elija la estancia.'); if(!desde||!hasta) e.push('Indique el período.'); if(desde&&hasta&&desde>hasta) e.push('La fecha "desde" es posterior a "hasta".'); if(e.length){ err.textContent=e.join(' '); err.classList.remove('hidden'); return; } done({estancia:est, desde, hasta}); }; }); }
+/* ---------- guía de la estancia (carga animal a pasto, ControlPasto): se guarda como un informe de clase 'guia' ---------- */
+function pedirGuia(){ return new Promise(res=>{ const mo=$('guia-modal'); fillSelect($('guia-estancia'), ESTANCIAS, '— Elegir estancia —'); let ult=''; try{ ult=localStorage.getItem('manejo.guia.estancia')||''; }catch(e){} const pre=ult||cfg.estancia||''; $('guia-estancia').value=ESTANCIAS.includes(pre)?pre:''; $('guia-err').classList.add('hidden'); mo.classList.remove('hidden');
+  const done=v=>{ mo.classList.add('hidden'); $('guia-ok').onclick=null; $('guia-cancel').onclick=null; res(v); };
+  $('guia-cancel').onclick=()=>done(null);
+  $('guia-ok').onclick=()=>{ const est=$('guia-estancia').value; if(!est){ $('guia-err').textContent='Elija la estancia.'; $('guia-err').classList.remove('hidden'); return; } try{ localStorage.setItem('manejo.guia.estancia',est); }catch(e){} done(est); }; }); }
+const guiaAbrir=new Set();
+$('btn-guia').addEventListener('click',async()=>{
+  const est=await pedirGuia(); if(!est) return;
+  const ahora=new Date().toISOString(); const w={ id:uuid(), tipo:'informe', clase:'guia', estado:navigator.onLine?'generando':'pendiente', estancia:est, creado_en:ahora, actualizado_en:ahora, pdf:null, nombre:'guia_estancia_'+slug(est)+'_'+todayISO()+'.pdf', cantidad:null, error:null };
+  await dbPut(w); renderHome(); guiaAbrir.add(w.id); toast(navigator.onLine?'Consultando el ControlPasto…':'Sin señal: la guía se armará cuando vuelva la conexión.');
+  if(navigator.onLine) generarInforme(w.id);
+});
 $('btn-informe').addEventListener('click',async()=>{
   const p=await pedirInforme(); if(!p) return;
   const clave=await pedirClave(p.estancia, {titulo:'Informe de trazabilidad'}); if(clave===null) return;
@@ -2626,8 +2772,13 @@ async function generarInforme(id){
     if(!navigator.onLine){ w.estado='pendiente'; w.actualizado_en=new Date().toISOString(); await dbPut(w); renderHome(); return; }
     w.estado='generando'; w.error=null; await dbPut(w); renderHome();
     let j;
-    try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'consulta', clave:w.clave, estancia:w.estancia, desde:w.desde, hasta:w.hasta}), redirect:'follow'}); const txt=await res.text(); try{ j=JSON.parse(txt); }catch(e){ throw new Error('respuesta inválida del servidor'); } if(!res.ok || !j.ok) throw new Error(j.error||('HTTP '+res.status)); }
-    catch(e){ w=await dbGet(id); if(!w) return; const msg=String(e.message||e); if(/clave|contrase/i.test(msg)){ w.estado='error'; w.error='El servidor rechazó la contraseña ('+msg+').'; } else if(/inválida|HTTP|servidor/i.test(msg)){ w.estado='error'; w.error=msg; } else { w.estado='pendiente'; w.error='Sin conexión con el servidor; se reintentará solo.'; } w.actualizado_en=new Date().toISOString(); await dbPut(w); renderHome(); return; }
+    const esGuia=w.clase==='guia';
+    try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify(esGuia?{tipo:'guia_estancia', estancia:w.estancia}:{tipo:'consulta', clave:w.clave, estancia:w.estancia, desde:w.desde, hasta:w.hasta}), redirect:'follow'}); const txt=await res.text(); try{ j=JSON.parse(txt); }catch(e){ throw new Error('respuesta inválida del servidor'); } if(!res.ok || !j.ok) throw Object.assign(new Error(j.error||('HTTP '+res.status)),{servidor:true}); }
+    catch(e){ w=await dbGet(id); if(!w) return; const msg=String(e.message||e); if(e.servidor && esGuia){ w.estado='error'; w.error=msg; } else if(/clave|contrase/i.test(msg)){ w.estado='error'; w.error='El servidor rechazó la contraseña ('+msg+').'; } else if(/inválida|HTTP|servidor/i.test(msg)){ w.estado='error'; w.error=msg; } else { w.estado='pendiente'; w.error='Sin conexión con el servidor; se reintentará solo.'; } w.actualizado_en=new Date().toISOString(); await dbPut(w); renderHome(); return; }
+    if(esGuia){ const bytes=await makeGuiaPdf(w, j);
+      w=await dbGet(id); if(!w) return; w.pdf=new Blob([bytes],{type:'application/pdf'}); w.cantidad=null; w.datos_hasta=(j.datos||{}).manejo_ate||null; w.aviso=(j.sinc&&!j.sinc.ok)?('ControlPasto sin leer ahora: '+j.sinc.error):null; w.estado='listo'; w.generado_en=new Date().toISOString(); w.actualizado_en=w.generado_en; await dbPut(w);
+      for(const v of (await dbAll()).filter(v=>v.tipo==='informe' && v.clase==='guia' && v.estancia===w.estancia && v.id!==w.id && v.estado==='listo')) await dbDel(v.id); // queda solo la guía más nueva de cada estancia
+      renderHome(); toast('Guía lista: '+w.estancia); if(guiaAbrir.has(id)){ guiaAbrir.delete(id); abrirInforme(w); } return; }
     const bytes=await makeInformePdf(w, j);
     w=await dbGet(id); if(!w) return; w.pdf=new Blob([bytes],{type:'application/pdf'}); w.cantidad=j.cantidad; w.estado='listo'; w.generado_en=new Date().toISOString(); w.actualizado_en=w.generado_en; w.clave=null; await dbPut(w); renderHome(); toast('Informe listo: '+w.estancia+' ('+j.cantidad+' registros)');
   }catch(e){ try{ const w=await dbGet(id); if(w){ w.estado='error'; w.error='No se pudo armar el PDF: '+(e.message||e); w.actualizado_en=new Date().toISOString(); await dbPut(w); renderHome(); } }catch(x){} }
@@ -2635,7 +2786,7 @@ async function generarInforme(id){
 }
 async function abrirInforme(w){
   if(w.estado==='listo' && w.pdf){ const f=new File([w.pdf], w.nombre, {type:'application/pdf'}); await openPdf(f); return; }
-  if(w.estado==='error'){ if(confirm('El informe falló: '+(w.error||'')+'\n¿Reintentar ahora?')) generarInforme(w.id); return; }
+  if(w.estado==='error'){ if(confirm((w.clase==='guia'?'La guía no se pudo armar: ':'El informe falló: ')+(w.error||'')+'\n¿Reintentar ahora?')) generarInforme(w.id); return; }
   toast(navigator.onLine?'El informe se está generando…':'Sin señal: se generará al volver la conexión.');
 }
 const fmtNum=n=>{ if(n===null||n===undefined||n==='') return ''; const x=Number(n); if(isNaN(x)) return String(n); return x.toLocaleString('es-PY',{maximumFractionDigits:1}); };
