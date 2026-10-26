@@ -1,9 +1,63 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.1
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.4
 
-App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP y entrada confinamiento.
+App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, informe Padroniza y escore de heces.
 
 Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.4
+
+- **Escore de heces (solo Ypoti, tile 🔎 en "Intensivo").** Una evaluación es una sesión con varias baias:
+  - **La baia** se escribe como en el cartel (F-08, f8, F 08…) o se toca en el **🗺 mapa del confinamiento** (las 210 baias de las líneas A a U, del archivo `linhas_confinamento.geojson`). Con GPS, el app propone sola la baia donde está parado. Se elige la **dieta** (adaptación, crecimiento o terminación); días de cocho e IMS % PV son opcionales.
+  - **10 bostas por baia, una foto por bosta** (cámara o galería). La IA sugiere la nota de cada foto con la tarjeta de 1 a 5 (1 Líquida · 2 Suave · 3 Pastosa · 4 Firme · 5 Dura); la nota queda puesta para confirmar y la persona la cambia con un toque. Cuando la persona no coincide con la IA, la bosta queda marcada.
+  - **Nota de la baia** igual que la planilla: pastosa suma 1, firme y suave 0,5, dura y líquida 0; sobre 10 bostas, la nota sobre 10. Desde 8,5 es deseable; de 7 a 8,5, atención; abajo de 7, peligro.
+  - **✓ Guardar baia y evaluar otra** deja el editor listo para la próxima. Todo queda en el teléfono (las fotos en un almacén aparte, para que el borrador no pese) y **va a la base de datos recién al final**, con ✓ Guardar. El escore no manda borradores a la base.
+  - **Protocolo:** el app sugiere 3 baias por línea, intercaladas (una de terminación, una de crecimiento y otra), distintas de las de la semana anterior, y muestra cuántas van de las 63 del día. Es una ayuda: se puede evaluar cualquier baia.
+  - **Sin señal:** la IA lee las fotos cuando vuelve la señal; si no alcanzó, las lee el servidor al publicar. Esas lecturas quedan marcadas como **a ciegas** (la persona no vio la sugerencia), que es la comparación limpia.
+  - **Al publicar,** las fotos suben a Drive en tandas de 6 (`fotos_escore_heces_<fecha>_<id>`), y después va el registro con el enlace de cada foto.
+- **PDF del escore (mejorado respecto a la planilla):** resumen con nota media, deseables / atención / peligro, reparto de las bostas, nota por dieta y **baias para mirar**; tabla **persona × IA**; **mapa del confinamiento con un punto por bosta del color de su nota** y la baia pintada según su estado (un bloque de líneas por página: A a F y G a U); planilla por línea (las baias no evaluadas dicen "No evaluadas esta vez" en lugar de 0,0); y **todas las fotos indexadas** (F-08·1 … F-08·10) con la nota de la IA y la de la persona.
+- **Base de datos:** hojas nuevas `escore_heces_baias` (una fila por baia: conteos, nota, estado, coincidencia con la IA) y `escore_heces_muestras` (una fila por bosta: nota de la persona, de la IA, si coinciden, si fue a ciegas, ubicación y enlace de la foto). El correo trae el resumen; si el PDF pasa de 20 MB va solo el enlace.
+- **Servidor (.gs):** archivo `heces.gs` (va dentro de `servidor_apps_script.gs`); pedidos nuevos `heces_fotos` y `heces_historial`, y `leer_foto` con clase `heces`. Modelo del escore en la propiedad `ANTHROPIC_MODEL_HECES` (por defecto `claude-sonnet-4-5`). La instrucción de la IA está calibrada con el padrón de este confinamiento (ver *Test_IA_escore_heces_22-10-2026.pdf*). Publicar en la **misma implementación** (Administrar implementaciones › ✏️ › Nueva versión).
+
+## Novedades 4.3
+
+- **Brincos: una sola forma de escribir el número.** Cada persona escribía el botón distinto ("SIAP 00350 8539", "350-8539", "3508539", "600010003508539"). Ahora el app lo corrige solo, sin IA: 15 dígitos quedan como están; 9 dígitos (serie + número del botón) se completan con el prefijo SIAP 600010; 7 u 8 dígitos se completan con ceros; y cualquier terminación que coincida con un solo brinco activo de la estancia se completa con ese brinco. Si no se entiende (por ejemplo, solo "8539" y hay dos brincos que terminan así), avisa y lo guarda tal como se escribió. Vale en mortandad, medicamento (simple y planilla), nacimiento (madre y cría), pérdida de botón y caravanas del acta de no arreados. El registro guarda también cómo se escribió (`nro_boton_escrito`, `brinco_escrito`). **El servidor aplica la misma regla al recibir** cada registro (sirve para teléfonos con versiones viejas). En el Excel del frigorífico la regla es estricta: solo se completan los botones que coinciden con un brinco activo.
+- **Varios camiones o guías, solo del mismo origen.** El app lo dice en el formulario y no deja guardar si las guías vienen de establecimientos de origen distintos: hay que hacer un registro por cada origen (si no, no se sabe de qué lugar es cada brinco).
+- **Lote del ControlPasto por lista o por mapa, y nunca obligatorio.** En "Lote y piquete" y en el origen de los registros intensivos aparecen primero los botones **📋 Lotes del ControlPasto** (lista con buscador, de los datos del mapa de pastos) y **🗺 Elegir en el mapa**: tocando uno se completan el lote y el piquete. Escribir a mano queda como última opción. El lote y el piquete de origen no son obligatorios en ningún registro; **lo único siempre obligatorio es la baia** (del confinamiento o de la RIP). El lote Feed Manager / BovinOS tampoco es obligatorio.
+- **Entrada confinamiento y entrada RIP:** la primera pregunta es "¿A qué lote y baia van?"; después el origen y los animales.
+- **Botón de la IA estándar en todo el app:** siempre **🤖 Leer con foto**, del mismo tamaño (chapa, precinto, guía, botón de mortandad, brincos del medicamento). Sin fotos repetidas: la foto que lee la IA queda como foto del registro (la de la chapa es la foto del camión; la del botón en medicamento es la foto del registro).
+- **Informe Padroniza (solo Ypoti):** registro nuevo que carga el Excel del frigorífico (secuencia, número de botón, peso de carcasa). Lee la fecha, el frigorífico y la cantidad del encabezado, corrige los botones que coinciden con brincos activos, cuenta los "sin botón" y guarda una fila por animal en `ids_individuales` con `peso_fuente = carcasa` (no entra en la GMD). El animal queda con estado `faenado` en la hoja `animales`.
+- **📑 Generar informes** (un solo botón en el inicio) con cinco opciones:
+  - **Informe de trazabilidad:** todos los registros de la estancia en el período, con dos botones en la lista: **📄 PDF** y **📊 CSV de brincos** (una fila por animal y por registro). El PDF ya no tiene iconos con enlaces a las fotos.
+  - **Informe de mortandad:** como el informe mensual: resumen del mes (muertes, mes anterior, causas con porcentajes, potreros, rodeo del ControlPasto), **mapa de la estancia con un punto por muerte y un color por causa**, cada ocurrencia con sus fotos (botón y animal) y una **conclusión escrita por la IA** (causas, manejo y tratamiento; marcada como texto de la IA).
+  - **Informe de pastura:** la guía de la estancia de siempre.
+  - **Pedir informe a la IA:** la IA lee los registros del período y escribe un informe gerencial (movimientos, mortandad, nacimientos, sanidad, inconformidades, recomendaciones).
+  - **Preguntar a la IA:** una pregunta libre sobre los registros de la estancia en el período; la respuesta en texto (se puede copiar) o en PDF. El app avisa que la IA puede equivocarse.
+- **Servidor (.gs):** pedido nuevo `informe_ia` (modelo en la propiedad `ANTHROPIC_MODEL_IA`, por defecto `claude-sonnet-4-5`; se puede poner un modelo más potente); `consulta` devuelve además la lista de IDE (`con_ids`) y las miniaturas de las fotos de mortandad (`con_fotos`); brincos normalizados al recibir. Publicar en la **misma implementación** (Administrar implementaciones › ✏️ › Nueva versión).
+
+## Novedades 4.2.1
+
+- **Ningún registro queda "sin guardar en la base" por error.** Al tocar ✓ Guardar, el registro queda autorizado para publicarse en ese mismo momento. Antes, la ubicación del teléfono podía llegar justo después y pisar esa marca: el registro quedaba en el teléfono con la etiqueta roja "Sin guardar en la base" y no salía solo al volver la señal. Ahora sin señal queda "En cola" y sale solo.
+- **Rescate automático:** los registros hechos con la versión 4 que quedaron en esa situación se autorizan y se publican solos en la próxima sincronización (no se tocan los rechazados por el servidor, las solicitudes de transferencia ni los registros de versiones anteriores a la 4).
+- La chapa del camión se ve entera (el botón 📷 Leer ya no achica el campo).
+- Textos: el aviso de edición dice que la versión nueva va sola a la base; la ayuda de la COTA ya no pide la foto de la guía.
+
+## Novedades 4.2
+
+- **Aplicación de medicamento en otro orden:** primero *simple o masiva*, después **1 · Animales tratados** (botón **📷 Foto** al lado de cada brinco: se saca la foto del botón y la IA escribe el número sola), **2 · Enfermedad** y **3 · Medicamentos aplicados**.
+- **Aviso de la IA igual en todo el app:** mientras lee aparece una ruedita con "🤖 La IA está leyendo … en la foto…" (botón, chapa del camión, precinto o guía) y el campo lo dice también; al terminar, "🤖 La IA leyó …: X. Revise: si está mal, corríjalo." El campo queda siempre editable. Se puede seguir completando lo demás mientras la IA lee.
+- **La IA sabe que la foto puede estar girada** (de costado, cabeza abajo o espejada) y no inventa números que no se leen. Vale para todas las lecturas.
+- **Mortandad:** el orden ahora es foto del botón → foto del animal → causa de muerte → Nº de botón → ubicación. Así la IA va leyendo el botón mientras se completa el resto, y el número aparece escrito solo.
+- **Entradas y salidas con báscula:** se elige **Solo báscula** (cuentan todos los animales de la báscula) o **Bastón + báscula** (cuentan los del bastón; la báscula solo da el peso, y los que están en la báscula y no en el bastón no se cuentan).
+- **Guía (COTA):** ya no se pide la foto de la primera página. Se lee el QR; **solo si el QR no se puede leer** aparece la opción de sacar la foto de la guía y la IA completa Nº de guía, COTA y cantidad (para revisar). Si la IA tampoco puede, alcanza con escribir el Nº de guía.
+- **Raza:** nueva opción **Mixto**.
+- Servidor (.gs): instrucciones de la IA para fotos giradas y lectura de la guía. Publicar en la **misma implementación** (Administrar implementaciones › ✏️ › Nueva versión).
+
+## Novedades 4.1.1 (solo el servidor .gs)
+
+- La guía y el mapa de pastos reconocen los nombres que la API del ControlPasto usa para algunas estancias (por ejemplo "Estancia Bella Vista" = Bella Vista; "Lusipar Central" = Lusipar; "YBY PORÃ" = Ybypora).
+- El área de pasto de La Esperanza ya no se cuenta dos veces (el mapa trae la pastura y, además, sus divisas): la lotación de La Esperanza queda bien.
+- Base de pasto (`pasto_semente.json`): se genera en la computadora, en la carpeta ypoti-integracao, con `python ferramentas/enviar_base_pasto_app.py` después de importar el IAS41 nuevo, y se sube a mano a la carpeta **controlpasto** dentro de la carpeta del app en el Drive. El servidor usa el archivo más nuevo y completa los días siguientes con la API del ControlPasto.
 
 ## Novedades 4.1
 

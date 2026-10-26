@@ -1,7 +1,7 @@
 // Service worker: deja el app disponible sin conexión y se actualiza solo.
 // La página (index.html) se pide SIEMPRE primero a la red (si no hay señal, se usa la guardada): así cada versión nueva que se sube
 // a GitHub llega sola, sin desinstalar el app. El resto se sirve de la copia guardada.
-const APP_VERSION = '4.1.0';
+const APP_VERSION = '4.4.0';
 const CACHE = 'manejo-ypoti-' + APP_VERSION;
 const FILES = ['./', './index.html', './manifest.webmanifest'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting())); });
