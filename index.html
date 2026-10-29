@@ -194,6 +194,10 @@ input.locked{background:var(--surface-2);color:var(--ink-2);border-style:dashed;
 .bloque{border:1px dashed var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px}
 .bloque .head{display:flex;justify-content:space-between;align-items:center;font-weight:700;color:var(--ink-2)}
 .med-tit{font-weight:700;font-size:15px;color:var(--ink-2)}
+.btn.add-dest{flex-direction:column;gap:0;width:100%;min-height:66px;font-family:var(--font-display);font-size:20px;font-weight:700;border:2px solid var(--brand);background:var(--brand-soft);color:var(--brand);box-shadow:0 2px 0 var(--brand-deep)}
+.btn.add-dest .sub{font-family:var(--font-body);font-size:13px;font-weight:600}
+#btn-otro{flex-direction:column;gap:0}
+#btn-otro.otro-sec{border:2px solid var(--brand);background:var(--brand-soft);color:var(--brand)}
 .med-fila{display:flex;gap:8px;align-items:flex-start}
 .med-fila>label{flex:1 1 auto;min-width:0;position:relative}
 .med-fila>.btn.small{flex:0 0 auto;width:auto;min-width:50px;min-height:50px;padding:0 12px;font-size:15px}
@@ -485,10 +489,14 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
 .badge.tipo-descarga_camion{background:color-mix(in srgb,var(--salida) 18%,transparent);color:var(--salida)}
 @keyframes sacude{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
 /* escore de heces */
+.section-title .opc{font-weight:600;font-size:13px;color:var(--ink-3);text-transform:none;letter-spacing:0}
 .hint.warn{color:var(--warn);font-weight:600}
 .tipo-escore_heces .section-title .dot{background:#6B4F2A}
 .badge.tipo-escore_heces{background:color-mix(in srgb,#6B4F2A 18%,transparent);color:#8A6A3E;border-color:transparent}
 .item.tipo-escore_heces{border-left-color:#8A6A3E}
+.tipo-salida_faena .section-title .dot{background:#73291A}
+.badge.tipo-salida_faena{background:color-mix(in srgb,#73291A 16%,transparent);color:#8E3622;border-color:transparent}
+.item.tipo-salida_faena{border-left-color:#8E3622}
 .hx-editor{max-width:640px;width:100%;max-height:96vh;overflow:auto}
 .hx-baia-row{display:flex;gap:8px;align-items:flex-end}.hx-baia-row .f{flex:1}.hx-baia-row .btn{flex:0 0 auto;width:auto;min-height:50px}
 .hx-head{display:flex;justify-content:space-between;align-items:baseline;font-size:15px}
@@ -655,6 +663,7 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
           <button class="tile" data-tipo="entrada_rip"><span class="ico" aria-hidden="true">🌱</span>Entrada RIP<small>Recría intensiva a pasto</small></button>
           <button class="tile" data-tipo="descarga_camion"><span class="ico" aria-hidden="true">🚛</span>Descarga de camión<small>Camión, COTA y pesaje (sin lote)</small></button>
           <button class="tile" data-tipo="entrada_confinamiento"><span class="ico" aria-hidden="true">🏠</span>Entrada confinamiento<small>Baia y lote Feed Manager</small></button>
+          <button class="tile" data-tipo="salida_faena"><span class="ico" aria-hidden="true">🏭</span>Salida a faena<small>Camión al frigorífico: chapa, COTA y baia</small></button>
           <button class="tile" data-tipo="informe_padroniza"><span class="ico" aria-hidden="true">🥩</span>Informe Padroniza<small>Carcasa por animal (Excel del frigorífico)</small></button>
           <button class="tile" data-tipo="escore_heces"><span class="ico" aria-hidden="true">🔎</span>Escore de heces<small>10 bostas por baia, con la IA y el mapa</small></button>
         </div>
@@ -708,7 +717,7 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
             <div class="med-tit req">1 · Animales tratados (brincos)</div>
             <span class="hint" style="margin-top:-6px">Escriba el número o toque <b>📷 Foto</b> y saque una foto del botón: la IA escribe el número sola. Un brinco por animal.</span>
             <div id="med-brincos-list" class="stack" style="gap:8px"></div>
-            <button class="btn" type="button" id="btn-add-brinco">+ Agregar otro brinco</button>
+            <button class="btn add-dest" type="button" id="btn-add-brinco">➕ Agregar otro brinco<span class="sub">otro animal tratado igual</span></button>
             <div class="med-tit req" style="margin-top:6px">2 · Enfermedad</div>
             <label class="f" style="position:relative"><span class="req" id="lbl-enfermedad">Enfermedad (diagnóstico)</span>
             <select id="f-enfermedad"></select>
@@ -720,7 +729,7 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
             <div class="med-tit req" style="margin-top:6px">3 · Medicamentos aplicados</div>
             <span class="hint" style="margin-top:-6px">Si el animal recibió varios medicamentos, agregue uno por uno, cada uno con su dosis.</span>
             <div id="med-items-list" class="stack"></div>
-            <button class="btn" type="button" id="btn-add-med">+ Agregar otro medicamento</button>
+            <button class="btn add-dest" type="button" id="btn-add-med">➕ Agregar otro medicamento<span class="sub">a los mismos animales, con su dosis</span></button>
             <div class="msg ok hidden" id="med-resumen"></div>
             <div class="photo" data-foto="medic">
               <span style="font-weight:600;font-size:15px;color:var(--ink-2)">Foto (opcional)</span>
@@ -731,7 +740,7 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
           </div>
           <div class="stack" id="medic-masiva">
             <span class="hint" id="med-pasos"><b>1)</b> Descargue la planilla. <b>2)</b> Complétela en Excel, una fila por animal. <b>3)</b> Cárguela acá.</span>
-            <span class="hint">En Excel, complete una fila por animal: <b>Brinco, Medicamento, Dosis, Unidad</b> (la hoja "Medicamentos" trae la lista del depósito para copiar el nombre; la hoja "Unidades", las unidades válidas: un., L, ml, g, mg, µg). 3) Cargue la planilla acá (.xlsx o .csv). Sin foto.</span>
+            <span class="hint">En Excel, complete una fila por animal: <b>Brinco, Medicamento, Dosis, Unidad</b> (y si quiere: <b>Enfermedad, Sexo, Raza, Corral</b>, opcionales) (la hoja "Medicamentos" trae la lista del depósito para copiar el nombre; la hoja "Unidades", las unidades válidas: un., L, ml, g, mg, µg). 3) Cargue la planilla acá (.xlsx o .csv). Sin foto.</span>
             <div class="row"><button class="btn" type="button" id="btn-med-modelo">⬇ Descargar planilla modelo (Excel)</button><button class="btn" type="button" id="btn-med-cargar">📁 Cargar planilla</button></div>
             <input type="file" id="file-med" accept=".xlsx,.csv,.txt,text/csv,text/plain,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="hidden">
             <div class="msg bad hidden" id="med-err"></div>
@@ -742,8 +751,9 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
 
       <!-- ORIGEN (entrada RIP / confinamiento) -->
       <div id="grp-destino-int" class="stack">
-        <div class="section-title"><span class="dot"></span><h3>¿A qué lote y baia van?</h3></div>
+        <div class="section-title"><span class="dot"></span><h3 id="ttl-destino-int">¿A qué lote y baia van?</h3></div>
         <div class="card stack">
+          <div class="row" id="wrap-baia-mapa" style="display:none"><button class="btn" type="button" id="btn-baia-mapa">🗺 Elegir la baia en el mapa del confinamiento</button></div>
           <label class="f"><span id="lbl-destino-lote">Lote Feed Manager</span>
             <input type="text" id="f-destino-lote" placeholder="Lote de destino (opcional)" autocomplete="off">
           </label>
@@ -973,6 +983,19 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
       </div>
 
       <!-- NACIMIENTO -->
+      <!-- DATOS DEL ANIMAL (opcionales: mortalidad y medicamento) -->
+      <div id="grp-animal-extra" class="stack">
+        <div class="section-title"><span class="dot"></span><h3>Datos del animal <span class="opc">(opcional)</span></h3></div>
+        <div class="card stack">
+          <span class="hint" id="ax-hint">No son obligatorios: sirven para el informe sanitario (morbilidad y mortalidad). Si no lo sabe, déjelo vacío; el app usa lo que ya está en la ficha del animal.</span>
+          <div class="f"><span>Sexo</span><div class="seg" id="seg-ax-sexo"><button type="button" data-v="macho">Macho</button><button type="button" data-v="hembra">Hembra</button></div></div>
+          <div class="f"><span>Raza</span><div class="seg" id="seg-ax-raza"><button type="button" data-v="nelore">Nelore</button><button type="button" data-v="hibrido">Híbrido</button><button type="button" data-v="cebu">Cebú</button><button type="button" data-v="otra">Otra</button></div></div>
+          <div class="f" id="wrap-ax-necropsia"><span>¿Se hizo necropsia?</span><div class="seg" id="seg-ax-necropsia"><button type="button" data-v="si">Sí</button><button type="button" data-v="no">No</button></div></div>
+          <span class="hint" id="ax-hint-corral">El corral o piquete donde estaba el animal va en <b>➕ Lote y piquete</b> (también opcional).</span>
+          <button class="btn small ghost" type="button" id="btn-ax-limpiar" style="align-self:flex-start;width:auto">✕ Borrar estos datos</button>
+        </div>
+      </div>
+
       <div id="grp-nac" class="stack">
         <div class="section-title"><span class="dot"></span><h3>Nacimiento</h3></div>
         <div class="card stack">
@@ -1079,6 +1102,7 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
           <button class="btn" type="button" id="btn-sol-actualizar">↻ Consultar estado</button>
         </div>
       </div>
+      <button class="btn big hidden" type="button" id="btn-otro"></button>
       <button class="btn primary big" id="btn-publish-db">Guardar en Banco de Datos<span class="sub" id="db-sub">Requiere la contraseña de la estancia</span></button>
       <button class="btn ghost" id="btn-share-both">Generar archivos y compartir<span class="sub">PDF + datos, a WhatsApp, correo u otra app</span></button>
       <button class="btn big hidden" id="btn-sol-wa" style="border-color:#128C7E;color:#128C7E">💬 Mensaje para WhatsApp<span class="sub">Con los datos del pedido y el enlace para el aprobador</span></button>
@@ -1204,10 +1228,23 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
     <h2>📑 Generar informes</h2>
     <button class="op-informe" type="button" id="inf-op-traz"><b>📋 Informe de trazabilidad</b><small>Todos los registros de la estancia en un período. PDF y CSV de brincos.</small></button>
     <button class="op-informe" type="button" id="inf-op-mort"><b>✝️ Informe de mortandad</b><small>Resumen del mes, cada muerte con sus fotos y el mapa de la estancia con los puntos por causa.</small></button>
+    <button class="op-informe" type="button" id="inf-op-sanit"><b>🩺 Informe sanitario (morbilidad y mortalidad)</b><small>Como las planillas de FOCO: % de mortalidad y de morbilidad por mes contra la meta, causas, medicamentos, controle de mortes y ronda sanitaria. PDF y Excel.</small></button>
     <button class="op-informe" type="button" id="inf-op-pastura"><b>🗺 Informe de pastura (guía de la estancia)</b><small>Mapa de pastos con la lotación del ControlPasto, hoy y media de 12 meses.</small></button>
     <button class="op-informe" type="button" id="inf-op-ia"><b>🤖 Pedir informe a la IA</b><small>La IA lee los registros del período y escribe un informe con lo que pasó y qué conviene revisar.</small></button>
     <button class="op-informe" type="button" id="inf-op-pregunta"><b>💬 Preguntar a la IA</b><small>Escriba una pregunta sobre los registros de la estancia; la respuesta en texto o en PDF.</small></button>
     <div class="row"><button class="btn ghost" id="informes-cancel">Cerrar</button></div>
+  </div>
+</div>
+<div id="sanit-modal" class="modal hidden">
+  <div class="card stack" style="max-width:420px;width:100%">
+    <h2>🩺 Informe sanitario</h2>
+    <p style="font-size:15px;color:var(--ink-2)">Mortalidad y morbilidad de cada mes contra la meta (0,10 % de mortalidad mensual), causas de muerte, de morbilidad y de medicación, medicamentos usados, y las planillas <b>Controle de mortes</b> y <b>Controle de ronda sanitária</b>. Sale en PDF y en Excel (con las mismas columnas de la planilla de FOCO).</p>
+    <label class="f"><span class="req">Estancia</span><select id="sanit-estancia"></select></label>
+    <label class="f" id="wrap-sanit-otra" style="display:none"><span class="req">Nombre de la estancia</span><input type="text" id="sanit-estancia-otra" placeholder="Tal como se escribió en los registros" autocomplete="off"></label>
+    <div class="row"><label class="f"><span class="req">Desde</span><input type="date" id="sanit-desde"></label><label class="f"><span class="req">Hasta</span><input type="date" id="sanit-hasta"></label></div>
+    <span class="hint">Por defecto, desde el 1º de enero. Los casos nuevos de morbilidad se cuentan siempre desde el 1º de enero del año.</span>
+    <div class="msg bad hidden" id="sanit-err"></div>
+    <div class="row"><button class="btn ghost" id="sanit-cancel">Cancelar</button><button class="btn primary" id="sanit-ok">Continuar</button></div>
   </div>
 </div>
 <div id="mort-modal" class="modal hidden">
@@ -2186,14 +2223,145 @@ async function makeHecesPdf(r, opt){ opt=opt||{};
   return await pdf.save(); }
 </script>
 <script>
+/* ---------- Informe sanitario: morbilidad y mortalidad (los mismos indicadores de las planillas de FOCO) ----------
+   Mortalidad del mes = muertes registradas en el app / rodeo promedio del mes (ControlPasto: promedio del stock del día 1º del mes y del siguiente). Meta 0,10 % mensual.
+   Medicaciones = tratamientos distintos (fecha + animal + enfermedad; varios medicamentos el mismo día = una medicación).
+   Animales medicados (morbilidad) = casos nuevos: animales tratados por primera vez en el año, contados en el mes del primer tratamiento.
+   % morbilidad = casos nuevos / rodeo expuesto del mes (entradas del mes + stock del 1º de enero × días del mes / 365), como en la planilla de FOCO. */
+const SAN_META_MORT = 0.001;
+const SAN_MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const SAN_SEXO = {macho:'MACHO', hembra:'HEMBRA'}; const SAN_RAZA = {nelore:'NELORE', hibrido:'HÍBRIDO', cebu:'CEBÚ', otra:'OTRA'};
+function sanNorm(s){ return String(s==null?'':s).trim(); }
+function sanUp(s){ return sanNorm(s).toUpperCase(); }
+function sanBrinco(ide){ const d=String(ide||'').replace(/\D/g,''); if(d.length===15 && d.indexOf('600010')===0) return d.slice(6,11)+' '+d.slice(11); return String(ide||''); } /* como lo escriben en la planilla: serie y número del botón SIAP */
+function sanSexo(v){ const k=sanNorm(v).toLowerCase(); return SAN_SEXO[k]||sanUp(v); }
+function sanRaza(v){ const k=sanNorm(v).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); return SAN_RAZA[k]||sanUp(v); }
+function sanMesesEntre(desde, hasta){ const out=[]; let y=+desde.slice(0,4), m=+desde.slice(5,7); const y1=+hasta.slice(0,4), m1=+hasta.slice(5,7); while(y<y1 || (y===y1 && m<=m1)){ out.push(y+'-'+String(m).padStart(2,'0')); m++; if(m>12){ m=1; y++; } } return out; }
+function sanDiasMes(ym){ const y=+ym.slice(0,4), m=+ym.slice(5,7); return new Date(y, m, 0).getDate(); }
+function sanSiguiente(ym){ let y=+ym.slice(0,4), m=+ym.slice(5,7)+1; if(m>12){ m=1; y++; } return y+'-'+String(m).padStart(2,'0'); }
+/* calcula todo el informe a partir de la respuesta del servidor */
+function sanCalcular(j){
+  const desde=j.desde, hasta=j.hasta, meses=sanMesesEntre(desde, hasta); const R=(j.rodeo&&j.rodeo.meses)||null; const anoIni=(j.ano_ini||desde.slice(0,4)+'-01-01').slice(0,7);
+  const an=j.animales||{}; const dAn=ide=>an[ide]||{};
+  const muertes=(j.muertes||[]).slice().sort((a,b)=>(a.fecha+a.id).localeCompare(b.fecha+b.id));
+  // tratamientos (fecha + animal + enfermedad) del año; casos nuevos = primer tratamiento del animal en el año
+  const meds=(j.medicaciones||[]).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const trat={}; meds.forEach(m=>{ const k=m.fecha+'|'+(m.brinco||('?'+m.registro_id))+'|'+sanUp(m.enfermedad); (trat[k]=trat[k]||{fecha:m.fecha, brinco:m.brinco, enfermedad:sanUp(m.enfermedad)||'SIN DIAGNÓSTICO', piquete:m.piquete, items:[]}).items.push(m); });
+  const tratL=Object.values(trat).sort((a,b)=>a.fecha.localeCompare(b.fecha)); const visto={}; tratL.forEach(t=>{ const k=t.brinco||('?'+t.fecha+t.enfermedad); t.nuevo=!visto[k]; visto[k]=true; });
+  const enPeriodo=x=>x.fecha>=desde && x.fecha<=hasta; const tratP=tratL.filter(enPeriodo); const medsP=meds.filter(enPeriodo);
+  const ini0=R&&R[anoIni]?R[anoIni].ini:(R&&R[meses[0]]?R[meses[0]].ini:null);
+  const filas=meses.map(ym=>{ const mm=muertes.filter(m=>m.fecha.slice(0,7)===ym); const tm=tratP.filter(t=>t.fecha.slice(0,7)===ym); const casos=tm.filter(t=>t.nuevo).length;
+    const r=R&&R[ym]||null, r2=R&&R[sanSiguiente(ym)]||null; const ini=r?r.ini:null, fin=r2?r2.ini:null;
+    const rodeo=(ini!=null&&fin!=null)?(ini+fin)/2:(ini!=null?ini:fin); const expuesto=(r&&ini0!=null)?(r.entradas||0)+ini0*sanDiasMes(ym)/365:null;
+    const pct=rodeo?mm.length/rodeo:null; const meta=rodeo?rodeo*SAN_META_MORT:null;
+    return { mes:ym, nombre:SAN_MESES[+ym.slice(5,7)-1], muertes:mm.length, muertes_cp:r?r.mortes:null, rodeo, pct, meta, dif:meta!=null?mm.length-meta:null, estado:pct==null?'':(pct<=SAN_META_MORT*0.9?'bajo':pct<=SAN_META_MORT?'cerca':'arriba'),
+      medicaciones:tm.length, casos, expuesto, pct_morb:expuesto?casos/expuesto:null, entradas:r?r.entradas:null }; });
+  const tot={ muertes:muertes.length, medicaciones:tratP.length, casos:tratP.filter(t=>t.nuevo).length, aplicaciones:medsP.length };
+  const rods=filas.map(f=>f.rodeo).filter(x=>x); tot.rodeo=rods.length?rods.reduce((a,b)=>a+b,0)/rods.length:null; tot.pct=tot.rodeo?tot.muertes/tot.rodeo:null; tot.pct_mes=tot.pct!=null?tot.pct/Math.max(1,rods.length):null;
+  const exps=filas.map(f=>f.expuesto).filter(x=>x); tot.expuesto=exps.length?exps.reduce((a,b)=>a+b,0):null; tot.pct_morb=tot.expuesto?tot.casos/tot.expuesto:null;
+  const contar=(arr,f)=>{ const o={}; arr.forEach(x=>{ const k=f(x)||'SIN DATO'; o[k]=(o[k]||0)+1; }); return Object.keys(o).map(k=>({k, n:o[k]})).sort((a,b)=>b.n-a.n||a.k.localeCompare(b.k)); };
+  const causasMuerte=contar(muertes,m=>sanUp(m.causa)||'SIN CAUSA'); const causasMorb=contar(tratP.filter(t=>t.nuevo),t=>t.enfermedad); const causasMed=contar(tratP,t=>t.enfermedad);
+  const medsUso={}; medsP.forEach(m=>{ const k=sanUp(m.medicamento)||'SIN NOMBRE'; const x=medsUso[k]||(medsUso[k]={k, n:0, animales:{}, dosis:{}}); x.n++; x.animales[m.brinco||m.registro_id]=1; const u=m.unidad||''; if(m.dosis!=null && !isNaN(m.dosis)) x.dosis[u]=(x.dosis[u]||0)+m.dosis; });
+  const medicamentos=Object.values(medsUso).map(x=>({k:x.k, n:x.n, animales:Object.keys(x.animales).length, dosis:Object.keys(x.dosis).map(u=>(Math.round(x.dosis[u]*10)/10).toLocaleString('es-PY')+' '+u).join(' + ')})).sort((a,b)=>b.n-a.n);
+  const corrales=contar(muertes.map(m=>({p:sanUp(m.piquete||m.lugar)})).concat([]),x=>x.p).slice(0,10); const corralesMed=contar(tratP,t=>sanUp(t.piquete)).slice(0,10);
+  // planillas con el formato de FOCO
+  const planMuertes=muertes.map(m=>{ const a=dAn(m.ide); const fechaMes=SAN_MESES[+m.fecha.slice(5,7)-1].toLowerCase(); return { fecha:m.fecha, numero:sanBrinco(m.ide), ide:m.ide, origen:sanUp(m.piquete), local:sanUp(m.lugar||m.piquete), destino:'', entrada:a.fecha_entrada||'', sexo:sanSexo(m.sexo||a.sexo), raza:sanRaza(m.raza||a.raza), proveedor:sanUp(a.proveedor), causa:sanUp(m.causa), necropsia:m.necropsia?(m.necropsia==='si'?'SÍ':'NO'):'', obs:m.obs, mes:fechaMes, respondente:m.respondente }; });
+  const planMeds=medsP.map(m=>{ const a=dAn(m.brinco); return { fecha:m.fecha, sexo:sanSexo(m.sexo||a.sexo), raza:sanRaza(m.raza||a.raza), corral:sanUp(m.piquete), numero:sanBrinco(m.brinco), ide:m.brinco, sintomas:sanUp(m.enfermedad), medicamento:sanUp(m.medicamento), dosis:m.dosis, unidad:m.unidad, ano:+m.fecha.slice(0,4) }; });
+  return { desde, hasta, meses:filas, tot, causasMuerte, causasMorb, causasMed, medicamentos, corrales, corralesMed, planMuertes, planMeds, rodeoError:j.rodeo&&j.rodeo.error||null, rodeoHasta:j.rodeo&&j.rodeo.manejo_ate||null };
+}
+function sanPct(x,d){ if(x==null||isNaN(x)) return '—'; return (x*100).toFixed(d==null?2:d).replace('.',',')+' %'; }
+function sanN(x,d){ if(x==null||x===''||isNaN(x)) return '—'; return Number(x).toLocaleString('es-PY',{maximumFractionDigits:d==null?0:d}); }
+/* Excel con las hojas de la planilla de FOCO (BD Mortes y BD Medicações con las mismas columnas) y los resúmenes */
+function sanXlsx(S){ const F=iso=>iso?iso.split('-').reverse().join('/'):'';
+  const hojas=[
+    {nombre:'BD Mortes', filas:[['DATA DA MORTE','NÚMERO DO ANIMAL ','CURRAL DE ORIGEM','LOCAL DA MORTE','DESTINO','DATA ENTRADA','SEXO','RAÇA','FORNECEDOR','CAUSA DA MORTE','NECROPSIA ?','OBSERVAÇÃO','CONTROL PASTO','MÊS','Analisa ?','IDE (app)']].concat(S.planMuertes.map(m=>[F(m.fecha),m.numero,m.origen,m.local,m.destino,F(m.entrada),m.sexo,m.raza,m.proveedor,m.causa,m.necropsia,m.obs,'',m.mes,'Sim',m.ide])), anchos:[13,18,14,14,10,13,9,10,22,22,11,30,13,10,9,18]},
+    {nombre:'BD Medicações', filas:[['DATA','SEXO','RAÇA','CURRAL','NÚMERO DO ANIMAL','SINTOMAS','MEDICAMENTOS ','Dose','ANO','Unidad','IDE (app)']].concat(S.planMeds.map(m=>[F(m.fecha),m.sexo,m.raza,m.corral,m.numero,m.sintomas,m.medicamento,m.dosis==null?'':m.dosis,m.ano,m.unidad,m.ide])), anchos:[12,9,10,10,18,30,20,8,7,8,18]},
+    {nombre:'Mortalidade', filas:[['Mês','Mortes (app)','Mortes (ControlPasto)','Rebanho médio','% Mortalidade','Meta %','Meta mortes','Dif']].concat(S.meses.map(f=>[f.nombre,f.muertes,f.muertes_cp==null?'':f.muertes_cp,f.rodeo==null?'':Math.round(f.rodeo),f.pct==null?'':+(f.pct*100).toFixed(3),SAN_META_MORT*100,f.meta==null?'':+f.meta.toFixed(1),f.dif==null?'':+f.dif.toFixed(1)])).concat([['Total',S.tot.muertes,'',S.tot.rodeo==null?'':Math.round(S.tot.rodeo),S.tot.pct==null?'':+(S.tot.pct*100).toFixed(3),'','','']]), anchos:[12,13,20,14,14,9,12,9]},
+    {nombre:'Morbidade', filas:[['Mês','Medicações','Animais medicados (casos novos)','Rebanho exposto','% Morbidade']].concat(S.meses.map(f=>[f.nombre,f.medicaciones,f.casos,f.expuesto==null?'':Math.round(f.expuesto),f.pct_morb==null?'':+(f.pct_morb*100).toFixed(2)])).concat([['Total',S.tot.medicaciones,S.tot.casos,S.tot.expuesto==null?'':Math.round(S.tot.expuesto),S.tot.pct_morb==null?'':+(S.tot.pct_morb*100).toFixed(2)]]), anchos:[12,12,30,15,13]},
+    {nombre:'Causas', filas:[['Causas de mortes','Mortes','%','','Causa morbidade','Animais','%','','Causa medicação','Medicações','%']].concat(Array.from({length:Math.max(S.causasMuerte.length,S.causasMorb.length,S.causasMed.length)},(_,i)=>{ const a=S.causasMuerte[i], b=S.causasMorb[i], c=S.causasMed[i]; return [a?a.k:'',a?a.n:'',a?+(a.n*100/S.tot.muertes).toFixed(1):'','',b?b.k:'',b?b.n:'',b?+(b.n*100/S.tot.casos).toFixed(1):'','',c?c.k:'',c?c.n:'',c?+(c.n*100/S.tot.medicaciones).toFixed(1):'']; })), anchos:[26,8,7,3,30,9,7,3,30,11,7]},
+    {nombre:'Medicamentos', filas:[['Medicamento','Aplicações','Animais','Dose total']].concat(S.medicamentos.map(m=>[m.k,m.n,m.animales,m.dosis])), anchos:[28,11,9,22]} ];
+  return window.XlsxLite.escribirXlsx(hojas); }
+/* PDF del informe */
+async function makeSanitarioPdf(w, S, extra){ extra=extra||{};
+  const {PDFDocument, StandardFonts, rgb} = window.PDFLib; const ansi=s=>String(s==null?'':s).replace(/[–—]/g,'-').replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[^\x20-\x7E\xA0-\xFF]/g,'?');
+  const hex=h=>{ const n=parseInt(String(h).slice(1),16); return rgb(((n>>16)&255)/255,((n>>8)&255)/255,(n&255)/255); }; const F=iso=>iso?String(iso).slice(0,10).split('-').reverse().join('/'):'';
+  const pdf=await PDFDocument.create(); pdf.setTitle('Informe sanitario - '+w.estancia+' - '+F(S.desde)+' a '+F(S.hasta)); pdf.setAuthor('Rural Bioenergía S.A. · App Registro de manejo');
+  const font=await pdf.embedFont(StandardFonts.Helvetica), bold=await pdf.embedFont(StandardFonts.HelveticaBold), ital=await pdf.embedFont(StandardFonts.HelveticaOblique);
+  let logo=null; if(extra.logo){ try{ logo=await pdf.embedPng(Uint8Array.from(atob(extra.logo),c=>c.charCodeAt(0))); }catch(e){ logo=null; } }
+  const W0=595.28, H0=841.89, M=36, BOT=40; let W=W0, H=H0, CW=W-2*M; const ink=hex('#16201B'), grey=hex('#5E6963'), line=hex('#D7DDD8'), verde=hex('#04522B'), campo=hex('#F3F5F2'), branco=rgb(1,1,1), rojo=hex('#C0392B'), ambar=hex('#C98A00'), azul=hex('#2B6CB0');
+  const pages=[]; let page, y;
+  const tw=(t,s,f)=>(f||font).widthOfTextAtSize(ansi(t),s); const txt=(t,x,yy,s,f,c)=>page.drawText(ansi(t),{x,y:yy,size:s,font:f||font,color:c||ink});
+  const nueva=(ap)=>{ W=ap?H0:W0; H=ap?W0:H0; CW=W-2*M; page=pdf.addPage([W,H]); pages.push(page); page.drawRectangle({x:0,y:H-28,width:W,height:28,color:verde}); txt('INFORME SANITARIO  ·  MORBILIDAD Y MORTALIDAD  ·  '+String(w.estancia).toUpperCase(),M,H-19,10.5,bold,branco);
+    if(logo){ const lh=20, lw=lh*logo.width/logo.height; page.drawRectangle({x:W-M-lw-12,y:H-28,width:lw+12,height:28,color:branco}); page.drawImage(logo,{x:W-M-lw-6,y:H-24,width:lw,height:lh}); } y=H-28-18; };
+  const need=h=>{ if(y-h<BOT){ nueva(W>H); return true; } return false; };
+  const wrap=(t,size,f,maxW)=>{ const ws=ansi(String(t==null?'':t)).split(/\s+/); const out=[]; let cur=''; ws.forEach(wd=>{ const test=cur?cur+' '+wd:wd; if(f.widthOfTextAtSize(test,size)>maxW && cur){ out.push(cur); cur=wd; } else cur=test; }); if(cur) out.push(cur); return out; };
+  const parrafo=(t,size,f,c)=>{ wrap(t,size,f||font,CW).forEach(l=>{ need(size+3); txt(l,M,y-size,size,f||font,c); y-=size+3; }); y-=2; };
+  const titulo=(t,extraH)=>{ need(34+(extraH||0)); y-=8; txt(t,M,y-13,13,bold,verde); y-=18; page.drawLine({start:{x:M,y},end:{x:M+CW,y},thickness:0.6,color:line}); y-=8; };
+  const clip=(t,s,f,mw)=>{ t=ansi(String(t==null?'':t)); while(t.length>1 && (f||font).widthOfTextAtSize(t,s)>mw) t=t.slice(0,-2)+'…'; return t.replace(/…/g,'.'); };
+  const tabla=(cols,filas,o)=>{ o=o||{}; const s=o.size||8; const rh=s+6; const tot=cols.reduce((a,c)=>a+c.w,0); const k=CW/tot; const cw=cols.map(c=>c.w*k);
+    const cab=()=>{ need(rh+4); page.drawRectangle({x:M,y:y-rh-2,width:CW,height:rh+2,color:hex('#E4E9E4')}); let x=M; cols.forEach((c,i)=>{ const t=clip(c.t,s-0.5,bold,cw[i]-6); const xx=c.a==='r'?x+cw[i]-4-tw(t,s-0.5,bold):x+3; txt(t,xx,y-rh+2,s-0.5,bold,ink); x+=cw[i]; }); y-=rh+2; };
+    cab(); filas.forEach((f,ri)=>{ if(need(rh)) cab(); if(ri%2) page.drawRectangle({x:M,y:y-rh,width:CW,height:rh,color:hex('#F7F9F7')}); if(f._color) page.drawRectangle({x:M,y:y-rh,width:3,height:rh,color:f._color});
+      let x=M; cols.forEach((c,i)=>{ const v=f[c.k]; const t=clip(v,s,c.b?bold:font,cw[i]-6); const xx=c.a==='r'?x+cw[i]-4-tw(t,s,c.b?bold:font):x+3; txt(t,xx,y-rh+3.5,s,c.b?bold:font,(f._c&&f._c[c.k])||ink); x+=cw[i]; }); y-=rh; });
+    page.drawLine({start:{x:M,y},end:{x:M+CW,y},thickness:0.4,color:line}); y-=6; };
+  const barras=(items,o)=>{ /* gráfico de barras por mes: items [{lab, v, color}] con línea de meta */ o=o||{}; const h=o.h||120; need(h+30); const top=y; const x0=M+38, wch=CW-44; const vmax=Math.max(o.meta||0, ...items.map(i=>i.v||0))*1.15||1;
+    page.drawRectangle({x:x0,y:top-h,width:wch,height:h,color:campo}); for(let g=0;g<=4;g++){ const yy=top-h+h*g/4; page.drawLine({start:{x:x0,y:yy},end:{x:x0+wch,y:yy},thickness:0.3,color:line}); txt(o.fmt?o.fmt(vmax*g/4):sanN(vmax*g/4,1),M,yy-3,6.5,font,grey); }
+    const bw=wch/items.length; items.forEach((it,i)=>{ const bx=x0+i*bw+bw*0.18, bww=bw*0.64; if(it.v!=null){ const bh=h*(it.v/vmax); page.drawRectangle({x:bx,y:top-h,width:bww,height:bh,color:it.color||verde}); const lb=o.fmt?o.fmt(it.v):sanN(it.v,1); txt(lb,bx+bww/2-tw(lb,6.5,bold)/2,top-h+bh+2,6.5,bold,ink); } txt(it.lab,bx+bww/2-tw(it.lab,7)/2,top-h-10,7,font,grey); });
+    if(o.meta){ const my=top-h+h*(o.meta/vmax); page.drawLine({start:{x:x0,y:my},end:{x:x0+wch,y:my},thickness:1.2,color:rojo,dashArray:[4,3]}); txt('Meta '+(o.fmt?o.fmt(o.meta):o.meta),x0+wch-60,my+3,7,bold,rojo); }
+    y=top-h-18; };
+  const causas=(tit,arr,tot,unidad,color)=>{ titulo(tit, 40); if(!arr.length){ parrafo('Sin datos en el período.',9,ital,grey); return; } const bw=CW-260;
+    arr.slice(0,14).forEach(c=>{ need(14); txt(clip(c.k,8.6,font,180),M,y-9,8.6,font,ink); page.drawRectangle({x:M+190,y:y-11,width:bw,height:9,color:campo}); page.drawRectangle({x:M+190,y:y-11,width:Math.max(1.5,bw*c.n/tot),height:9,color:color||verde}); txt(c.n+' '+unidad+' · '+sanN(c.n*100/tot,1)+' %',M+196+bw,y-9,8.2,bold,ink); y-=14; });
+    if(arr.length>14) parrafo('… y '+(arr.length-14)+' causas más (ver el Excel).',7.6,ital,grey); y-=4; };
+  // ---------- portada ----------
+  nueva();
+  txt('Indicadores sanitarios',M,y-20,20,bold,verde); y-=26; txt('Estancia '+w.estancia+' · del '+F(S.desde)+' al '+F(S.hasta)+(extra.usuario?' · pedido por '+extra.usuario:''),M,y-10.5,10.5,font,grey); y-=22;
+  { const T=S.tot; const tiles=[['Muertes',sanN(T.muertes),'#701E0C'],['Mortalidad del período',sanPct(T.pct),T.pct!=null&&T.pct_mes>SAN_META_MORT?'#C0392B':'#04522B'],['Medicaciones',sanN(T.medicaciones),'#2B6CB0'],['Animales medicados',sanN(T.casos),'#2B6CB0'],['Morbilidad',sanPct(T.pct_morb),'#2B6CB0']];
+    const tw0=(CW-4*6)/5; tiles.forEach((t,i)=>{ const x=M+i*(tw0+6); page.drawRectangle({x,y:y-50,width:tw0,height:50,color:campo,borderColor:line,borderWidth:0.5}); page.drawRectangle({x,y:y-50,width:3,height:50,color:hex(t[2])}); txt(t[0],x+8,y-14,7.6,font,grey); txt(t[1],x+8,y-37,15,bold,hex(t[2])); }); y-=62; }
+  parrafo('Fuente: registros de mortalidad y de aplicación de medicamento cargados en el app (los mismos datos de las planillas "Controle de mortes" y "Controle de ronda sanitária"). El rodeo de cada mes sale del ControlPasto'+(S.rodeoHasta?' (movimientos hasta el '+F(S.rodeoHasta)+')':'')+'. Meta de mortalidad: '+sanPct(SAN_META_MORT)+' por mes.'+(S.rodeoError?' Aviso: no se pudo leer el rodeo del ControlPasto ('+S.rodeoError+'); los porcentajes quedan en blanco.':''),8,ital,grey);
+  // ---------- mortalidad ----------
+  titulo('Mortalidad mensual', 150);
+  barras(S.meses.map(f=>({lab:f.nombre.slice(0,3), v:f.pct!=null?f.pct*100:null, color:f.estado==='arriba'?rojo:f.estado==='cerca'?ambar:verde})), {meta:SAN_META_MORT*100, fmt:v=>(v).toFixed(2).replace('.',',')+'%'});
+  tabla([{k:'mes',t:'Mes',w:16,b:true},{k:'m',t:'Muertes (app)',w:13,a:'r'},{k:'cp',t:'ControlPasto',w:13,a:'r'},{k:'reb',t:'Rodeo promedio',w:15,a:'r'},{k:'pct',t:'% mortalidad',w:13,a:'r',b:true},{k:'meta',t:'Meta (muertes)',w:13,a:'r'},{k:'dif',t:'Diferencia',w:11,a:'r'},{k:'est',t:'Estado',w:14}],
+    S.meses.map(f=>({mes:f.nombre, m:f.muertes, cp:f.muertes_cp==null?'—':f.muertes_cp, reb:sanN(f.rodeo), pct:sanPct(f.pct,3), meta:sanN(f.meta,1), dif:f.dif==null?'—':(f.dif>0?'+':'')+sanN(f.dif,1), est:f.estado==='arriba'?'Arriba de la meta':f.estado==='cerca'?'Cerca de la meta':f.estado==='bajo'?'Debajo de la meta':'—', _color:f.estado==='arriba'?rojo:f.estado==='cerca'?ambar:f.estado==='bajo'?verde:null, _c:{est:f.estado==='arriba'?rojo:f.estado==='cerca'?ambar:verde, cp:(f.muertes_cp!=null&&f.muertes_cp!==f.muertes)?ambar:ink}}))
+    .concat([{mes:'Total',m:S.tot.muertes,cp:'',reb:sanN(S.tot.rodeo),pct:sanPct(S.tot.pct,3),meta:'',dif:'',est:''}]));
+  parrafo('"ControlPasto" son las bajas por muerte cargadas en el ControlPasto en el mismo mes: si no coincide con el app (en ámbar), falta cargar la baja en uno de los dos.',7.6,ital,grey);
+  // ---------- morbilidad ----------
+  titulo('Morbilidad mensual', 150);
+  barras(S.meses.map(f=>({lab:f.nombre.slice(0,3), v:f.pct_morb!=null?f.pct_morb*100:null, color:azul})), {fmt:v=>(v).toFixed(1).replace('.',',')+'%'});
+  tabla([{k:'mes',t:'Mes',w:16,b:true},{k:'med',t:'Medicaciones',w:14,a:'r'},{k:'cas',t:'Animales medicados',w:18,a:'r'},{k:'ent',t:'Entradas (CP)',w:14,a:'r'},{k:'exp',t:'Rodeo expuesto',w:15,a:'r'},{k:'pct',t:'% morbilidad',w:14,a:'r',b:true}],
+    S.meses.map(f=>({mes:f.nombre, med:f.medicaciones, cas:f.casos, ent:sanN(f.entradas), exp:sanN(f.expuesto), pct:sanPct(f.pct_morb)})).concat([{mes:'Total',med:S.tot.medicaciones,cas:S.tot.casos,ent:'',exp:sanN(S.tot.expuesto),pct:sanPct(S.tot.pct_morb)}]));
+  parrafo('Medicación = un tratamiento (fecha + animal + enfermedad; varios medicamentos el mismo día cuentan una vez). Animal medicado = caso nuevo: el primer tratamiento del animal en el año. Rodeo expuesto = entradas del mes + stock del 1º de enero × días del mes / 365 (igual que en la planilla de FOCO).',7.6,ital,grey);
+  // ---------- causas ----------
+  causas('Causas de muerte',S.causasMuerte,S.tot.muertes,'',hex('#701E0C'));
+  causas('Causas de morbilidad (animales, casos nuevos)',S.causasMorb,S.tot.casos||1,'',azul);
+  causas('Causas de medicación (tratamientos)',S.causasMed,S.tot.medicaciones||1,'',hex('#4A7FC1'));
+  titulo('Medicamentos usados', 40);
+  if(S.medicamentos.length) tabla([{k:'k',t:'Medicamento',w:40,b:true},{k:'n',t:'Aplicaciones',w:15,a:'r'},{k:'a',t:'Animales',w:12,a:'r'},{k:'d',t:'Dosis total',w:33}], S.medicamentos.slice(0,25).map(m=>({k:m.k,n:m.n,a:m.animales,d:m.dosis})));
+  else parrafo('Sin aplicaciones en el período.',9,ital,grey);
+  if(S.corrales.length || S.corralesMed.length){ titulo('Corrales / piquetes con más casos', 40); const n=Math.max(S.corrales.length,S.corralesMed.length);
+    tabla([{k:'a',t:'Muertes · corral',w:30},{k:'an',t:'Muertes',w:12,a:'r'},{k:'sp',t:'',w:6},{k:'b',t:'Medicaciones · corral',w:30},{k:'bn',t:'Tratamientos',w:14,a:'r'}], Array.from({length:n},(_,i)=>({a:S.corrales[i]?S.corrales[i].k:'',an:S.corrales[i]?S.corrales[i].n:'',sp:'',b:S.corralesMed[i]?S.corralesMed[i].k:'',bn:S.corralesMed[i]?S.corralesMed[i].n:''}))); }
+  // ---------- planillas (apaisadas) ----------
+  nueva(true); titulo('Controle de mortes · '+S.planMuertes.length+(S.planMuertes.length===1?' muerte':' muertes'));
+  if(S.planMuertes.length) tabla([{k:'f',t:'Fecha',w:9},{k:'n',t:'Nº del animal',w:11,b:true},{k:'o',t:'Corral de origen',w:10},{k:'l',t:'Local de la muerte',w:10},{k:'e',t:'Entrada',w:8},{k:'s',t:'Sexo',w:7},{k:'r',t:'Raza',w:8},{k:'p',t:'Proveedor',w:13},{k:'c',t:'Causa',w:15,b:true},{k:'ne',t:'Necropsia',w:7},{k:'ob',t:'Observación',w:18},{k:'re',t:'Registró',w:11}],
+    S.planMuertes.map(m=>({f:F(m.fecha),n:m.numero||'—',o:m.origen||'—',l:m.local||'—',e:F(m.entrada),s:m.sexo,r:m.raza,p:m.proveedor,c:m.causa||'—',ne:m.necropsia,ob:m.obs,re:m.respondente})),{size:7.4});
+  else parrafo('No hay muertes registradas en el período.',9,ital,grey);
+  titulo('Controle de ronda sanitária · '+S.planMeds.length+(S.planMeds.length===1?' aplicación':' aplicaciones'));
+  if(S.planMeds.length) tabla([{k:'f',t:'Fecha',w:9},{k:'s',t:'Sexo',w:7},{k:'r',t:'Raza',w:8},{k:'c',t:'Corral',w:9},{k:'n',t:'Nº del animal',w:12,b:true},{k:'si',t:'Síntomas',w:24},{k:'m',t:'Medicamento',w:16,b:true},{k:'d',t:'Dosis',w:9,a:'r'}],
+    S.planMeds.map(m=>({f:F(m.fecha),s:m.sexo,r:m.raza,c:m.corral||'—',n:m.numero||'—',si:m.sintomas||'—',m:m.medicamento,d:m.dosis==null?'—':String(m.dosis).replace('.',',')+' '+(m.unidad||'')})),{size:7.4});
+  else parrafo('No hay aplicaciones de medicamento en el período.',9,ital,grey);
+  parrafo('Sexo y raza: los que se cargaron en el registro (son opcionales); si no se cargaron, los de la ficha del animal en la base de datos. El Excel que acompaña este informe trae las hojas "BD Mortes" y "BD Medicações" con las mismas columnas de la planilla de FOCO.',7.6,ital,grey);
+  pages.forEach((p,i)=>{ const t=ansi('Generado '+new Date().toLocaleString('es-PY')+'  ·  App Registro de manejo  ·  página '+(i+1)+' de '+pages.length); p.drawText(t,{x:p.getWidth()-M-font.widthOfTextAtSize(t,7),y:18,size:7,font,color:grey}); });
+  return await pdf.save(); }
+</script>
+<script>
 (function(){
 'use strict';
-const APP_VERSION = '4.4.0';
+const APP_VERSION = '4.6.1';
 const ESQUEMA = 'manejo-ypoti/3.7';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
-const TIPO_LABEL = {entrada:'Entrada pasto', salida:'Salida de animales', mortalidad:'Mortalidad', nacimiento:'Nacimiento', pesaje:'Pesaje de auditoría', pesaje_simple:'Pesaje simple', medicamento:'Aplicación de medicamento', solicitud_transferencia:'Solicitud de transferencia de ganado', perdida_boton:'Pérdida de botón electrónico', informe_padroniza:'Informe Padroniza (carcasa)', escore_heces:'Escore de heces', entrada_rip:'Entrada RIP', descarga_camion:'Descarga de camión', entrada_confinamiento:'Entrada confinamiento'};
-const TIPOS_INTENSIVO = ['entrada_rip','descarga_camion','entrada_confinamiento']; const ESTANCIA_INTENSIVO = 'Ypoti';
+const OTRO_LABEL = {entrada:'otra entrada pasto', salida:'otra salida de animales', mortalidad:'otra mortalidad', nacimiento:'otro nacimiento', pesaje:'otro pesaje de auditoría', pesaje_simple:'otro pesaje simple', medicamento:'otra aplicación de medicamento', perdida_boton:'otra pérdida de botón', informe_padroniza:'otro informe Padroniza', escore_heces:'otro escore de heces', entrada_rip:'otra entrada RIP', descarga_camion:'otra descarga de camión', entrada_confinamiento:'otra entrada confinamiento', salida_faena:'otra salida a faena'};
+const TIPO_LABEL = {entrada:'Entrada pasto', salida:'Salida de animales', mortalidad:'Mortalidad', nacimiento:'Nacimiento', pesaje:'Pesaje de auditoría', pesaje_simple:'Pesaje simple', medicamento:'Aplicación de medicamento', solicitud_transferencia:'Solicitud de transferencia de ganado', perdida_boton:'Pérdida de botón electrónico', informe_padroniza:'Informe Padroniza (carcasa)', escore_heces:'Escore de heces', entrada_rip:'Entrada RIP', descarga_camion:'Descarga de camión', entrada_confinamiento:'Entrada confinamiento', salida_faena:'Salida a faena'};
+const TIPOS_INTENSIVO = ['entrada_rip','descarga_camion','entrada_confinamiento','salida_faena']; const ESTANCIA_INTENSIVO = 'Ypoti';
 const esIntensivo = t => TIPOS_INTENSIVO.includes(t); const esPadroniza = t => t==='informe_padroniza'; const esHeces = t => t==='escore_heces'; const soloYpoti = t => esIntensivo(t)||esPadroniza(t)||esHeces(t);
 const SISTEMA_LABEL = {recria_tradicional:'Recría tradicional', rip:'RIP'}; const ORIGEN_LABEL = {misma_propiedad:'Misma propiedad', otra_propiedad:'Otra propiedad'}; const PROPIEDAD_LABEL = {propio:'Animal propio', boitel:'Boitel'};
 const CAUSAS_MUERTE = ['Abigeo','Accidente','Afogamento','Anemia','Atolado','Atolado/trancado erosion','Atrapado por el alambrado','Carbunco','Cayo en la Baleta','Cobra','Debilitado','Desconocido','Enfermedad','Enpantanado o Atascado','Enroscado','Faena Interna','Flaco','Fractura','Fraqueza','Hipotermia','Intoxicacion','Jaguarete/león','Lesion','Machucado','Machucadura no chifre','Muerte Súbita','Neumonia','No identificado','Otros','Poleo','Rayo','Requema','Toxico','Trauma','Tristeza','Tristeza Parasitaria','Vibora'];
@@ -2293,12 +2461,13 @@ const fotosCamion=c=>Array.isArray(c.fotos)?c.fotos.filter(Boolean):(c.foto?[c.f
 function segVal(id){ return $(id).dataset.value||''; }
 function esEntradaCamion(){ return ['entrada','entrada_rip','descarga_camion'].includes(tipo) && formUsaCamion(); }
 function esExterno(){ return esEntradaCamion() && segVal('seg-proveniencia')==='externo'; }
+function sinPrecinto(){ return esExterno() || tipo==='salida_faena'; } /* proveedor externo y salida a faena: no se pide el precinto, solo la chapa */
 const COD_EMPRESA=()=>Object.values(SOL_CODIGOS).map(c=>String(c).replace(/^0+/,''));
 function autoProveniencia(){ if(provManual || !esEntradaCamion()) return; let v='';
   for(const c of cotas){ const cp=(c.texto&&window.CotaParser)?window.CotaParser.parseCota(c.texto.trim()):null; const eo=cp&&cp.parse_ok?String(cp.establecimiento_origen||'').replace(/^0+/,''):''; if(eo){ v=COD_EMPRESA().includes(eo)?(v||'empresa'):'externo'; } }
   if(!v && tipo==='descarga_camion' && segVal('seg-propiedad')==='boitel') v='externo';
   if(v && v!==segVal('seg-proveniencia')){ setSeg($('seg-proveniencia'), v); renderCamiones(); } }
-function formUsaCamion(){ if(esCamion(tipo)) return true; if(tipo==='entrada_rip') return segVal('seg-origen')==='otra_propiedad'; if(tipo==='descarga_camion') return true; return false; } /* la entrada a confinamiento ya no tiene camión: el camión se registra en la Descarga de camión */
+function formUsaCamion(){ if(esCamion(tipo) || tipo==='salida_faena') return true; if(tipo==='entrada_rip') return segVal('seg-origen')==='otra_propiedad'; if(tipo==='descarga_camion') return true; return false; } /* la entrada a confinamiento ya no tiene camión: el camión se registra en la Descarga de camión */
 let formId=null;       // id del borrador / registro en edición
 let editing=null;      // wrapper original cuando se edita un registro existente
 let dirty=false;
@@ -2420,7 +2589,7 @@ function cotaNro(s){ const p=window.CotaParser.parseCota(s); return p.nro_cota||
 function cotaLimpia(x){ return String(x||'').replace(/^0+/,''); }
 /* ----- camiones (chapa + fotos del precinto) y COTAs: listas dinámicas ----- */
 function renderCamiones(){
-  const list=$('camiones-list'); list.innerHTML=''; const ext=esExterno(); $('wrap-proveniencia').style.display=esEntradaCamion()?'':'none';
+  const list=$('camiones-list'); list.innerHTML=''; const ext=sinPrecinto(); $('wrap-proveniencia').style.display=esEntradaCamion()?'':'none';
   camiones.forEach((c,i)=>{ const b=document.createElement('div'); b.className='bloque'; const fts=fotosCamion(c);
     b.innerHTML='<div class="head"><span></span>'+(camiones.length>1?'<button class="btn small danger" type="button" data-del>✕ Quitar</button>':'')+'</div>'
       +'<label class="f"><span class="req">Chapa del camión</span><div class="row" style="flex-wrap:nowrap"><input type="text" class="upper" data-chapa placeholder="ABC 123" autocomplete="off" autocapitalize="characters" style="flex:1"><button class="btn ia small" type="button" data-chapa-foto title="Foto de la chapa: la IA la lee y la foto queda como foto del camión">🤖 Leer con foto</button></div></label>'
@@ -2432,7 +2601,7 @@ function renderCamiones(){
     const ia=b.querySelector('[data-ia]'); if(c._ia){ iaPintar(ia, c._ia.estado, c._ia.txt); if(c._ia.estado==='leyendo') iaPlaceholder(b.querySelector(c._ia.campo==='precinto'?'[data-precinto]':'[data-chapa]'), true); }
     b.querySelector('[data-chapa-foto]').addEventListener('click',()=>{ chapaIdx=i; $('file-ia-chapa').click(); });
     const tw=b.querySelector('[data-thumbs]'); if(!ext && c.foto_chapa){ const th=document.createElement('div'); th.className='th'; th.innerHTML='<img alt="Foto de la chapa" title="Foto de la chapa (queda como foto del camión)">'; th.querySelector('img').src=c.foto_chapa; tw.appendChild(th); } fts.forEach((du,k)=>{ const th=document.createElement('div'); th.className='th'; th.innerHTML='<img alt="Precinto '+(k+1)+'"><button type="button" title="Quitar">✕</button>'; th.querySelector('img').src=du; th.querySelector('button').addEventListener('click',()=>{ const arr=fotosCamion(camiones[i]); arr.splice(k,1); camiones[i].fotos=arr; delete camiones[i].foto; dirty=true; renderCamiones(); }); tw.appendChild(th); });
-    if(ext){ b.querySelector('[data-hint]').textContent='Proveedor externo: no se pide el precinto. La foto de la chapa (🤖 Leer con foto) queda como foto del camión: no hace falta sacar otra.'; b.querySelector('[data-cam]').textContent='📷 Otra foto del camión'; b.querySelector('[data-cam]').className='btn'; }
+    if(ext){ b.querySelector('[data-hint]').textContent=tipo==='salida_faena'?'Salida a faena: no se pide el precinto, solo la chapa del camión. Con 🤖 Leer con foto la IA lee la chapa y esa foto queda como foto del camión.':'Proveedor externo: no se pide el precinto. La foto de la chapa (🤖 Leer con foto) queda como foto del camión: no hace falta sacar otra.'; b.querySelector('[data-cam]').textContent='📷 Otra foto del camión'; b.querySelector('[data-cam]').className='btn'; }
     if(fts.length>=MAX_PRECINTO){ b.querySelector('[data-btns]').style.display='none'; b.querySelector('[data-hint]').textContent=MAX_PRECINTO+' fotos cargadas (máximo).'; }
     b.querySelector('[data-cam]').addEventListener('click',()=>{ precintoIdx=i; $('file-precinto').setAttribute('capture','environment'); $('file-precinto').removeAttribute('multiple'); $('file-precinto').click(); });
     b.querySelector('[data-gal]').addEventListener('click',()=>{ precintoIdx=i; $('file-precinto').removeAttribute('capture'); $('file-precinto').setAttribute('multiple',''); $('file-precinto').click(); });
@@ -2502,7 +2671,7 @@ function checkCotas(){ autoProveniencia(); const hint=$('cota-hint'); hint.style
 function setTipo(t){ tipo=t; document.querySelectorAll('.tile').forEach(x=>x.classList.toggle('selected',x.dataset.tipo===t)); document.body.className=(t?'tipo-'+t:'')+(esSolicitud(t)?' modo-solicitud':''); dirty=true; }
 function setFoto(key, dataUrl){ fotos[key]=dataUrl||null; const th=$('thumb-'+key); if(dataUrl){ th.src=dataUrl; th.classList.add('has'); } else { th.classList.remove('has'); th.removeAttribute('src'); } }
 function resetForm(){
-  step=1; tipo=null; fotos={animal:null,boton:null,perdida:null,nacimiento:null,medic:null}; medArchivo=null; padrArchivo=null; renderPadrPanel(); $('f-padr-frigo').value=''; hxBaias=[]; hxEd=null; hxEdOrig=null; hxRenderLista(); $('hx-modal').classList.add('hidden'); $('hx-mapa-modal').classList.add('hidden'); medBrincos=['']; medIA=[]; medEscrito=[]; medItems=[{nombre:'',dosis:'',unidad:''}]; provManual=false; avisoFaltas=''; balanza=null; baston=null; balanzas=[]; bastones=[]; camiones=[{chapa:'',fotos:[]}]; cotas=[{texto:'',foto:null}]; ubicacion=null; faltFotos=[]; inc=incVacio(); solToken=uuid(); formId=uuid(); editing=null; dirty=false;
+  step=1; tipo=null; fotos={animal:null,boton:null,perdida:null,nacimiento:null,medic:null}; medArchivo=null; padrArchivo=null; renderPadrPanel(); $('f-padr-frigo').value=''; hxBaias=[]; hxEd=null; hxEdOrig=null; hxRenderLista(); ['seg-ax-sexo','seg-ax-raza','seg-ax-necropsia'].forEach(id=>setSeg($(id),'')); $('hx-modal').classList.add('hidden'); $('hx-mapa-modal').classList.add('hidden'); medBrincos=['']; medIA=[]; medEscrito=[]; medItems=[{nombre:'',dosis:'',unidad:''}]; provManual=false; avisoFaltas=''; balanza=null; baston=null; balanzas=[]; bastones=[]; camiones=[{chapa:'',fotos:[]}]; cotas=[{texto:'',foto:null}]; ubicacion=null; faltFotos=[]; inc=incVacio(); solToken=uuid(); formId=uuid(); editing=null; dirty=false;
   formAutor=usrRef(); pintarAutor(); $('wrap-respondente-otro').style.display='none'; $('f-respondente-otro').value='';
   fillSelect($('f-estancia'), opcionesEstancia(), '— Elegir estancia —'); setEstancia(estPorDefecto());
   fillSelect($('f-enfermedad'), PROTOCOLO.map(p=>p.e).concat(['Otra…']), '— Elegir —'); $('f-enfermedad-otra').value=''; $('wrap-enfermedad-otra').style.display='none'; medPeso=''; renderProtocolo(); iaPintar($('boton-ia'),'',''); iaPintar($('boton-ia-foto'),'',''); iaPlaceholder($('f-boton'),false); { const mi=$('medic-ia'); if(mi) mi.textContent=''; }
@@ -2531,7 +2700,7 @@ function collectForm(){ // DOM -> estado serializable (borrador)
     camiones:camiones.map(c=>({chapa:c.chapa||'',fotos:fotosCamion(c),foto_chapa:c.foto_chapa||null,nros_precinto:(c.nros_precinto||[]).slice()})), cotas:cotas.map(c=>({texto:c.texto||'',foto:c.foto||null,fallo:!!c.fallo,fallo_msg:c.fallo_msg||null,manual:c.manual||null,ia_guia:c.ia_guia||null})), bastones:bastones.slice(), balanzas:balanzas.slice(), falt_usa:segVal('seg-faltantes'), falt_cantidad:$('f-falt-cantidad').value, falt_peso_medio:$('f-falt-peso-medio').value, falt_ids:$('f-falt-ids').value, falt_fotos:faltFotos.slice(), falt_lugar:$('f-falt-lugar').value.trim(), falt_motivo:$('f-falt-motivo').value.trim(), falt_capataz:$('f-falt-capataz').value.trim(), falt_auditor:$('f-falt-auditor').value.trim(), falt_conforme:$('f-falt-conforme').checked, raza:$('seg-raza').dataset.value||'', cantidad:$('f-cantidad').value,
     boton:$('f-boton').value, causa:$('f-causa').value, madre:$('f-madre').value, sexo:$('seg-sexo').dataset.value||'', cria_boton:$('f-cria-boton').value, perdida_boton:$('f-perdida-boton').value, obs:$('f-obs').value,
     sol:{ categoria:$('f-sol-categoria').value, origen:solOrigenValue(), origen_cod:$('f-sol-origen-cod').value, destino:solDestinoValue(), destino_cod:$('f-sol-destino-cod').value, guias:$('f-sol-guias').value, por_guia:$('f-sol-por-guia').value, total:$('f-sol-total').value, naturaleza:$('f-sol-naturaleza').value, lugar:$('f-sol-lugar').value, token:solToken },
-    proveniencia:segVal('seg-proveniencia'), prov_manual:provManual, ids_modo:segVal('seg-ids'), med_modo:segVal('seg-medic-modo'), med_brincos:medBrincos.slice(), med_items:medItems.map(x=>Object.assign({},x)), med_archivo:medArchivo, padr_archivo:padrArchivo, padr_frigo:$('f-padr-frigo').value, heces:{baias:hxCopia(hxBaias)},
+    proveniencia:segVal('seg-proveniencia'), prov_manual:provManual, ids_modo:segVal('seg-ids'), med_modo:segVal('seg-medic-modo'), med_brincos:medBrincos.slice(), med_items:medItems.map(x=>Object.assign({},x)), med_archivo:medArchivo, padr_archivo:padrArchivo, padr_frigo:$('f-padr-frigo').value, heces:{baias:hxCopia(hxBaias)}, ax:{sexo:segVal('seg-ax-sexo'), raza:segVal('seg-ax-raza'), necropsia:segVal('seg-ax-necropsia')},
     inc:JSON.parse(JSON.stringify(inc)), fotos:Object.assign({},fotos) }; }
 function applyForm(s){ // estado -> DOM
   if(s.tipo) setTipo(s.tipo); inc=Object.assign(incVacio(), s.inc||{});
@@ -2546,6 +2715,7 @@ function applyForm(s){ // estado -> DOM
   setSeg($('seg-proveniencia'),s.proveniencia||''); setSeg($('seg-ids'), s.ids_modo || (bastones.length?'baston':'bascula')); provManual=!!s.prov_manual; setSeg($('seg-medic-modo'),s.med_modo||''); medBrincos=(s.med_brincos&&s.med_brincos.length)?s.med_brincos.slice():[s.med_brinco||'']; medItems=(s.med_items&&s.med_items.length)?s.med_items.map(x=>({nombre:x.nombre||'',dosis:x.dosis!=null?String(x.dosis):'',unidad:x.unidad||'',auto:!!x.auto})):[{nombre:s.med_nombre||'',dosis:s.med_dosis||'',unidad:s.med_unidad||''}]; medArchivo=s.med_archivo||null; renderMedSimple(); renderMedPanel(); renderProtocolo();
   padrArchivo=s.padr_archivo||null; $('f-padr-frigo').value=s.padr_frigo||''; renderPadrPanel();
   hxBaias=(s.heces&&s.heces.baias)?hxCopia(s.heces.baias):[]; hxEd=null; hxEdOrig=null; hxRenderLista();
+  { const ax=s.ax||{}; setSeg($('seg-ax-sexo'),ax.sexo||''); setSeg($('seg-ax-raza'),ax.raza||''); setSeg($('seg-ax-necropsia'),ax.necropsia||''); }
   fotos={animal:null,boton:null,perdida:null,nacimiento:null,medic:null}; Object.keys(s.fotos||{}).forEach(k=>{ if(k in fotos) setFoto(k,s.fotos[k]); });
   renderCsv(); renderBaston(); refreshIds(); checkCotas();
   step=Math.min(Math.max(s.step||1,1),2); renderStep(); dirty=false;
@@ -2556,7 +2726,7 @@ function recordToForm(r){ // registro guardado -> estado del formulario (para ed
   const incPrev=incVacio(); (d.animales||[]).forEach(a=>{ if(a.peso_fuente==='historico'&&a.peso_kg!=null) incPrev.hist[a.ide]={peso_kg:a.peso_kg, fecha:a.peso_fecha||null, registro_id:a.peso_registro_id||null}; if(a.peso_fuente==='manual'&&a.peso_kg!=null) incPrev.manual[a.ide]=String(a.peso_kg); }); if(d.pesos_completados){ incPrev.modo=d.pesos_completados.modo||''; incPrev.hist_buscado=!!d.pesos_completados.buscado_en_base; incPrev.hist_msg=d.pesos_completados.nota_base||''; } (d.inconformidades||[]).forEach(x=>{ if(x.justificacion) incPrev.just[x.tipo]=x.justificacion; });
   if(animBascula.length){ const pesos=animBascula.map(a=>a.peso_kg).filter(p=>p!==null&&p!==undefined); b={ nombre:(r.archivo_balanza&&r.archivo_balanza.nombre)||'archivo anterior', columna_ide:'IDE', columna_peso:'Peso', filas:animBascula.length, animales:animBascula.map(a=>({ide:a.ide,peso_kg:a.peso_kg===undefined?null:a.peso_kg})), invalidos:[], duplicados:[], ids_sin_peso:animBascula.filter(a=>a.peso_kg==null).map(a=>a.ide), avisos:[], cota_archivo:d.cota_archivo||null, guia_archivo:d.guia_archivo||null, fecha_pesaje:d.fecha_pesaje||null, peso_total_kg:pesos.length?+pesos.reduce((x,y)=>x+y,0).toFixed(1):null, peso_promedio_kg:pesos.length?+(pesos.reduce((x,y)=>x+y,0)/pesos.length).toFixed(1):null, sin_peso:animBascula.length-pesos.length }; }
   const a=r.adjuntos||{};
-  const fp=(d.proveniencia==='externo'&&a.fotos_camion)?a.fotos_camion:(a.fotos_precinto||[]); const fpArr=x=>Array.isArray(x)?x.filter(Boolean):(x?[x]:[]); const cam=(d.camiones&&d.camiones.length)?d.camiones.map((c,i)=>({chapa:c.chapa||'',fotos:fpArr(fp[i]),nros_precinto:(c.nros_precinto||[]).slice()})):(d.chapa_camion?[{chapa:d.chapa_camion,fotos:fpArr(a.foto_precinto).concat(fpArr(fp[0]))}]:[]);
+  const fp=((d.proveniencia==='externo'||r.tipo_evento==='salida_faena')&&a.fotos_camion)?a.fotos_camion:(a.fotos_precinto||[]); const fpArr=x=>Array.isArray(x)?x.filter(Boolean):(x?[x]:[]); const cam=(d.camiones&&d.camiones.length)?d.camiones.map((c,i)=>({chapa:c.chapa||'',fotos:fpArr(fp[i]),nros_precinto:(c.nros_precinto||[]).slice()})):(d.chapa_camion?[{chapa:d.chapa_camion,fotos:fpArr(a.foto_precinto).concat(fpArr(fp[0]))}]:[]);
   const bast=(d.baston&&d.baston.ids&&d.baston.ids.length)?{ nombre:d.baston.nombre||'bastón anterior', columna_ide:'IDE', columna_peso:null, filas:d.baston.ids.length, animales:d.baston.ids.map(ide=>({ide,peso_kg:null})), invalidos:[], duplicados:[], ids_sin_peso:[], avisos:[], cota_archivo:null, guia_archivo:null, fecha_pesaje:d.baston.fecha||null, peso_total_kg:null, peso_promedio_kg:null, sin_peso:d.baston.ids.length }:null;
   const fl=d.faltantes||{};
   const fg=a.fotos_guia||[]; const cts=(d.cotas&&d.cotas.length)?d.cotas.map((c,i)=>(c.modo==='manual'||c.modo==='ia_guia'||!c.cota_qr)?{texto:'',foto:fg[i]||null,fallo:true,fallo_msg:c.motivo_manual||'QR no leído',manual:{guia:c.nro_guia||'',cota:c.cota_nro||'',cantidad:c.total_declarado!=null?String(c.total_declarado):''},ia_guia:c.ia_guia||null}:{texto:c.cota_qr,foto:fg[i]||null}):((d.cota_qr||d.cota_nro)?[{texto:d.cota_qr||d.cota_nro,foto:null}]:[]);
@@ -2567,6 +2737,7 @@ function recordToForm(r){ // registro guardado -> estado del formulario (para ed
     boton:d.nro_boton||'', causa:d.causa_probable||'', madre:d.madre||'', sexo:d.sexo_cria||'', cria_boton:d.nro_boton_cria||'', perdida_boton:r.tipo_evento==='perdida_boton'?(d.nro_boton||''):'', obs:r.observaciones||'',
     sol: esSolicitud(r.tipo_evento) ? { categoria:d.categoria||'', origen:d.origen_nombre||'', origen_cod:d.origen_codigo||'', destino:d.destino_nombre||'', destino_cod:d.destino_codigo||'', guias:d.cantidad_guias!=null?String(d.cantidad_guias):'', por_guia:d.animales_por_guia!=null?String(d.animales_por_guia):'', total:d.total_animales!=null?String(d.total_animales):'', naturaleza:d.naturaleza||'', lugar:d.lugar||'', token:d.token||null } : null,
     proveniencia:d.proveniencia||'', prov_manual:!!d.proveniencia, ids_modo:bast?'baston':'bascula', med_modo:d.modo||'', med_brincos:(d.modo==='simple'&&d.aplicaciones&&d.aplicaciones.length)?[...new Set(d.aplicaciones.map(p=>p.brinco))]:[''], med_items:(d.modo==='simple'&&d.aplicaciones&&d.aplicaciones.length)?medItemsDe(d.aplicaciones).map(x=>({nombre:x.medicamento||'',dosis:x.dosis!=null?String(x.dosis):'',unidad:x.unidad||''})):[{nombre:'',dosis:'',unidad:''}], med_archivo:(d.modo==='masiva'&&d.aplicaciones)?{ nombre:(d.archivo&&d.archivo.nombre)||'planilla anterior', filas:d.aplicaciones.map(p=>({brinco:p.brinco,medicamento:p.medicamento,codigo_articulo:p.codigo_articulo||null,en_lista:!!p.en_lista,dosis:p.dosis,unidad:p.unidad,enfermedad:p.enfermedad||null})), errores:[] }:null,
+    ax: (r.tipo_evento==='mortalidad'||r.tipo_evento==='medicamento') ? { sexo:d.sexo||'', raza:d.modo==='masiva'?'':(d.raza||''), necropsia:d.necropsia||'' } : null,
     heces: r.tipo_evento==='escore_heces' ? { baias:(d.baias||[]).map(b=>({ id:uuid(), baia:b.baia, dieta:b.dieta||'', dias_cocho:b.dias_cocho!=null?String(b.dias_cocho):'', ims_pv:b.ims_pv!=null?String(b.ims_pv).replace('.',','):'', inicio:b.inicio||null, fin:b.fin||null, muestras:(b.muestras||[]).map(m=>Object.assign({}, m, {ia_estado:m.ia>=1?'ok':''})) })) } : null,
     padr_frigo:d.frigorifico||'', padr_archivo: esPadroniza(r.tipo_evento)&&d.animales ? { nombre:(d.archivo&&d.archivo.nombre)||'archivo anterior', frigorifico:d.frigorifico||'', fecha:r.fecha_evento, estancia:r.estancia, cabezas_declaradas:d.cabezas_declaradas!=null?d.cabezas_declaradas:null, animales:d.animales.map(x=>({sec:x.sec!=null?x.sec:null, ide:x.ide||'', escrito:x.boton_escrito||x.ide||'', peso_kg:x.peso_kg!=null?x.peso_kg:null, sin_boton:!x.ide, dudoso:!!x.dudoso})), sin_boton:d.cantidad_sin_boton||0, corregidos:d.cantidad_corregidos||0, dudosos:d.cantidad_dudosos||0, errores:[] } : null,
     fotos:{ animal:a.foto_animal||null, boton:a.foto_boton||null, perdida:a.foto_ocurrido||null, nacimiento:a.foto_nacimiento||null, medic:a.foto_medicamento||null } };
@@ -2602,7 +2773,7 @@ function renderGroups(){ // qué bloques del paso 2 se ven, según el tipo y las
   const sh=(id,v)=>{ $(id).style.display=v?'flex':'none'; };
   $('seg-origen-otra').textContent = conf ? 'Otra propiedad (llegó en camión)' : 'Otra propiedad';
   sh('grp-lote', !!tipo && !intens && !esSolicitud(tipo) && !esPadroniza(tipo) && !esHeces(tipo));
-  sh('grp-origen-int', intens);
+  const faena=tipo==='salida_faena'; sh('grp-origen-int', intens && !faena);
   sh('wrap-propiedad', conf||desc); sh('wrap-propietario', (conf||desc) && prop==='boitel');
   const pideOrigen = rip || (conf && prop==='propio'); sh('wrap-origen-tipo', pideOrigen);
   sh('wrap-sistema', conf && prop==='propio' && ori==='misma_propiedad');
@@ -2610,14 +2781,16 @@ function renderGroups(){ // qué bloques del paso 2 se ven, según el tipo y las
   $('btn-piq-mapa').style.display = geoTiene(estanciaValue()) ? '' : 'none'; $('btn-origen-mapa').style.display = (!(conf && sis==='rip') && geoTiene(estanciaValue())) ? '' : 'none'; sh('wrap-origen-botones', pideLoteOrigen && !(conf && sis==='rip')); $('hint-origen-lote').style.display = pideLoteOrigen ? '' : 'none';
   const origenRip = conf && sis==='rip'; $('lbl-origen-lote').textContent = origenRip ? 'Lote BovinOS de origen' : 'Lote ControlPasto de origen'; $('lbl-origen-piquete').textContent = origenRip ? 'Piquete RIP de origen' : 'Piquete de origen';
   const cam=formUsaCamion(); sh('grp-camion', cam);
-  $('grp-camion-title').textContent = tipo==='salida' ? 'Camión que salió' : 'Camión que llegó'; sh('wrap-raza', tipo==='entrada');
+  $('grp-camion-title').textContent = (tipo==='salida'||faena) ? (faena?'Camión que salió a faena':'Camión que salió') : 'Camión que llegó'; sh('wrap-raza', tipo==='entrada');
   sh('grp-animales', usaBalanza(tipo)); sh('wrap-cantidad', usaBalanza(tipo) && tipo!=='pesaje_simple'); $('grp-animales-title').textContent = tipo==='pesaje' ? 'Pesaje y conteo' : tipo==='pesaje_simple' ? 'Pesaje simple' : 'Animales'; const conIds=usaBalanza(tipo) && !esPesaje(tipo); sh('wrap-modo-ids', conIds); sh('wrap-baston', conIds && segVal('seg-ids')==='baston'); $('lbl-bascula').textContent = tipo==='pesaje_simple' ? 'Archivos de la báscula (IDE y peso)' : tipo==='pesaje' ? 'Archivo de la báscula (IDE y peso)' : segVal('seg-ids')==='baston' ? 'Archivo de la báscula · da el peso a los del bastón' : 'Archivo de la báscula (IDE y peso) · cuentan todos'; $('hint-pesaje-simple').classList.toggle('hidden', tipo!=='pesaje_simple'); sh('grp-faltantes', tipo==='pesaje');
-  sh('grp-destino-int', intens && !desc); $('lbl-destino-lote').textContent = conf ? 'Lote Feed Manager' : 'Lote BovinOS'; $('lbl-destino-piquete').textContent = conf ? 'Baia del confinamiento' : 'Baia / piquete RIP';
+  sh('grp-destino-int', intens && !desc); $('lbl-destino-lote').textContent = (conf||faena) ? 'Lote Feed Manager' : 'Lote BovinOS'; $('lbl-destino-piquete').textContent = (conf||faena) ? 'Baia del confinamiento' : 'Baia / piquete RIP';
+  $('ttl-destino-int').textContent = faena ? '¿De qué baia salen?' : '¿A qué lote y baia van?'; $('f-destino-piquete').placeholder = faena ? 'Baia de donde salen (ej.: F-08)' : 'Baia de destino'; $('f-destino-lote').placeholder = faena ? 'Lote de los animales (opcional)' : 'Lote de destino (opcional)'; sh('wrap-baia-mapa', conf||faena);
   sh('grp-padroniza', esPadroniza(tipo)); sh('grp-heces', esHeces(tipo)); if(esHeces(tipo)){ hxRenderLista(); hxRenderSug(); hxCargarHist().then(()=>hxRenderSug()).catch(()=>{}); }
   if(tipo==='mortalidad'||tipo==='medicamento'||tipo==='nacimiento'||tipo==='perdida_boton'||tipo==='pesaje'||esPadroniza(tipo)){ cargarBrincos(estanciaValue()).then(()=>{ ayudaBoton.refrescar(); ayudaCria.refrescar(); ayudaPerdida.refrescar(); medBrincoAyudas.forEach(x=>x.refrescar()); }); }
   sh('grp-muerte', tipo==='mortalidad'); sh('grp-nac', tipo==='nacimiento'); sh('grp-perdida', tipo==='perdida_boton');
   sh('grp-sol', esSolicitud(tipo)); if(esSolicitud(tipo)) solPrefill();
   sh('grp-medic', tipo==='medicamento'); const mm=segVal('seg-medic-modo'); sh('medic-simple', tipo==='medicamento' && mm==='simple'); sh('medic-masiva', tipo==='medicamento' && mm==='masiva');
+  sh('grp-animal-extra', tipo==='mortalidad' || (tipo==='medicamento' && mm==='simple')); $('wrap-ax-necropsia').style.display = tipo==='mortalidad' ? '' : 'none'; $('ax-hint').textContent = tipo==='medicamento' ? 'No son obligatorios: sirven para el informe sanitario (morbilidad). Si carga varios animales, vale para todos. Si no lo sabe, déjelo vacío: el app usa lo que ya está en la ficha del animal.' : 'No son obligatorios: sirven para el informe sanitario (mortalidad). Si no lo sabe, déjelo vacío: el app usa lo que ya está en la ficha del animal.';
   if(formUsaCamion()){ autoProveniencia(); renderCamiones(); }
   refreshIds();
 }
@@ -2729,7 +2902,7 @@ function validate2(){
   }
   if(formUsaCamion()){
     if(esEntradaCamion() && !segVal('seg-proveniencia')) e.push('Indique de dónde vienen los animales (estancia de la empresa o proveedor externo).');
-    const ext=esExterno(); camiones.forEach((c,i)=>{ const n=camiones.length>1?' del camión '+(i+1):' del camión'; if(!(c.chapa||'').trim()) e.push('Falta la chapa'+n+'.'); if(!ext && !fotosCamion(c).length) e.push('Falta la foto del precinto'+n+'.'); });
+    const ext=sinPrecinto(); camiones.forEach((c,i)=>{ const n=camiones.length>1?' del camión '+(i+1):' del camión'; if(!(c.chapa||'').trim()) e.push('Falta la chapa'+n+'.'); if(!ext && !fotosCamion(c).length) e.push('Falta la foto del precinto'+n+'.'); });
     const chapas=camiones.map(c=>(c.chapa||'').trim().toUpperCase().replace(/\s+/g,' ')).filter(Boolean); if(new Set(chapas).size!==chapas.length) e.push('Hay dos camiones con la misma chapa.');
     cotas.forEach((c,i)=>{ const n=cotas.length>1?' de la COTA '+(i+1):' de la COTA'; const t=(c.texto||'').trim(); const cp=t?window.CotaParser.parseCota(t):null; const leido=!!(cp&&cp.parse_ok); const man=c.manual||{}; const manualOk=!!(man.guia&&man.cota);
       if(!leido){ if(!c.fallo) e.push('Falta leer el QR'+n+' (escanee, saque foto o suba una imagen del QR).'); else if(!man.guia) e.push('El QR'+n+' no se pudo leer: saque una foto de la guía (la IA completa los datos) o escriba el Nº de guía.'); else { if(!/^\d{5,20}$/.test(man.guia)) e.push('El Nº de guía'+n+' debe ser numérico.'); if(man.cota && !/^\d{8,20}$/.test(man.cota)) e.push('El Nº de COTA'+n+' debe ser numérico (8 a 20 dígitos).'); if(man.cantidad){ const qm=parseInt(man.cantidad,10); if(isNaN(qm)||qm<1) e.push('La cantidad de animales de la guía'+n+' debe ser un número mayor que cero.'); } } } });
@@ -2911,16 +3084,20 @@ function hxGpsOn(){ if(hxWatch!=null || !navigator.geolocation) return; try{ hxW
 function hxGpsOff(){ if(hxWatch!=null && navigator.geolocation){ try{ navigator.geolocation.clearWatch(hxWatch); }catch(e){} } hxWatch=null; }
 /* ---- mapa del confinamiento ---- */
 function hxRenderMapa(){ const sg=hxSug(); const pas=new Set(), sug=new Set(); Object.values(sg).forEach(x=>{ x.semana_pasada.forEach(n=>pas.add(n)); x.sugeridas.forEach(n=>sug.add(n)); }); const est={}; hxBaias.forEach(b=>{ const c=hxCalc(b.muestras); est[b.baia]=c.clase||'hecha'; });
-  const sel=hxMapaModo==='elegir'&&hxEd ? hxNorm($('hx-baia').value) : '';
-  $('hx-mapa').innerHTML=hxMapaSvg({sel, estado:est, pasadas:pas, sugeridas:sug, gps:hxGps&&hxGps.prec<200?hxGps:null}); }
+  const sel=hxMapaModo==='elegir'&&hxEd ? hxNorm($('hx-baia').value) : hxMapaModo==='campo' ? hxNorm($('f-destino-piquete').value) : '';
+  const campo=hxMapaModo==='campo'; document.querySelector('#hx-mapa-modal .hx-ley').style.display=campo?'none':''; /* elegir la baia de la entrada confinamiento o de la salida a faena: sin los colores del escore */
+  $('hx-mapa').innerHTML=hxMapaSvg({sel, estado:campo?{}:est, pasadas:campo?new Set():pas, sugeridas:campo?new Set():sug, gps:hxGps&&hxGps.prec<200?hxGps:null}); }
 function hxCentrarMapa(){ const box=$('hx-mapa'); const el=box.querySelector('path[stroke="#0B3D91"]')||box.querySelector('.hx-gps'); if(!el) return; try{ const b=el.getBoundingClientRect(), c=box.getBoundingClientRect(); box.scrollLeft+=b.left+b.width/2-(c.left+c.width/2); box.scrollTop+=b.top+b.height/2-(c.top+c.height/2); }catch(e){} }
-function hxAbrirMapa(modo){ hxMapaModo=modo; $('hx-mapa-titulo').textContent=modo==='elegir'?'🗺 ¿En qué baia está?':'🗺 Confinamiento · baias de hoy'; $('hx-mapa-hint').textContent=modo==='elegir'?'Toque la baia en el mapa.':'Toque una baia para evaluarla (o editarla si ya la evaluó).'; hxGpsOn(); hxRenderMapa(); $('hx-mapa-modal').classList.remove('hidden'); requestAnimationFrame(hxCentrarMapa); }
+function hxAbrirMapa(modo){ hxMapaModo=modo; $('hx-mapa-titulo').textContent=modo==='elegir'?'🗺 ¿En qué baia está?':modo==='campo'?(tipo==='salida_faena'?'🗺 ¿De qué baia salen?':'🗺 ¿A qué baia van?'):'🗺 Confinamiento · baias de hoy'; $('hx-mapa-hint').textContent=(modo==='elegir'||modo==='campo')?'Toque la baia en el mapa.':'Toque una baia para evaluarla (o editarla si ya la evaluó).'; hxGpsOn(); hxRenderMapa(); $('hx-mapa-modal').classList.remove('hidden'); requestAnimationFrame(hxCentrarMapa); }
 $('hx-mapa').addEventListener('click',ev=>{ const p=ev.target.closest('[data-baia]'); if(!p) return; const nm=p.getAttribute('data-baia'); $('hx-mapa-modal').classList.add('hidden');
   if(hxMapaModo==='elegir' && hxEd){ hxEd.baia=nm; hxEd.baia_gps=false; $('hx-baia').value=hxBaiaTxt(nm); hxRenderBaiaEstado(); dirty=true; return; }
+  if(hxMapaModo==='campo'){ $('f-destino-piquete').value=hxBaiaTxt(nm); dirty=true; hxGpsOff(); toast('Baia '+hxBaiaTxt(nm)); return; }
   const ya=hxBaias.find(b=>b.baia===nm); hxAbrirEd(ya?ya.id:null, ya?null:nm); });
 $('hx-mapa-cerrar').addEventListener('click',()=>{ $('hx-mapa-modal').classList.add('hidden'); if($('hx-modal').classList.contains('hidden')) hxGpsOff(); });
 $('btn-hx-nueva').addEventListener('click',()=>hxAbrirEd(null));
 $('btn-hx-mapa').addEventListener('click',()=>hxAbrirMapa('ver'));
+$('btn-baia-mapa').addEventListener('click',()=>hxAbrirMapa('campo'));
+$('f-destino-piquete').addEventListener('change',()=>{ if(tipo!=='entrada_confinamiento' && tipo!=='salida_faena') return; const nm=hxNorm($('f-destino-piquete').value); if(nm) $('f-destino-piquete').value=hxBaiaTxt(nm); }); /* 'f8' → 'F-08' (si existe en el mapa del confinamiento) */
 $('hx-baia-mapa').addEventListener('click',()=>hxAbrirMapa('elegir'));
 $('hx-baia').addEventListener('input',()=>{ if(!hxEd) return; hxEd.baia=hxNorm($('hx-baia').value)||''; hxEd.baia_gps=false; hxRenderBaiaEstado(); dirty=true; });
 $('hx-baia').addEventListener('change',()=>{ const nm=hxNorm($('hx-baia').value); if(nm) $('hx-baia').value=hxBaiaTxt(nm); });
@@ -2962,6 +3139,7 @@ function buildRecord(){
       destino_lote:lote, destino_piquete:piq, destino:(conf?'Confinamiento':'RIP')+' · lote '+lote+' · piquete '+piq };
     if(desc){ r.lote_controlpasto=null; r.piquete=null; Object.assign(r.datos,{ destino_lote:null, destino_piquete:null, destino:'Descarga en '+ESTANCIA_INTENSIVO, origen: prop==='boitel' ? 'Boitel · '+$('f-propietario').value.trim() : 'Animal propio' }); }
     if(conf && ori==='otra_propiedad') r.datos.origen='Otra propiedad (llegó en camión)';
+    if(tipo==='salida_faena'){ Object.assign(r.datos,{ propiedad:null, propietario:null, origen_tipo:null, origen_sistema:null, origen_lote:lote||null, origen_piquete:piq||null, origen:'Confinamiento · baia '+piq+(lote?' · lote '+lote:''), destino_lote:null, destino_piquete:null, destino:'Faena' }); }
   }
   if(usaBalanza(tipo)){
     const q=tipo==='pesaje_simple'?NaN:parseInt($('f-cantidad').value,10);
@@ -2979,7 +3157,7 @@ function buildRecord(){
   }
   if(formUsaCamion()){
     const q=parseInt($('f-cantidad').value,10);
-    const ext=esExterno(); const cams=camiones.map((c,i)=>(ext?{ nro:i+1, chapa:(c.chapa||'').trim().toUpperCase().replace(/\s+/g,' '), foto_precinto:false, fotos_precinto:0, foto_camion:fotosCamion(c).length>0, fotos_camion:fotosCamion(c).length }:{ nro:i+1, chapa:(c.chapa||'').trim().toUpperCase().replace(/\s+/g,' '), foto_precinto:fotosCamion(c).length>0, fotos_precinto:fotosCamion(c).length }));
+    const ext=sinPrecinto(); const cams=camiones.map((c,i)=>(ext?{ nro:i+1, chapa:(c.chapa||'').trim().toUpperCase().replace(/\s+/g,' '), foto_precinto:false, fotos_precinto:0, foto_camion:fotosCamion(c).length>0, fotos_camion:fotosCamion(c).length }:{ nro:i+1, chapa:(c.chapa||'').trim().toUpperCase().replace(/\s+/g,' '), foto_precinto:fotosCamion(c).length>0, fotos_precinto:fotosCamion(c).length }));
     cams.forEach((c,i)=>{ c.nros_precinto=((camiones[i]&&camiones[i].nros_precinto)||[]).map(x=>String(x).trim().toUpperCase()).filter(Boolean); });
     const ctsSrc=cotas.filter(c=>{ const cp=cotaParsed(c); return (cp&&cp.parse_ok) || (c.manual&&c.manual.guia); });
     const cts=ctsSrc.map((c,i)=>{ const cp=cotaParsed(c); if(cp&&cp.parse_ok) return { nro:i+1, modo:'qr', cota_qr:c.texto.trim(), cota_nro:cp.nro_cota||null, nro_guia:cp.nro_guia||null, total_declarado:cp.total_declarado, foto_guia:!!c.foto, cota:cp }; const qm=parseInt(c.manual.cantidad,10); return { nro:i+1, modo:c.ia_guia?'ia_guia':'manual', cota_qr:null, cota_nro:c.manual.cota||null, nro_guia:c.manual.guia, total_declarado:isNaN(qm)?null:qm, foto_guia:!!c.foto, cota:null, motivo_manual:c.fallo_msg||'QR no leído', ia_guia:c.ia_guia||null }; });
@@ -3005,11 +3183,14 @@ function buildRecord(){
   { const fl=calcInconformidades().filter(x=>x.tipo==='faltante'); r.faltantes=fl.map(x=>({ item:x.titulo, justificacion:(inc.just[x.id]||'').trim()||null })); r.estado_registro=fl.length?'completo_con_faltantes':'completo'; }
   if(tipo==='medicamento'){ const mm=segVal('seg-medic-modo'); let apl=[];
     const enf=enfermedadValue()||null; if(mm==='simple'){ const its=medItemsValidos().map(x=>{ const nom=x.nombre.trim(); const it=medEnLista(nom); return { medicamento:it?it.n:nom, codigo_articulo:it?it.c:null, en_lista:!!it, dosis:Number(String(x.dosis).replace(',','.')), unidad:x.unidad }; }); const escritoDe={}; medBrincos.forEach((b,i)=>{ if(medEscrito[i]) escritoDe[brincoFix(b)]=medEscrito[i]; }); medBrincosValidos().forEach(b=>its.forEach(x=>apl.push(Object.assign({brinco:b, brinco_escrito:escritoDe[b]||null},x,{enfermedad:enf})))); }
-    else if(medArchivo) apl=medArchivo.filas.map(f=>({ brinco:brincoFix(f.brinco), brinco_escrito:(brincoFix(f.brinco)!==String(f.brinco||'').trim())?String(f.brinco||'').trim():null, medicamento:f.medicamento, codigo_articulo:f.codigo_articulo||null, en_lista:!!f.en_lista, dosis:f.dosis, unidad:f.unidad, enfermedad:f.enfermedad||enf }));
+    else if(medArchivo) apl=medArchivo.filas.map(f=>({ brinco:brincoFix(f.brinco), brinco_escrito:(brincoFix(f.brinco)!==String(f.brinco||'').trim())?String(f.brinco||'').trim():null, medicamento:f.medicamento, codigo_articulo:f.codigo_articulo||null, en_lista:!!f.en_lista, dosis:f.dosis, unidad:f.unidad, enfermedad:f.enfermedad||enf, sexo:f.sexo||null, raza:f.raza||null, corral:f.corral||null }));
     const brincos=[...new Set(apl.map(p=>p.brinco))]; const meds=[...new Set(apl.map(p=>p.medicamento))];
     r.datos={ enfermedad: mm==='simple' ? enf : ([...new Set(apl.map(p=>p.enfermedad).filter(Boolean))].join(', ')||enf), modo:mm, aplicaciones:apl, cantidad_aplicaciones:apl.length, cantidad_animales:brincos.length, brincos, medicamentos:meds, fuera_de_lista:apl.filter(p=>!p.en_lista).length, archivo:(mm==='masiva'&&medArchivo)?{nombre:medArchivo.nombre, filas:medArchivo.filas.length}:null };
     r.control={ cantidad_aplicaciones:apl.length, cantidad_animales:brincos.length, fuera_de_lista:r.datos.fuera_de_lista };
     r.adjuntos={ foto_medicamento:mm==='simple'?(fotos.medic||null):null }; }
+  if(tipo==='mortalidad'||tipo==='medicamento'){ const masiva=tipo==='medicamento'&&segVal('seg-medic-modo')==='masiva'; const ax={ sexo:masiva?null:(segVal('seg-ax-sexo')||null), raza:masiva?null:(segVal('seg-ax-raza')||null) }; /* datos opcionales del animal (informe sanitario) */
+    if(tipo==='mortalidad'){ ax.necropsia=segVal('seg-ax-necropsia')||null; let lug=null; try{ if(ubicacion){ const pp=pastoEn(r.estancia, ubicacion.lat, ubicacion.lon); if(pp&&pp.nm) lug=pp.nm; } }catch(e){} ax.lugar_muerte=lug; }
+    Object.assign(r.datos, ax); if(tipo==='medicamento') (r.datos.aplicaciones||[]).forEach(p=>{ if(!p.sexo&&ax.sexo) p.sexo=ax.sexo; if(!p.raza&&ax.raza) p.raza=ax.raza; }); }
   return r;
 }
 function diffRecords(a,b){ // campos que cambiaron entre dos registros (para el log)
@@ -3026,12 +3207,13 @@ function kvRows(r){
   const d=r.datos||{}; const intens=esIntensivo(r.tipo_evento);
   if(!intens){ if(r.lote_controlpasto) rows.push(['Lote',r.lote_controlpasto]); if(r.piquete) rows.push(['Piquete',r.piquete]); }
   if(r.tipo_evento==='escore_heces'){ const bs=d.baias||[]; rows.push(['Baias',bs.length+' · '+bs.map(b=>hxBaiaTxt(b.baia)+' '+hxNum(b.nota,1)).join(', ')],['Bostas',String(d.cantidad_muestras||0)],['Nota media',d.nota_media!=null?hxNum(d.nota_media,2)+' / 10 · '+(HX_CLASE[d.clase]||{txt:''}).txt:'—']); if(d.clases) rows.push(['Estado',d.clases.deseable+' deseables · '+d.clases.atencion+' en atención · '+d.clases.peligro+' en peligro']); if(d.distribucion){ const t=d.cantidad_muestras||1; rows.push(['Reparto',[['dura','Dura'],['firme','Firme'],['pastosa','Pastosa'],['suave','Suave'],['liquida','Líquida']].map(([k,n])=>n+' '+Math.round((d.distribucion[k]||0)*100/t)+'%').join(' · ')]); } if(d.ia) rows.push(['IA',d.ia.leidas?d.ia.leidas+' fotos leídas · misma nota que la persona en '+d.ia.iguales+' ('+d.ia.pct+'%)':'todavía no leyó las fotos (se leen al publicar si no hubo señal)']); }
-  if(intens){ rows.push(['Animales',PROPIEDAD_LABEL[d.propiedad]||d.propiedad||'—']); if(d.propietario) rows.push(['Propietario',d.propietario]); if(d.origen_tipo) rows.push(['Vienen de',ORIGEN_LABEL[d.origen_tipo]||d.origen_tipo]); if(d.origen_sistema) rows.push(['Sistema de origen',SISTEMA_LABEL[d.origen_sistema]||d.origen_sistema]); if(d.origen_lote) rows.push(['Lote de origen',d.origen_lote]); if(d.origen_piquete) rows.push(['Piquete de origen',d.origen_piquete]); }
+  if(r.tipo_evento==='salida_faena'){ rows.push(['Salen de','Confinamiento · baia '+(d.origen_piquete||'—')+(d.origen_lote?' · lote '+d.origen_lote:'')],['Destino','Faena']); }
+  else if(intens){ rows.push(['Animales',PROPIEDAD_LABEL[d.propiedad]||d.propiedad||'—']); if(d.propietario) rows.push(['Propietario',d.propietario]); if(d.origen_tipo) rows.push(['Vienen de',ORIGEN_LABEL[d.origen_tipo]||d.origen_tipo]); if(d.origen_sistema) rows.push(['Sistema de origen',SISTEMA_LABEL[d.origen_sistema]||d.origen_sistema]); if(d.origen_lote) rows.push(['Lote de origen',d.origen_lote]); if(d.origen_piquete) rows.push(['Piquete de origen',d.origen_piquete]); }
   if(recCamion(r)){
     const fp=(r.adjuntos&&r.adjuntos.fotos_precinto)||[]; const cams=(d.camiones&&d.camiones.length)?d.camiones:[{nro:1,chapa:d.chapa_camion,foto_precinto:!!(r.adjuntos&&r.adjuntos.foto_precinto)}];
     if(d.proveniencia) rows.push(['Vienen de',d.proveniencia==='externo'?'proveedor externo':'estancia de la empresa']);
     const fcm=(r.adjuntos&&r.adjuntos.fotos_camion)||[];
-    cams.forEach((c,i)=>{ if(d.proveniencia==='externo'){ const nc=Array.isArray(fcm[i])?fcm[i].filter(Boolean).length:(c.fotos_camion||0); rows.push([cams.length>1?'Camión '+(i+1):'Camión',(c.chapa||'—')+(nc?' · foto del camión: '+nc+(nc===1?' foto':' fotos'):' · sin foto del camión (opcional)')]); return; }
+    cams.forEach((c,i)=>{ if(d.proveniencia==='externo'||r.tipo_evento==='salida_faena'){ const nc=Array.isArray(fcm[i])?fcm[i].filter(Boolean).length:(c.fotos_camion||0); rows.push([cams.length>1?'Camión '+(i+1):'Camión',(c.chapa||'—')+(nc?' · foto del camión: '+nc+(nc===1?' foto':' fotos'):' · sin foto del camión (opcional)')]); return; }
       const nf=Array.isArray(fp[i])?fp[i].filter(Boolean).length:(fp[i]?1:(c.fotos_precinto||(c.foto_precinto?1:0))); rows.push([cams.length>1?'Camión '+(i+1):'Camión',(c.chapa||'—')+((c.nros_precinto||[]).length?' · precinto Nº '+c.nros_precinto.join(', '):'')+(nf?' · precinto: '+nf+(nf===1?' foto':' fotos'):' · sin foto del precinto')]); });
     const cts=(d.cotas&&d.cotas.length)?d.cotas:(d.cota||d.cota_nro||d.cota_qr?[{nro:1,cota_qr:d.cota_qr,cota_nro:d.cota_nro,cota:d.cota}]:[]);
     cts.forEach((ct,i)=>{ const c=ct.cota; const lbl=cts.length>1?'COTA '+(i+1):'COTA'; rows.push([lbl,(ct.cota_nro||ct.cota_qr||'—')+(ct.modo==='manual'||ct.modo==='ia_guia'?' · guía '+(ct.nro_guia||'—')+(ct.total_declarado!=null?' · '+ct.total_declarado+' animales':'')+(ct.modo==='ia_guia'?' · 🤖 leída por la IA de la foto de la guía (QR no leído)':' · ⚠ cargada a mano (QR no leído)'):'')+(ct.foto_guia?' · guía: foto adjunta':'')]); if(c&&c.parse_ok) rows.push([lbl+' · guía',c.nro_guia||'—'],[lbl+' · emitida',c.fecha_emision?fmtDate(c.fecha_emision):'—'],[lbl+' · origen',estNombre(c.establecimiento_origen)],[lbl+' · destino',estNombre(c.establecimiento_destino)],[lbl+' · finalidad',c.finalidad||'—'],[lbl+' · declarados',c.total_declarado!==null?c.animales_declarados.map(x=>x.categoria+' '+x.cantidad).join(', ')+' = '+c.total_declarado:'—']); });
@@ -3045,6 +3227,7 @@ function kvRows(r){
   (r.faltantes||[]).forEach(x=>rows.push([r.borrador?'Falta':'Sin completar',x.item+(x.justificacion?' — Motivo: '+x.justificacion:'')]));
   if(d.faltantes&&d.faltantes.cantidad){ const f=d.faltantes; rows.push(['No arreados',f.cantidad+(f.cantidad===1?' animal':' animales')+' · '+f.lugar+(f.peso_medio_estimado_kg!=null?' · '+f.peso_medio_estimado_kg+' kg prom. estimado':'')+(f.ids&&f.ids.length?' · '+f.ids.length+' identificados':' · sin caravanas identificadas')],['Motivo',f.motivo],['Acta firmada por','Capataz '+f.capataz+' · Auditor '+f.auditor+(f.conformidad?' · conformidad dada':'')],['Fotos del acta',((r.adjuntos||{}).fotos_faltantes||[]).length+' foto(s)']); }
   if(intens && r.tipo_evento!=='descarga_camion'){ rows.push([r.tipo_evento==='entrada_confinamiento'?'Lote Feed Manager':'Lote BovinOS',d.destino_lote||'—'],[r.tipo_evento==='entrada_confinamiento'?'Baia del confinamiento':'Baia / piquete RIP',d.destino_piquete||'—']); }
+  if((r.tipo_evento==='mortalidad'||r.tipo_evento==='medicamento') && (d.sexo||d.raza||d.necropsia||d.lugar_muerte)) rows.push(['Animal',[d.sexo?sanSexo(d.sexo).toLowerCase():'', d.raza?sanRaza(d.raza).toLowerCase():'', d.necropsia?'necropsia: '+(d.necropsia==='si'?'sí':'no'):'', d.lugar_muerte?'murió en '+d.lugar_muerte:''].filter(Boolean).join(' · ')]);
   if(r.tipo_evento==='mortalidad'){ rows.push(['Botón',d.nro_boton+(d.nro_boton_escrito?' (escrito «'+d.nro_boton_escrito+'»)':'')],['Causa',d.causa_probable||'—'],['Ubicación',ubicTxt(d.ubicacion)],['Fotos', ((r.adjuntos||{}).foto_animal?'animal ':'')+((r.adjuntos||{}).foto_boton?'botón':'')]); }
   if(r.tipo_evento==='nacimiento'){ rows.push(['Madre',d.madre],['Sexo',d.sexo_cria||'—'],['Botón cría',d.nro_boton_cria||'—'],['Foto',(r.adjuntos||{}).foto_nacimiento?'adjunta':'sin foto']); }
   if(r.tipo_evento==='perdida_boton'){ rows.push(['Botón perdido',d.nro_boton+(d.nro_boton_escrito?' (escrito «'+d.nro_boton_escrito+'»)':'')],['Foto',(r.adjuntos||{}).foto_ocurrido?'adjunta':'sin foto']); }
@@ -3286,6 +3469,7 @@ function renderMedSimple(){
     li.appendChild(b); });
   renderMedResumen();
 }
+$('btn-ax-limpiar').addEventListener('click',()=>{ ['seg-ax-sexo','seg-ax-raza','seg-ax-necropsia'].forEach(id=>setSeg($(id),'')); dirty=true; });
 $('btn-add-brinco').addEventListener('click',()=>{ medBrincos.push(''); dirty=true; renderMedSimple(); const l=$('med-brincos-list').querySelectorAll('[data-brinco]'); const last=l[l.length-1]; if(last){ last.scrollIntoView({block:'center'}); last.focus(); } });
 $('btn-add-med').addEventListener('click',()=>{ medItems.push({nombre:'',dosis:'',unidad:''}); dirty=true; renderMedSimple(); const last=$('med-items-list').lastElementChild; if(last){ last.scrollIntoView({block:'center'}); last.querySelector('[data-nombre]').focus(); } });
 function unidadMed(v){ const u=String(v||'').trim().toLowerCase().replace(/\.$/,''); const map={'un':'un.','und':'un.','unid':'un.','unidad':'un.','unidades':'un.','u':'un.','dosis':'un.','ds':'un.','l':'L','lt':'L','lts':'L','litro':'L','litros':'L','ml':'ml','cc':'ml','mililitro':'ml','mililitros':'ml','g':'g','gr':'g','gramo':'g','gramos':'g','mg':'mg','miligramo':'mg','miligramos':'mg','µg':'µg','ug':'µg','mcg':'µg','microgramo':'µg','microgramos':'µg'}; return map[u]||null; }
@@ -3316,11 +3500,13 @@ function renderPadrPanel(){ const p=$('padr-panel'), err=$('padr-err'), kv=$('pa
 $('btn-padr-cargar').addEventListener('click',()=>$('file-padroniza').click());
 $('btn-padr-quitar').addEventListener('click',()=>{ padrArchivo=null; dirty=true; renderPadrPanel(); });
 $('file-padroniza').addEventListener('change',async e=>{ const f=e.target.files[0]; e.target.value=''; if(!f) return; await cargarBrincos(estanciaValue()); try{ padrArchivo=parsePadroniza(await leerTabla(f), f.name); dirty=true; if(padrArchivo.fecha){ $('f-fecha').value=padrArchivo.fecha; } if(padrArchivo.frigorifico && !$('f-padr-frigo').value.trim()) $('f-padr-frigo').value=padrArchivo.frigorifico; toast(padrArchivo.animales.length+' animales leídos'+(padrArchivo.sin_boton?' · '+padrArchivo.sin_boton+' sin botón':'')+(padrArchivo.corregidos?' · '+padrArchivo.corregidos+' botones completados':'')); }catch(ex){ padrArchivo=null; $('padr-err').textContent=f.name+': '+ex.message; $('padr-err').classList.remove('hidden'); $('padr-panel').classList.add('hidden'); return; } renderPadrPanel(); });
+function medSexo(v){ const t=norm(String(v||'')); if(!t) return null; if(/^(M|MACHO|TORO|NOVILLO)/.test(t)) return 'macho'; if(/^(H|F|HEMBRA|VACA|VAQUILLA)/.test(t)) return 'hembra'; return null; }
+function medRaza(v){ const t=norm(String(v||'')); if(!t) return null; if(/NELORE/.test(t)) return 'nelore'; if(/HIBRID/.test(t)) return 'hibrido'; if(/CEBU/.test(t)) return 'cebu'; return 'otra'; }
 function parseMedTabla(text, nombre){
   text=text.replace(/^\uFEFF/,''); const lines=text.split(/\r\n|\n|\r/).filter(l=>l.trim().length && !/^;*$/.test(l.trim())); if(!lines.length) throw new Error('La planilla está vacía.');
   const head=lines[0]; const delim=[';',',','\t','|'].map(d=>({d,n:(head.match(new RegExp(d==='|'?'\\|':d,'g'))||[]).length})).sort((a,b)=>b.n-a.n)[0].d;
   const cols=splitLine(head,delim).map(s=>norm(s)); const fi=re=>cols.findIndex(c=>re.test(c));
-  const iE=fi(/ENFERMEDAD|DIAGNOSTICO/); let iB=fi(/BRINCO|CARAVANA|IDE|ANIMAL|BOTON|ID$/), iM=fi(/MEDICAMENTO|PRODUCTO|ARTICULO|REMEDIO/), iD=fi(/DOSIS|CANTIDAD/), iU=fi(/UNIDAD/);
+  const iE=fi(/ENFERMEDAD|DIAGNOSTICO|SINTOMA/), iS=fi(/^SEXO/), iR=fi(/^RAZA|^RACA/), iC=fi(/CORRAL|CURRAL|PIQUETE|BAIA/); let iB=fi(/BRINCO|CARAVANA|IDE|ANIMAL|BOTON|ID$/), iM=fi(/MEDICAMENTO|PRODUCTO|ARTICULO|REMEDIO/), iD=fi(/DOSIS|CANTIDAD/), iU=fi(/UNIDAD/);
   const hasHeader = iB>=0 || iM>=0 || iD>=0 || iU>=0; if(!hasHeader){ iB=0; iM=1; iD=2; iU=3; } else { if(iB<0) iB=0; if(iM<0) iM=1; if(iD<0) iD=2; if(iU<0) iU=3; }
   const filas=[], errores=[];
   for(let r=hasHeader?1:0;r<lines.length;r++){ const f=splitLine(lines[r],delim).map(s=>s.trim()); if(f.every(x=>!x)) continue; const nro=r+1; const probs=[];
@@ -3329,7 +3515,7 @@ function parseMedTabla(text, nombre){
     const dosis=Number(String(f[iD]||'').replace(',','.')); if(f[iD]===undefined||f[iD]===''||isNaN(dosis)||dosis<=0) probs.push('dosis inválida ("'+(f[iD]||'')+'")');
     const unidad=unidadMed(f[iU]); if(!unidad) probs.push('unidad inválida ("'+(f[iU]||'')+'"; use un., L, ml, g, mg o µg)');
     if(probs.length){ errores.push('Fila '+nro+': '+probs.join(', ')+'.'); continue; }
-    const it=medEnLista(med); filas.push({ fila:nro, brinco, medicamento:it?it.n:med, codigo_articulo:it?it.c:null, en_lista:!!it, dosis, unidad, enfermedad:iE>=0?((f[iE]||'').trim()||null):null }); }
+    const it=medEnLista(med); filas.push({ fila:nro, brinco, medicamento:it?it.n:med, codigo_articulo:it?it.c:null, en_lista:!!it, dosis, unidad, enfermedad:iE>=0?((f[iE]||'').trim()||null):null, sexo:iS>=0?medSexo(f[iS]):null, raza:iR>=0?medRaza(f[iR]):null, corral:iC>=0?((f[iC]||'').trim().toUpperCase()||null):null }); }
   if(!filas.length && !errores.length) throw new Error('La planilla no tiene filas con datos.');
   return { nombre, filas, errores };
 }
@@ -3340,7 +3526,7 @@ function renderMedPanel(){ const p=$('med-panel'), err=$('med-err'); if(!medArch
   const t=$('med-tabla'); t.innerHTML='<tr><th>Brinco</th><th>Medicamento</th><th style="text-align:right">Dosis</th></tr>'; f.slice(0,200).forEach(x=>{ const tr=document.createElement('tr'); tr.innerHTML='<td></td><td></td><td class="num"></td>'; tr.children[0].textContent=x.brinco; tr.children[1].textContent=x.medicamento+(x.en_lista?'':' ⚠'); tr.children[2].textContent=x.dosis+' '+x.unidad; t.appendChild(tr); }); if(f.length>200){ const tr=document.createElement('tr'); tr.innerHTML='<td colspan="3">… y '+(f.length-200)+' más</td>'; t.appendChild(tr); }
   if(medArchivo.errores.length){ err.innerHTML=''; const b=document.createElement('b'); b.textContent='Filas con error ('+medArchivo.errores.length+'): corríjalas en Excel y vuelva a cargar la planilla.'; err.appendChild(b); medArchivo.errores.slice(0,20).forEach(x=>{ const d=document.createElement('div'); d.textContent='• '+x; err.appendChild(d); }); if(medArchivo.errores.length>20){ const d=document.createElement('div'); d.textContent='… y '+(medArchivo.errores.length-20)+' más'; err.appendChild(d); } err.classList.remove('hidden'); } else err.classList.add('hidden');
   p.classList.remove('hidden'); }
-async function descargarModeloMed(){ try{ const lista=(window.MEDICAMENTOS||[]).map(it=>[it.c,it.n]); const bytes=window.XlsxLite.escribirXlsx([ {nombre:'Aplicaciones', filas:[['Brinco','Medicamento','Dosis','Unidad','Enfermedad']], anchos:[24,46,10,10,30]}, {nombre:'Medicamentos', filas:[['Código','Medicamento']].concat(lista), anchos:[14,52]}, {nombre:'Unidades', filas:[['Unidad','Significado'],['un.','unidades (dosis)'],['L','litros'],['ml','mililitros'],['g','gramos'],['mg','miligramos'],['µg','microgramos']], anchos:[10,26]}, {nombre:'Enfermedades', filas:[['Enfermedad','Medicamentos del protocolo']].concat(PROTOCOLO.map(p=>[p.e, p.m.map(x=>x.n+' '+x.txt).join(' + ')])), anchos:[34,90]} ]);
+async function descargarModeloMed(){ try{ const lista=(window.MEDICAMENTOS||[]).map(it=>[it.c,it.n]); const bytes=window.XlsxLite.escribirXlsx([ {nombre:'Aplicaciones', filas:[['Brinco','Medicamento','Dosis','Unidad','Enfermedad','Sexo (opcional)','Raza (opcional)','Corral (opcional)']], anchos:[24,46,10,10,30,16,16,16]}, {nombre:'Medicamentos', filas:[['Código','Medicamento']].concat(lista), anchos:[14,52]}, {nombre:'Unidades', filas:[['Unidad','Significado'],['un.','unidades (dosis)'],['L','litros'],['ml','mililitros'],['g','gramos'],['mg','miligramos'],['µg','microgramos']], anchos:[10,26]}, {nombre:'Enfermedades', filas:[['Enfermedad','Medicamentos del protocolo']].concat(PROTOCOLO.map(p=>[p.e, p.m.map(x=>x.n+' '+x.txt).join(' + ')])), anchos:[34,90]} ]);
     const file=new File([bytes],'modelo_aplicacion_medicamento.xlsx',{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}); const r=await saveFile(file); if(r==='saved') toast('Planilla modelo descargada: complétela en Excel y cárguela acá.'); }catch(e){ toast('No se pudo generar la planilla: '+(e.message||e)); } }
 $('btn-med-modelo').addEventListener('click',descargarModeloMed);
 $('btn-med-cargar').addEventListener('click',()=>$('file-med').click());
@@ -3590,7 +3776,7 @@ async function makePdf(r){
   const {PDFDocument, StandardFonts, rgb} = window.PDFLib;
   const pdf=await PDFDocument.create(); pdf.setTitle('Registro de manejo '+r.estancia+' '+r.fecha_evento); pdf.setAuthor('App Registro de manejo · Rural Bioenergía');
   const font=await pdf.embedFont(StandardFonts.Helvetica), bold=await pdf.embedFont(StandardFonts.HelveticaBold);
-  const W=595.28,H=841.89,M=48; const colors={entrada:rgb(.016,.32,.17),salida:rgb(.12,.35,.48),mortalidad:rgb(.44,.12,.05),nacimiento:rgb(.6,.42,.11),pesaje:rgb(.12,.42,.4),pesaje_simple:rgb(.24,.54,.38),medicamento:rgb(.55,.18,.31),solicitud_transferencia:rgb(.36,.36,.18),perdida_boton:rgb(.42,.29,.55),entrada_rip:rgb(.54,.35,.13),descarga_camion:rgb(.12,.35,.48),entrada_confinamiento:rgb(.31,.31,.55)};
+  const W=595.28,H=841.89,M=48; const colors={entrada:rgb(.016,.32,.17),salida:rgb(.12,.35,.48),salida_faena:rgb(.45,.16,.1),mortalidad:rgb(.44,.12,.05),nacimiento:rgb(.6,.42,.11),pesaje:rgb(.12,.42,.4),pesaje_simple:rgb(.24,.54,.38),medicamento:rgb(.55,.18,.31),solicitud_transferencia:rgb(.36,.36,.18),perdida_boton:rgb(.42,.29,.55),entrada_rip:rgb(.54,.35,.13),descarga_camion:rgb(.12,.35,.48),entrada_confinamiento:rgb(.31,.31,.55)};
   let logoImg=null; try{ logoImg=await pdf.embedPng(Uint8Array.from(atob(LOGO_PDF_B64),ch=>ch.charCodeAt(0))); }catch(e){ logoImg=null; }
   const ink=rgb(.09,.13,.1), grey=rgb(.45,.5,.44), line=rgb(.78,.82,.76);
   let page, y, pageNo=0; const pages=[];
@@ -3616,15 +3802,16 @@ async function makePdf(r){
   page.drawText(ansi('Registrado por '+r.respondente+(r.lote_controlpasto?'  ·  Lote '+r.lote_controlpasto:'')+(r.piquete?'  ·  Piquete '+r.piquete:'')),{x:M,y,size:10.5,font,color:grey}); y-=28;
   const d=r.datos||{}; const intens=esIntensivo(r.tipo_evento); const conf=r.tipo_evento==='entrada_confinamiento';
   if(!intens && (r.lote_controlpasto||r.piquete)){ title('Lote y piquete'); if(r.lote_controlpasto) kv('Lote (ControlPasto)',r.lote_controlpasto); if(r.piquete) kv('Piquete',r.piquete); y-=8; }
-  if(intens){ title('Origen de los animales'); kv('Animales',PROPIEDAD_LABEL[d.propiedad]||d.propiedad||'—'); if(d.propietario) kv('Propietario (boitel)',d.propietario); if(d.origen_tipo) kv('Vienen de',ORIGEN_LABEL[d.origen_tipo]||d.origen_tipo); if(d.origen_sistema) kv('Sistema de origen',SISTEMA_LABEL[d.origen_sistema]||d.origen_sistema); if(d.origen_lote) kv('Lote de origen',d.origen_lote); if(d.origen_piquete) kv('Piquete de origen',d.origen_piquete); y-=8; }
+  if(r.tipo_evento==='salida_faena'){ title('Salida a faena'); kv('Salen de','Confinamiento · baia '+(d.origen_piquete||'—')); if(d.origen_lote) kv('Lote Feed Manager',d.origen_lote); kv('Destino','Faena (frigorífico según la COTA)'); y-=8; }
+  else if(intens){ title('Origen de los animales'); kv('Animales',PROPIEDAD_LABEL[d.propiedad]||d.propiedad||'—'); if(d.propietario) kv('Propietario (boitel)',d.propietario); if(d.origen_tipo) kv('Vienen de',ORIGEN_LABEL[d.origen_tipo]||d.origen_tipo); if(d.origen_sistema) kv('Sistema de origen',SISTEMA_LABEL[d.origen_sistema]||d.origen_sistema); if(d.origen_lote) kv('Lote de origen',d.origen_lote); if(d.origen_piquete) kv('Piquete de origen',d.origen_piquete); y-=8; }
   if(recCamion(r)){
-    const fpRaw=(d.proveniencia==='externo'&&r.adjuntos&&r.adjuntos.fotos_camion)?r.adjuntos.fotos_camion:((r.adjuntos&&r.adjuntos.fotos_precinto)||(r.adjuntos&&r.adjuntos.foto_precinto?[r.adjuntos.foto_precinto]:[])); const fp=fpRaw.map(x=>Array.isArray(x)?x.filter(Boolean):(x?[x]:[]));
+    const sinPre=(d.proveniencia==='externo'||r.tipo_evento==='salida_faena'); const fpRaw=(sinPre&&r.adjuntos&&r.adjuntos.fotos_camion)?r.adjuntos.fotos_camion:((r.adjuntos&&r.adjuntos.fotos_precinto)||(r.adjuntos&&r.adjuntos.foto_precinto?[r.adjuntos.foto_precinto]:[])); const fp=fpRaw.map(x=>Array.isArray(x)?x.filter(Boolean):(x?[x]:[]));
     const cams=(d.camiones&&d.camiones.length)?d.camiones:[{nro:1,chapa:d.chapa_camion}];
     const salio=r.tipo_evento==='salida'; title(cams.length>1 ? (salio?'Camiones que salieron ('+cams.length+')':'Camiones que llegaron ('+cams.length+')') : (salio?'Camión que salió':'Camión que llegó'));
     let rightBottom=y, rightPage=pageNo; kvRight=0;
     for(let i=0;i<cams.length;i++){ const lbl=cams.length>1?'Camión '+(i+1):'Camión'; need(60); rightBottom=y; rightPage=pageNo; kvRight=0;
-      const fts=fp[i]||[]; const yTop=y, pTop=pageNo; kvRight=fts.length?RIGHT_W:0; kv(lbl+' · chapa',cams[i].chapa); kv('Precinto',((cams[i].nros_precinto||[]).length?'Nº '+cams[i].nros_precinto.join(', ')+' · ':'')+(fts.length?(fts.length===1?'foto a la derecha':fts.length+' fotos a la derecha'):'sin foto')); const yTxt=y;
-      if(fts.length && pageNo===pTop){ y=yTop; for(let k=0;k<fts.length;k++){ const rb=await fotoDerecha(fts[k],'PRECINTO'+(fts.length>1?' '+(k+1):'')+' · '+lbl.toUpperCase()); rightBottom=rb; rightPage=pageNo; y=rb-4; } if(pageNo===pTop && yTxt<y) y=yTxt; }
+      const fts=fp[i]||[]; const yTop=y, pTop=pageNo; kvRight=fts.length?RIGHT_W:0; kv(lbl+' · chapa',cams[i].chapa); kv(sinPre?'Fotos del camión':'Precinto',sinPre?(fts.length?(fts.length===1?'foto a la derecha':fts.length+' fotos a la derecha'):(r.tipo_evento==='salida_faena'?'no se pide precinto en la salida a faena':'sin foto')):((cams[i].nros_precinto||[]).length?'Nº '+cams[i].nros_precinto.join(', ')+' · ':'')+(fts.length?(fts.length===1?'foto a la derecha':fts.length+' fotos a la derecha'):'sin foto')); const yTxt=y;
+      if(fts.length && pageNo===pTop){ y=yTop; for(let k=0;k<fts.length;k++){ const rb=await fotoDerecha(fts[k],(sinPre?'CAMIÓN':'PRECINTO')+(fts.length>1?' '+(k+1):'')+' · '+lbl.toUpperCase()); rightBottom=rb; rightPage=pageNo; y=rb-4; } if(pageNo===pTop && yTxt<y) y=yTxt; }
       if(pageNo===rightPage && y>rightBottom) y=rightBottom; kvRight=0; if(cams.length>1) y-=4; }
     if(!intens && d.origen) kv('Origen',d.origen); if(!intens && d.destino) kv('Destino',d.destino); if(d.raza) kv('Raza',d.raza);
     const cts=(d.cotas&&d.cotas.length)?d.cotas:[{nro:1,cota_qr:d.cota_qr,cota_nro:d.cota_nro,cota:d.cota}];
@@ -3662,7 +3849,7 @@ async function makePdf(r){
   if(esPadroniza(r.tipo_evento)){ y-=8; title('Informe Padroniza · carcasa por animal'); kv('Frigorífico',d.frigorifico||'—'); kv('Fecha de faena',d.fecha_faena?fmtDate(d.fecha_faena):fmtDate(r.fecha_evento)); kv('Animales',String(d.cantidad_animales)+(d.cabezas_declaradas!=null?'  (el archivo dice '+d.cabezas_declaradas+' cbz)':'')); kv('Sin botón',String(d.cantidad_sin_boton||0)); kv('Botones corregidos',(d.cantidad_corregidos||0)+' completados al IDE de 15 dígitos'+(d.cantidad_dudosos?' · '+d.cantidad_dudosos+' que no se entienden (quedan como se escribieron)':'')); if(d.peso_promedio_kg!=null){ kv('Peso de carcasa',d.peso_promedio_kg+' kg promedio · '+d.peso_min_kg+' a '+d.peso_max_kg+' kg'); kv('Peso total',d.peso_total_kg+' kg'); } kv('Archivo',(d.archivo&&d.archivo.nombre)||'—'); tablaAnimales((d.animales||[]).filter(a=>a.ide), 'Botón (IDE) y peso de carcasa en kg'); }
   if(intens && r.tipo_evento!=='descarga_camion'){ y-=8; title('Destino de los animales'); kv(conf?'Lote Feed Manager':'Lote BovinOS',d.destino_lote||'—'); kv(conf?'Baia del confinamiento':'Baia / piquete RIP',d.destino_piquete||'—'); }
   if(r.tipo_evento==='mortalidad'){ // todo en una página: datos, mapas y las dos fotos lado a lado
-    title('Animal muerto'); kv('Nº de botón',d.nro_boton); kv('Causa de muerte',d.causa_probable||'no indicada'); kv('Lote (ControlPasto)',r.lote_controlpasto||'no indicado'); kv('Piquete / pastura',r.piquete||'no indicado'); kv('Ubicación',ubicTxt(d.ubicacion)); if(d.ubicacion) kv('Ver en el mapa','https://maps.google.com/?q='+d.ubicacion.lat+','+d.ubicacion.lon); if(r.observaciones) kv('Observaciones',r.observaciones);
+    title('Animal muerto'); kv('Nº de botón',d.nro_boton); kv('Causa de muerte',d.causa_probable||'no indicada'); kv('Lote (ControlPasto)',r.lote_controlpasto||'no indicado'); kv('Piquete / pastura',r.piquete||'no indicado'); kv('Ubicación',ubicTxt(d.ubicacion)); if(d.lugar_muerte) kv('Pasto / corral de la muerte',d.lugar_muerte); if(d.sexo||d.raza) kv('Animal',[d.sexo?sanSexo(d.sexo):'',d.raza?sanRaza(d.raza):''].filter(Boolean).join(' · ')); if(d.necropsia) kv('Necropsia',d.necropsia==='si'?'sí':'no'); if(d.ubicacion) kv('Ver en el mapa','https://maps.google.com/?q='+d.ubicacion.lat+','+d.ubicacion.lon); if(r.observaciones) kv('Observaciones',r.observaciones);
     if(d.ubicacion){ const satDu=r.adjuntos&&r.adjuntos.imagen_satelite; const mw=150, mh=mw*((-19.15+27.75)/((62.8-54.15)*Math.cos(23.5*Math.PI/180))); const sw=170; const alto=Math.max(mh,satDu?sw:0);
       y-=4; page.drawText(ansi('UBICACIÓN EN EL PARAGUAY'),{x:M,y,size:8,font:bold,color:grey}); if(satDu) page.drawText(ansi('IMAGEN SATELITAL · RADIO '+((r.adjuntos&&r.adjuntos.imagen_satelite_radio_km)||20)+' KM'),{x:M+mw+30,y,size:8,font:bold,color:grey}); y-=10;
       const top=y; const res=window.MapaPY.drawMap(page,{x:M,y:top-mh,width:mw,origen:{lat:d.ubicacion.lat,lon:d.ubicacion.lon},destino:null,rgb,font,bold,labels:['Lugar','']});
@@ -3762,7 +3949,7 @@ async function iaTrasFoto(key){
   if(key==='medic' && tipo==='medicamento' && segVal('seg-medic-modo')!=='masiva'){ if(!USR || !navigator.onLine) return;
     const r=await leerFotoIA('boton', fotos.medic); const ide=ideDesdeSiap(r); if(!ide) return; const k=ponerBrinco(ide, null); if(k!=null){ medIA[k]={estado:'ok', txt:iaLeyo('boton', txtSiap(r,ide))}; renderMedSimple(); } } }
 function ponerBrinco(ide, idx){ const ya=medBrincos.map(medBrincoNorm); if(ya.includes(ide)) return null; if(idx==null){ idx=medBrincos.findIndex(x=>!String(x||'').trim()); if(idx<0){ medBrincos.push(''); idx=medBrincos.length-1; } } medBrincos[idx]=ide; dirty=true; renderMedSimple(); return idx; }
-async function iaCamion(i, nuevas){ const c=camiones[i]; if(!c || !nuevas.length) return; const ext=esExterno(); const clase=ext?'chapa':'precinto'; const campo=ext?'chapa':'precinto';
+async function iaCamion(i, nuevas){ const c=camiones[i]; if(!c || !nuevas.length) return; const ext=sinPrecinto(); const clase=ext?'chapa':'precinto'; const campo=ext?'chapa':'precinto';
   if(!USR || !navigator.onLine){ c._ia={estado:'warn', txt:iaNoDisp(null,clase), campo}; renderCamiones(); return; }
   c._ia={estado:'leyendo', txt:iaLeyendo(clase), campo}; renderCamiones();
   const leidos=[]; let err=null; for(const du of nuevas){ const r=await leerFotoIA(clase, du); if(r&&r.error) err=r; if(r&&r.texto) leidos.push(r.texto); if(ext && leidos.length) break; }
@@ -3782,7 +3969,7 @@ async function iaGuia(i){ const c=cotas[i]; if(!c || !c.foto) return;
   renderCotas(); checkCotas(); refreshIds(); }
 function inputFotoIA(id){ let i=$(id); if(!i){ i=document.createElement('input'); i.type='file'; i.accept='image/*'; i.id=id; i.className='hidden'; i.setAttribute('capture','environment'); document.body.appendChild(i); } return i; }
 inputFotoIA('file-ia-chapa').addEventListener('change', async e=>{ const f=e.target.files[0]; e.target.value=''; const c=camiones[chapaIdx]; if(!f||!c) return; let du; try{ du=await compressImage(f,1280,0.72); }catch(err){ toast(err.message); return; }
-  if(esExterno()){ const arr=fotosCamion(c); if(arr.length<MAX_PRECINTO){ arr.push(du); c.fotos=arr; dirty=true; } } else { c.foto_chapa=du; dirty=true; } /* la foto de la chapa queda como foto del camión: no se pide otra */
+  if(sinPrecinto()){ const arr=fotosCamion(c); if(arr.length<MAX_PRECINTO){ arr.push(du); c.fotos=arr; dirty=true; } } else { c.foto_chapa=du; dirty=true; } /* la foto de la chapa queda como foto del camión: no se pide otra */
   if(!USR || !navigator.onLine){ c._ia={estado:'warn', txt:iaNoDisp(null,'chapa'), campo:'chapa'}; renderCamiones(); return; }
   c._ia={estado:'leyendo', txt:iaLeyendo('chapa'), campo:'chapa'}; renderCamiones(); const r=await leerFotoIA('chapa', du); if(camiones[chapaIdx]!==c) return;
   if(r&&r.texto){ c.chapa=r.texto; dirty=true; c._ia={estado:'ok', txt:iaLeyo('chapa', r.texto), campo:'chapa'}; } else c._ia={estado:'warn', txt:iaNoDisp(r,'chapa'), campo:'chapa'}; renderCamiones(); });
@@ -3903,7 +4090,14 @@ async function compartir(w, files){
 /* ---------- pantalla del registro guardado ---------- */
 let doneFiles=null, doneW=null;
 function estadoLabel(w){ if(w.registro&&esSolicitud(w.registro.tipo_evento)){ const st=solEstadoInfo(w); return [st.cls, 'Solicitud '+st.txt.toLowerCase()]; } if(w.estado==='borrador') return ['draft','Borrador']; if(w.estado==='enviado') return ['ok','Guardado en la base de datos']; if(w.publicar) return ['warn','Autorizado · en cola para publicar']; if(w.estado==='compartido') return ['warn','Compartido, sin guardar en la base']; return ['','Guardado en el teléfono, sin publicar']; }
-function renderDoneStatus(w){ const st=$('done-status'); st.innerHTML=''; const b=document.createElement('span'); const [cls,txt]=estadoLabel(w); b.className='badge '+cls; b.textContent=txt; st.appendChild(b);
+function renderOtro(w){ const b=$('btn-otro'), pub=$('btn-publish-db'); const r=w&&w.registro; const t=r&&r.tipo_evento;
+  if(!t || esSolicitud(t) || !OTRO_LABEL[t] || w.edicion){ b.classList.add('hidden'); pub.classList.add('primary'); return; }
+  const prin = w.estado==='enviado' || !!w.publicar; /* ya está en la base o se guarda solo: lo siguiente es informar otro */
+  b.innerHTML='<span>↩ Informar '+OTRO_LABEL[t]+'</span><span class="sub"></span>'; b.querySelector('.sub').textContent='Empieza uno nuevo en '+(r.estancia||'la misma estancia')+', sin volver al inicio';
+  b.classList.remove('hidden'); b.classList.toggle('primary', prin); b.classList.toggle('otro-sec', !prin); pub.classList.toggle('primary', !prin);
+  const head=$('done-head'); /* principal: arriba de todo, a la vista sin bajar; si falta la contraseña, debajo de "Guardar en Banco de Datos" */
+  if(prin){ if(b.nextElementSibling!==head) head.parentNode.insertBefore(b, head); } else if(pub.nextElementSibling!==b) pub.parentNode.insertBefore(b, pub.nextSibling); }
+function renderDoneStatus(w){ renderOtro(w); const st=$('done-status'); st.innerHTML=''; const b=document.createElement('span'); const [cls,txt]=estadoLabel(w); b.className='badge '+cls; b.textContent=txt; st.appendChild(b);
   const lg=$('done-log'); const h=w.historial||[]; if(h.length){ lg.classList.remove('hidden'); lg.innerHTML=''; h.slice(-8).forEach(e=>{ const div=document.createElement('div'); div.textContent=fmtDT(e.fecha)+' · v'+(e.version||1)+' · '+e.accion+(e.detalle?' — '+e.detalle:''); lg.appendChild(div); }); } else lg.classList.add('hidden'); }
 async function openDone(w){
   doneW=w; const r=w.registro; show('scr-done'); $('btn-edit-rec').textContent = w.edicion ? '✎ Seguir la edición sin terminar' : '✎ Editar registro';
@@ -3939,9 +4133,11 @@ async function renderHome(){
   all.forEach(w=>{ const b=document.createElement('button');
     if(w.tipo==='informe'){ b.className='item tipo-informe'; b.innerHTML='<div class="main"><b></b><span></span></div><span class="badge informe"></span>';
       if(w.clase==='mortandad'){ b.querySelector('b').textContent='✝️ Informe de mortandad · '+w.estancia; b.querySelector('span').textContent=(w.mes?MORT_MESES[Number(w.mes.slice(5))-1]+' '+w.mes.slice(0,4):'')+(w.cantidad!=null?' · '+w.cantidad+' muertes':'')+(w.con_ia?' · con conclusión de la IA':'')+' · pedido '+fmtDT(w.creado_en); }
+      else if(w.clase==='sanitario'){ b.querySelector('b').textContent='🩺 Informe sanitario · '+w.estancia; b.querySelector('span').textContent=fmtDate(w.desde)+' al '+fmtDate(w.hasta)+(w.cantidad!=null?' · '+w.cantidad+' muertes · '+(w.cantidad_med||0)+' medicaciones':'')+' · pedido '+fmtDT(w.creado_en); }
       else if(w.clase==='ia'){ b.querySelector('b').textContent=(w.modo==='pregunta'?'💬 Pregunta a la IA · ':'🤖 Informe de la IA · ')+w.estancia; b.querySelector('span').textContent=fmtDate(w.desde)+' al '+fmtDate(w.hasta)+(w.pregunta?' · «'+w.pregunta.slice(0,60)+(w.pregunta.length>60?'…':'')+'»':'')+' · '+(w.formato==='pdf'?'PDF':'texto'); }
       else if(w.clase==='guia'){ b.querySelector('b').textContent='🗺 Guía de la estancia · '+w.estancia; b.querySelector('span').textContent=(w.estado==='listo'?'armada '+fmtDT(w.generado_en)+(w.datos_hasta?' · ControlPasto hasta '+fmtDate(w.datos_hasta):''):'pedida '+fmtDT(w.creado_en))+(w.aviso?' · '+w.aviso:''); } else { b.querySelector('b').textContent='Informe de trazabilidad · '+w.estancia; b.querySelector('span').textContent=fmtDate(w.desde)+' al '+fmtDate(w.hasta)+(w.cantidad!=null?' · '+w.cantidad+' registros':'')+' · pedido '+fmtDT(w.creado_en); } const bd=b.querySelector('.badge'); if(w.estado==='listo'){ bd.textContent='Listo · toque para abrir'; bd.className='badge ok'; } else if(w.estado==='error'){ bd.textContent='Error'; bd.className='badge bad'; } else { bd.innerHTML='<span class="spin"></span>'+(navigator.onLine?'Generando…':'Esperando señal'); }
-      if(w.estado==='listo' && w.csv){ bd.textContent='Listo'; const acts=document.createElement('div'); acts.className='row'; acts.style.cssText='gap:6px;margin-top:6px;width:100%;flex-wrap:nowrap'; const bp=document.createElement('span'); bp.className='btn small'; bp.setAttribute('role','button'); bp.dataset.inf='pdf'; bp.textContent='📄 PDF'; const bc=document.createElement('span'); bc.className='btn small'; bc.setAttribute('role','button'); bc.dataset.inf='csv'; bc.textContent='📊 CSV de brincos'; acts.appendChild(bp); acts.appendChild(bc); b.querySelector('.main').appendChild(acts); bc.addEventListener('click',ev=>{ ev.stopPropagation(); descargarCsv(w); }); }
+      if(w.estado==='listo' && w.xlsx){ bd.textContent='Listo'; const acts=document.createElement('div'); acts.className='row'; acts.style.cssText='gap:6px;margin-top:6px;width:100%;flex-wrap:wrap'; const bp=document.createElement('span'); bp.className='btn small'; bp.setAttribute('role','button'); bp.dataset.inf='pdf'; bp.textContent='📄 PDF'; const bx=document.createElement('span'); bx.className='btn small'; bx.setAttribute('role','button'); bx.dataset.inf='xlsx'; bx.textContent='📊 Excel FOCO'; bx.title='Excel con las columnas de la planilla FOCO'; acts.appendChild(bp); acts.appendChild(bx); b.querySelector('.main').appendChild(acts); bx.addEventListener('click',ev=>{ ev.stopPropagation(); descargarXlsx(w); }); }
+      if(w.estado==='listo' && w.csv){ bd.textContent='Listo'; const acts=document.createElement('div'); acts.className='row'; acts.style.cssText='gap:6px;margin-top:6px;width:100%;flex-wrap:wrap'; const bp=document.createElement('span'); bp.className='btn small'; bp.setAttribute('role','button'); bp.dataset.inf='pdf'; bp.textContent='📄 PDF'; const bc=document.createElement('span'); bc.className='btn small'; bc.setAttribute('role','button'); bc.dataset.inf='csv'; bc.textContent='📊 CSV de brincos'; acts.appendChild(bp); acts.appendChild(bc); b.querySelector('.main').appendChild(acts); bc.addEventListener('click',ev=>{ ev.stopPropagation(); descargarCsv(w); }); }
       b.addEventListener('click',()=>abrirInforme(w)); list.appendChild(envolverSwipe(b, w)); return; }
     if(w.estado==='borrador'){ const s=w.borrador||{}; b.className='item'+(s.tipo?' tipo-'+s.tipo:''); const bdb=w.borrador_db||null; b.innerHTML='<div class="main"><b></b><span></span></div><span class="badge draft">'+(bdb&&bdb.enviado_en?'Borrador · en la base':bdb&&bdb.pendiente?'Borrador · por enviar':'Borrador')+'</span>'; b.querySelector('b').textContent=(s.tipo?TIPO_LABEL[s.tipo]:'Sin tipo')+(s.estancia?' · '+s.estancia:''); b.querySelector('span').textContent='guardado '+fmtDT(w.actualizado_en||w.creado_en)+(s.fecha?' · evento '+fmtDate(s.fecha):''); b.addEventListener('click',()=>openDraft(w)); list.appendChild(envolverSwipe(b, w)); return; }
     const r=w.registro; const d=r.datos||{}; b.className='item tipo-'+r.tipo_evento;
@@ -3993,6 +4189,23 @@ function pedirMortandad(){ return new Promise(res=>{ const m=$('mort-modal'); fi
   $('mort-estancia').onchange=()=>{ $('wrap-mort-otra').style.display=$('mort-estancia').value===OTRA?'flex':'none'; };
   $('mort-cancel').onclick=()=>done(null);
   $('mort-ok').onclick=()=>{ const est=$('mort-estancia').value===OTRA?$('mort-estancia-otra').value.trim():$('mort-estancia').value; const mes=$('mort-mes').value; const err=$('mort-err'); const e=[]; if(!est) e.push('Elija la estancia.'); if(!/^\d{4}-\d{2}$/.test(mes)) e.push('Indique el mes.'); if(e.length){ err.textContent=e.join(' '); err.classList.remove('hidden'); return; } done({estancia:est, mes}); }; }); }
+function pedirSanitario(){ return new Promise(res=>{ const m=$('sanit-modal'); fillSelect($('sanit-estancia'), opcionesEstancia(), '— Elegir estancia —'); $('sanit-estancia').value=estPorDefecto(); $('sanit-estancia-otra').value=''; $('wrap-sanit-otra').style.display='none';
+  const hoy=todayISO(); $('sanit-desde').value=hoy.slice(0,4)+'-01-01'; $('sanit-hasta').value=hoy; $('sanit-err').classList.add('hidden'); m.classList.remove('hidden');
+  const done=v=>{ m.classList.add('hidden'); $('sanit-ok').onclick=null; $('sanit-cancel').onclick=null; res(v); };
+  $('sanit-estancia').onchange=()=>{ $('wrap-sanit-otra').style.display=$('sanit-estancia').value===OTRA?'flex':'none'; };
+  $('sanit-cancel').onclick=()=>done(null);
+  $('sanit-ok').onclick=()=>{ const est=$('sanit-estancia').value===OTRA?$('sanit-estancia-otra').value.trim():$('sanit-estancia').value; const de=$('sanit-desde').value, ha=$('sanit-hasta').value; const e=[]; if(!est) e.push('Elija la estancia.'); if(!de||!ha) e.push('Indique el período.'); else if(ha<de) e.push('La fecha "hasta" es anterior a "desde".'); if(e.length){ $('sanit-err').textContent=e.join(' '); $('sanit-err').classList.remove('hidden'); return; } done({estancia:est, desde:de, hasta:ha}); }; }); }
+$('inf-op-sanit').addEventListener('click',async()=>{ cerrarInformes();
+  const p=await pedirSanitario(); if(!p) return;
+  const clave=await pedirClave(p.estancia, {titulo:'Informe sanitario'}); if(clave===null) return;
+  const w={ id:uuid(), tipo:'informe', clase:'sanitario', estado:navigator.onLine?'generando':'pendiente', estancia:p.estancia, desde:p.desde, hasta:p.hasta, clave, creado_en:new Date().toISOString(), actualizado_en:new Date().toISOString(), pdf:null, xlsx:null, nombre:'informe_sanitario_'+slug(p.estancia)+'_'+p.desde+'_'+p.hasta+'.pdf', nombre_xlsx:'FOCO_sanitario_'+slug(p.estancia)+'_'+p.desde+'_'+p.hasta+'.xlsx', cantidad:null, error:null };
+  await dbPut(w); renderHome(); toast(navigator.onLine?'Generando el informe sanitario…':'Sin señal: el informe se generará cuando vuelva la conexión.');
+  if(navigator.onLine) generarInforme(w.id); });
+async function generarSanitario(w){ let j; try{ j=await postServidor({tipo:'informe_sanitario', clave:w.clave, estancia:w.estancia, desde:w.desde, hasta:w.hasta}); }
+  catch(e){ const w2=await dbGet(w.id); if(!w2) return; const msg=String(e.message||e); if(/clave|contrase|permiso|código/i.test(msg)){ w2.estado='error'; w2.error='El servidor rechazó el pedido ('+msg+').'; } else if(e.servidor||/inválida|HTTP/i.test(msg)){ w2.estado='error'; w2.error=msg; } else { w2.estado='pendiente'; w2.error='Sin conexión con el servidor; se reintentará solo.'; } w2.actualizado_en=new Date().toISOString(); await dbPut(w2); renderHome(); return; }
+  const S=sanCalcular(j); const bytes=await makeSanitarioPdf(w, S, {logo:LOGO_PDF_B64, usuario:USR?USR.nombre:''}); const xb=sanXlsx(S);
+  const w2=await dbGet(w.id); if(!w2) return; w2.pdf=new Blob([bytes],{type:'application/pdf'}); w2.xlsx=new Blob([xb],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}); w2.cantidad=S.tot.muertes; w2.cantidad_med=S.tot.medicaciones; w2.estado='listo'; w2.generado_en=new Date().toISOString(); w2.actualizado_en=w2.generado_en; w2.clave=null; await dbPut(w2); renderHome(); toast('Informe sanitario listo: '+w.estancia+' ('+S.tot.muertes+' muertes · '+S.tot.medicaciones+' medicaciones)'); }
+async function descargarXlsx(w){ if(!w.xlsx){ toast('Este informe no tiene Excel.'); return; } try{ await saveFile(new File([w.xlsx], w.nombre_xlsx||'informe.xlsx', {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})); }catch(e){ toast('No se pudo guardar el Excel: '+(e.message||e)); } }
 $('inf-op-mort').addEventListener('click',async()=>{ cerrarInformes();
   const p=await pedirMortandad(); if(!p) return;
   const clave=await pedirClave(p.estancia, {titulo:'Informe de mortandad'}); if(clave===null) return;
@@ -4037,7 +4250,7 @@ async function generarInforme(id){
     let w=await dbGet(id); if(!w || w.tipo!=='informe') return;
     if(!navigator.onLine){ w.estado='pendiente'; w.actualizado_en=new Date().toISOString(); await dbPut(w); renderHome(); return; }
     w.estado='generando'; w.error=null; await dbPut(w); renderHome();
-    if(w.clase==='mortandad'){ await generarMortandad(w); return; } if(w.clase==='ia'){ await generarIA(w); return; }
+    if(w.clase==='mortandad'){ await generarMortandad(w); return; } if(w.clase==='sanitario'){ await generarSanitario(w); return; } if(w.clase==='ia'){ await generarIA(w); return; }
     let j;
     const esGuia=w.clase==='guia';
     try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify(esGuia?{tipo:'guia_estancia', estancia:w.estancia}:{tipo:'consulta', clave:w.clave, estancia:w.estancia, desde:w.desde, hasta:w.hasta, con_ids:true}), redirect:'follow'}); const txt=await res.text(); try{ j=JSON.parse(txt); }catch(e){ throw new Error('respuesta inválida del servidor'); } if(!res.ok || !j.ok) throw Object.assign(new Error(j.error||('HTTP '+res.status)),{servidor:true}); }
@@ -4096,7 +4309,7 @@ async function makeInformePdf(w, data){
   const idsUrl=o=>str(o.url_ids)||'';
   const cab=o=>{ const n=Number(o.cantidad_animales); return isNaN(n)||o.cantidad_animales===''?null:n; };
   const grupos={}; regs.forEach(o=>{ (grupos[o.tipo_evento]=grupos[o.tipo_evento]||[]).push(o); });
-  const orden=['entrada','salida','entrada_rip','descarga_camion','entrada_confinamiento','pesaje','pesaje_simple','medicamento','mortalidad','nacimiento','perdida_boton'];
+  const orden=['entrada','salida','salida_faena','entrada_rip','descarga_camion','entrada_confinamiento','pesaje','pesaje_simple','medicamento','mortalidad','nacimiento','perdida_boton'];
   const tipos=orden.filter(t=>grupos[t]).concat(Object.keys(grupos).filter(t=>!orden.includes(t)));
   header();
   page.drawText(ansi('ESTANCIA '+w.estancia.toUpperCase()),{x:M,y,size:20,font:bold,color:verde}); y-=16; page.drawText(ansi('Rural Bioenergía S.A.  ·  Informe de trazabilidad  ·  del '+fmtDate(w.desde)+' al '+fmtDate(w.hasta)),{x:M,y,size:10,font:ital,color:grey}); y-=14;
@@ -4108,7 +4321,7 @@ async function makeInformePdf(w, data){
   if(!regs.length) nota('No hay registros publicados de esta estancia en el período elegido.');
   if((data.borradores||[]).length){ const nb=data.borradores.length; nota('Además hay '+nb+(nb===1?' borrador':' borradores')+' en la base de datos (registros mandados sin terminar: '+data.borradores.map(b=>(TIPO_LABEL[b.tipo_evento]||b.tipo_evento)+' del '+fmtDate(String(b.fecha_evento).slice(0,10))).join(', ')+'), que no entran en este informe hasta que se completen.'); }
   for(const t of tipos){ const g=grupos[t]; let cols, filas;
-    if(t==='entrada'||t==='salida'){ cols=[{k:'fecha',t:'Fecha',w:11},{k:'hora',t:'Hora',w:8},{k:'inf',t:'Informante',w:20},{k:'lote',t:'Lote · piquete',w:18},{k:'chapa',t:'Chapa(s)',w:16},{k:'guia',t:'Guía(s)',w:16},{k:'cota',t:'COTA(s)',w:22},{k:'est',t:t==='entrada'?'Origen (est.)':'Destino (est.)',w:18},{k:'cab',t:'Cab.',w:8,align:'r'},{k:'arch',t:'En archivo',w:10,align:'r'},{k:'peso',t:'Peso prom.',w:11,align:'r'}];
+    if(t==='entrada'||t==='salida'||t==='salida_faena'){ cols=[{k:'fecha',t:'Fecha',w:11},{k:'hora',t:'Hora',w:8},{k:'inf',t:'Informante',w:20},{k:'lote',t:'Lote · piquete',w:18},{k:'chapa',t:'Chapa(s)',w:16},{k:'guia',t:'Guía(s)',w:16},{k:'cota',t:'COTA(s)',w:22},{k:'est',t:t==='entrada'?'Origen (est.)':'Destino (est.)',w:18},{k:'cab',t:'Cab.',w:8,align:'r'},{k:'arch',t:'En archivo',w:10,align:'r'},{k:'peso',t:'Peso prom.',w:11,align:'r'}];
       filas=g.map(o=>({fecha:fmtDate(str(o.fecha_evento).slice(0,10)), hora:hora(o), inf:str(o.respondente), lote:lotePiq(o), chapa:chapas(o), guia:guias(o), cota:cotasN(o), est:t==='entrada'?estOrigen(o):estDestino(o), cab:fmtNum(cab(o)), arch:fmtNum(o.cantidad_ids), peso:fmtNum(o.peso_promedio_kg), _fotos:fotosUrl(o), _ids:idsUrl(o)})); }
     else if(t==='entrada_rip'||t==='descarga_camion'||t==='entrada_confinamiento'){ cols=[{k:'fecha',t:'Fecha',w:11},{k:'hora',t:'Hora',w:8},{k:'inf',t:'Informante',w:18},{k:'ori',t:'Origen',w:28},{k:'dest',t:'Destino (lote · piquete)',w:20},{k:'chapa',t:'Chapa(s)',w:14},{k:'cota',t:'COTA(s)',w:20},{k:'cab',t:'Cab.',w:8,align:'r'},{k:'arch',t:'En archivo',w:10,align:'r'},{k:'peso',t:'Peso prom.',w:11,align:'r'}];
       filas=g.map(o=>({fecha:fmtDate(str(o.fecha_evento).slice(0,10)), hora:hora(o), inf:str(o.respondente), ori:str(o.origen), dest:[str(o.destino_lote),str(o.destino_piquete)].filter(Boolean).join(' · '), chapa:chapas(o), cota:cotasN(o), cab:fmtNum(cab(o)), arch:fmtNum(o.cantidad_ids), peso:fmtNum(o.peso_promedio_kg), _fotos:fotosUrl(o), _ids:idsUrl(o)})); }
@@ -4258,6 +4471,9 @@ async function ejecutarRecuperacion(){ const plan=nubePlan||[]; if(!plan.length|
 
 /* ---------- navegación del formulario ---------- */
 $('btn-new').addEventListener('click',()=>{ resetForm(); show('scr-form'); });
+$('btn-otro').addEventListener('click',()=>{ const w=doneW; if(!w||!w.registro) return; const r=w.registro; resetForm(); show('scr-form'); setEstancia(r.estancia); updateTilesInt(); setTipo(r.tipo_evento);
+  if(r.tipo_evento==='medicamento' && r.datos && r.datos.modo) setSeg($('seg-medic-modo'), r.datos.modo);
+  $('ab-next').click(); });
 $('btn-solicitud').addEventListener('click',()=>{ resetForm(); setTipo('solicitud_transferencia'); modoSolicitud(true); show('scr-form'); });
 function modoSolicitud(on){ document.body.classList.toggle('modo-solicitud', !!on); $('lbl-estancia').textContent = on ? 'Estancia de origen' : 'Estancia'; $('hdr-title').textContent = on ? 'Solicitud de transferencia' : 'Registro de manejo'; }
 $('btn-config').addEventListener('click',async()=>{ if($('scr-home').classList.contains('active')) { openConfig(); return; } const enForm=formActivo(); if(enForm && dirty && !autoOff){ await enCola(()=>saveDraft(true)).catch(()=>{}); } if(enForm) await prepararBorradorBD(true).catch(()=>{}); renderHome(); show('scr-home'); if(enForm) sincronizar(); });

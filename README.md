@@ -1,9 +1,35 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.4
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.6.1
 
-App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, informe Padroniza y escore de heces.
+App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, salida a faena, informe Padroniza y escore de heces.
 
 Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.6.1
+
+- **↩ Informar otra … después de guardar.** En la pantalla del registro guardado aparece arriba de todo, a la vista sin bajar, el botón **"↩ Informar otra aplicación de medicamento"** ("otra entrada pasto", "otra mortalidad", "otro nacimiento", etc., según el tipo). Lleva directo al paso 2 de un registro nuevo del **mismo tipo y la misma estancia**, con la fecha de hoy, sin volver al inicio ni elegir de nuevo; en medicamento mantiene la carga simple o masiva. Es el botón principal cuando el registro ya está en la base o en cola para subir solo (también sin señal); si el registro todavía necesita la contraseña de la estancia, "Guardar en Banco de Datos" sigue siendo el principal y el botón va justo debajo. No aparece en la solicitud de transferencia ni al editar.
+- **Aplicación de medicamento:** los botones **"➕ Agregar otro brinco"** y **"➕ Agregar otro medicamento"** son más grandes, de ancho completo y con fondo verde, con una línea de ayuda ("otro animal tratado igual" / "a los mismos animales, con su dosis").
+
+## Novedades 4.6
+
+- **🩺 Informe sanitario (morbilidad y mortalidad), en la pestaña Informes.** Reproduce los informes que hoy se arman en la planilla FOCO ("Controle de ronda sanitária" y "Controle de mortes"), por estancia y período, a partir de los registros de mortalidad y de aplicación de medicamento publicados en la base:
+  - **PDF:** cuadros de resumen (muertes, % de mortalidad, medicaciones, animales medicados, % de morbilidad); **mortalidad mensual** con gráfico y la meta de 0,1 % por mes; **morbilidad mensual**; causas de muerte, de morbilidad (síntomas) y de medicación; medicamentos usados (aplicaciones, animales y dosis total); corrales con más casos; y al final, apaisadas, las planillas **Controle de mortes** y **Controle de ronda sanitária** con las mismas columnas que FOCO.
+  - **Excel (formato FOCO):** hojas `BD Mortes` y `BD Medicações` con las columnas exactas de FOCO (más el IDE completo), para pegar en la planilla de siempre, y hojas de resumen `Mortalidade`, `Morbidade`, `Causas` y `Medicamentos`.
+  - **Cómo se calcula (igual que FOCO):** % de mortalidad del mes = muertes ÷ rodeo medio del mes (promedio del stock del 1º del mes y del 1º del mes siguiente, del ControlPasto); medicaciones = eventos distintos (fecha, animal, síntoma); animal medicado (caso nuevo) = primera vez que el animal se trata en el año, contado en el mes de ese primer tratamiento; % de morbilidad = casos nuevos ÷ rodeo acumulado expuesto (entradas del mes + stock inicial del año × días del mes ÷ 365). El rodeo sale del ControlPasto; si no está disponible, el informe sale igual, sin las columnas de %, y lo avisa.
+  - La tabla mensual de mortalidad muestra al lado las muertes que registró el **ControlPasto** en el mismo mes (en ámbar cuando no coinciden con el app), para controlar que las dos fuentes digan lo mismo.
+- **Datos del animal (opcional) en mortalidad y en medicamento simple:** sexo (macho/hembra), raza (Nelore, Híbrido, Cebú, otra) y, en mortalidad, si se hizo **necropsia**. Nada es obligatorio: si no se cargan, el informe los toma de la hoja `animales` (lo que se sabe del animal por su entrada). El corral es el piquete de "➕ Lote y piquete" y el lugar de la muerte es el pasto donde cayó la ubicación GPS.
+- **Planilla de aplicación masiva:** acepta columnas opcionales `Sexo`, `Raza` y `Corral` (y `Síntoma` como sinónimo de enfermedad), así se puede pegar directamente la ronda sanitaria. La planilla modelo ya las trae.
+- **Servidor (.gs):** nuevo pedido `informe_sanitario`; columnas nuevas `sexo`, `necropsia`, `lugar_muerte` en `registros` y `sexo`, `raza` en `medicamentos` (se agregan solas al final). Publicar en la **misma implementación** (Administrar implementaciones › ✏️ › Nueva versión): sin eso, el botón del informe sanitario responde que el servidor no conoce el pedido.
+
+## Novedades 4.5
+
+- **Salida a faena (solo Ypoti, tile 🏭 en "Intensivo").** Para el camión que sale del confinamiento al frigorífico:
+  - **Camión:** solo la **chapa** (escrita o con 🤖 Leer con foto; esa foto queda como foto del camión). **No se pide la foto ni el número del precinto.** Varios camiones en el mismo registro, como en la salida.
+  - **COTA:** el QR de la guía, como en la salida (si no se lee, foto de la guía o Nº de guía).
+  - **Animales:** cantidad contada y archivos (solo báscula, o bastón + báscula), con las mismas inconformidades de siempre.
+  - **¿De qué baia salen?** La **baia del confinamiento es obligatoria** (el lote Feed Manager es opcional). Se escribe como en el cartel ("c5" queda C-05) o se toca en el **🗺 mapa del confinamiento**. El mismo botón de mapa aparece ahora también en la entrada confinamiento.
+  - En la base: `tipo_evento = salida_faena`, grupo intensivo, `piquete` = baia, `origen` "Confinamiento · baia …" y `destino` "Faena"; los animales quedan con estado **"a faena"** en la hoja `animales` (pasan a "faenado" cuando llega el informe Padroniza). El PDF y el correo dicen de qué baia salieron.
+- **Servidor (.gs):** reconoce `salida_faena` (intensivo, etiqueta, estado de los animales). Publicar en la **misma implementación** (Administrar implementaciones › ✏️ › Nueva versión).
 
 ## Novedades 4.4
 
