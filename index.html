@@ -977,6 +977,7 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
             <span style="font-weight:600;font-size:15px;color:var(--ink-2)" class="req">Ubicación de lo ocurrido</span>
             <div class="row"><button class="btn" type="button" id="btn-ubic-gps">📍 Ubicación del teléfono</button><button class="btn" type="button" id="btn-ubic-mapa">🗺 Elegir en el mapa</button></div>
             <div class="status-line"><span class="badge" id="ubic-badge">Sin ubicación</span></div>
+            <div class="msg hidden" id="ubic-aviso"></div>
             <span class="hint" id="ubic-hint">Junto al animal: use la ubicación del teléfono. Si no, elija el punto en el mapa.</span>
           </div>
         </div>
@@ -1955,7 +1956,8 @@ async function makeMortandadPdf(w, data, extra){
   if(registraron.length) kv('Registraron', registraron.join(', '), 130);
   parrafo('Fuente: registros de mortandad cargados en el app Registro de manejo (fotos del botón y del animal, causa elegida por quien registró, ubicación del teléfono o punto en el mapa). Los brincos se guardan normalizados al IDE de 15 dígitos.', 7.6, ital, grey);
   // ---- mapa con puntos ----
-  const pols=(extra.pols||[]).filter(p=>p.g&&p.g.length); const conUbic=delMes.filter(o=>o.ubic_lat!==''&&o.ubic_lat!=null&&o.ubic_lon!==''&&o.ubic_lon!=null&&!isNaN(Number(o.ubic_lat))&&!isNaN(Number(o.ubic_lon)));
+  const pols=(extra.pols||[]).filter(p=>p.g&&p.g.length); const tieneUbic=o=>o.ubic_lat!==''&&o.ubic_lat!=null&&o.ubic_lon!==''&&o.ubic_lon!=null&&!isNaN(Number(o.ubic_lat))&&!isNaN(Number(o.ubic_lon)); const lejos=o=>!!(o._ubic&&(o._ubic.estado==='lejos'||o._ubic.estado==='otra'));
+  /* v4.6.4: los puntos lejos de la estancia (en otra estancia o fuera de todas) no se dibujan: deformaban el mapa */ const conUbic=delMes.filter(o=>tieneUbic(o)&&!lejos(o)); const fueraMapa=delMes.filter(o=>tieneUbic(o)&&lejos(o)); const sinUbic=delMes.filter(o=>!tieneUbic(o));
   if(pols.length || conUbic.length){
     titulo('Mapa de la estancia · dónde murió cada animal (un color por causa)');
     const pts=[]; pols.forEach(p=>p.g.forEach(an=>an.forEach(c=>pts.push(c)))); conUbic.forEach(o=>pts.push([Number(o.ubic_lon),Number(o.ubic_lat)]));
@@ -1972,8 +1974,8 @@ async function makeMortandadPdf(w, data, extra){
     let lx=M; const lh=10; need(lh*Math.ceil(causasOrd.length/3)+10); let row=0;
     causasOrd.forEach((c,i)=>{ const t=c+' ('+causas[c]+')'; const wdt=tw(t,7.6)+18; if(lx+wdt>M+CW){ lx=M; row++; } const yy=y-row*lh; page.drawCircle({x:lx+4,y:yy-3.6,size:3.6,color:hex(colorDe[c])}); txt(t,lx+11,yy-6.4,7.6,font,ink); lx+=wdt+6; });
     y-=(row+1)*lh+2;
-    if(conUbic.length<delMes.length) parrafo((delMes.length-conUbic.length)+' de las '+delMes.length+' muertes no tienen ubicación registrada y no aparecen en el mapa. El número junto a cada punto es el de la ocurrencia en la lista.', 7.6, ital, grey);
-    else parrafo('El número junto a cada punto es el de la ocurrencia en la lista.', 7.6, ital, grey);
+    const nros=l=>l.map(o=>'nº '+(delMes.indexOf(o)+1)).join(', ');
+    parrafo('El número junto a cada punto es el de la ocurrencia en la lista.'+(sinUbic.length?' '+sinUbic.length+(sinUbic.length===1?' muerte no tiene':' muertes no tienen')+' ubicación registrada ('+nros(sinUbic)+').':'')+(fueraMapa.length?' '+fueraMapa.length+(fueraMapa.length===1?' muerte tiene':' muertes tienen')+' la ubicación lejos de la estancia y no se dibuja'+(fueraMapa.length===1?'':'n')+' en el mapa para no deformarlo ('+nros(fueraMapa)+'; ver la lista).':''), 7.6, ital, grey);
   }
   // ---- ocurrencias ----
   titulo('Ocurrencias del mes ('+delMes.length+')', 110);
@@ -1984,7 +1986,7 @@ async function makeMortandadPdf(w, data, extra){
       if(!f) motivo='no se cargó'; else if(!f.b64) motivo=f.omitida||'no llegó del servidor'; else { im=await embed(f.b64); if(!im) motivo='no se pudo leer'; }
       slots.push({tp, im, motivo, hay:!!f}); }
     const imgs=slots.map(s=>s.im);
-    const lineas=[['Fecha',fmtDate(ft(o.fecha_evento))],['IDE',String(o.nro_boton||'-')],['Brinco',mortSiap(o.nro_boton)||'-'],['Causa de muerte',mortCausaNorm(o.causa_probable)],['Potrero',String(o.piquete||'-')+(o.lote_controlpasto?' · lote '+o.lote_controlpasto:'')],['Ubicación',(o.ubic_lat!==''&&o.ubic_lat!=null)?Number(o.ubic_lat).toFixed(5)+', '+Number(o.ubic_lon).toFixed(5)+(o.ubic_fuente?' ('+o.ubic_fuente+')':''):'sin ubicación'],['Registró',String(o.respondente||'-')]];
+    const lineas=[['Fecha',fmtDate(ft(o.fecha_evento))],['IDE',String(o.nro_boton||'-')],['Brinco',mortSiap(o.nro_boton)||'-'],['Causa de muerte',mortCausaNorm(o.causa_probable)],['Potrero',String(o.piquete||'-')+(o.lote_controlpasto?' · lote '+o.lote_controlpasto:'')],['Ubicación',(o.ubic_lat!==''&&o.ubic_lat!=null)?Number(o.ubic_lat).toFixed(5)+', '+Number(o.ubic_lon).toFixed(5)+(o.ubic_fuente?' ('+o.ubic_fuente+')':'')+(lejos(o)?' · ATENCIÓN: a '+(o._ubic.km>=10?Math.round(o._ubic.km):o._ubic.km.toFixed(1)).toString().replace('.',',')+' km de la estancia'+(o._ubic.estado==='otra'?', dentro de '+o._ubic.otra:'')+' (no va en el mapa)':''):'sin ubicación'],['Registró',String(o.respondente||'-')]];
     if(o.observaciones) lineas.push(['Obs.',String(o.observaciones)]); if(o.items_faltantes) lineas.push(['Faltantes',String(o.items_faltantes).replace(/\n/g,' ')]);
     const ls=lineas.map(([k,v])=>[k,wrap(v,8.8,font,LEFT_W-78)]); const hTxt=ls.reduce((s,[k,l])=>s+l.length*11+2,0)+14;
     const imW=(RIGHT_W-6)/2; const dims=imgs.map(im=>{ if(!im) return {w:imW, h:Math.min(120, imW*4/3)}; const sc=Math.min(imW/im.width, 120/im.height); return {w:im.width*sc, h:im.height*sc}; }); const hImg=Math.max(...dims.map(d=>d.h))+6;
@@ -2363,7 +2365,7 @@ async function makeSanitarioPdf(w, S, extra){ extra=extra||{};
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '4.6.3';
+const APP_VERSION = '4.6.5';
 const ESQUEMA = 'manejo-ypoti/3.7';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
@@ -2829,6 +2831,9 @@ function separarErrores(e){ if(esSolicitud(tipo)) return {bloq:e.slice(), falt:[
 function faltantesForm(){ if(!tipo || esSolicitud(tipo)) return []; try{ return separarErrores(validate2()).falt; }catch(e){ return []; } }
 function calcInconformidades(){
   const out=[]; faltantesForm().forEach(msg=>out.push({ id:'falta:'+msg, tipo:'faltante', titulo:msg.replace(/\.$/,''), detalle:'Dato obligatorio sin completar. Vuelva y complételo, o explique acá por qué no se pudo.' }));
+  if(tipo==='mortalidad' && ubicacion){ let c=null; try{ c=chequearUbic(estanciaValue(), ubicacion.lat, ubicacion.lon); }catch(e){ c=null; }
+    if(c && (c.estado==='otra'||c.estado==='lejos')) out.push({ id:'ubic_lejos', volver_a:'btn-ubic-mapa', titulo:'la ubicación de la muerte está a '+fmtKm(c.km)+' de '+estanciaValue()+(c.estado==='otra'?', dentro de '+c.otra:', fuera de toda estancia'),
+      detalle:'Punto: '+ubicTxt(ubicacion)+'. '+(c.estado==='otra'?'Si la muerte es de '+c.otra+', vuelva y cambie la estancia. ':'')+'Si el punto está bien así (por ejemplo, el animal murió en un traslado), explique por qué. En el mapa del informe de mortandad este punto no se dibuja, para no deformarlo.' }); }
   if(!usaBalanza(tipo) || tipo==='pesaje_simple') return out;
   const lista=unionAnimales(); const n=lista.length; const q=parseInt($('f-cantidad').value,10); const ref=(esMovimiento()&&baston)?'el bastón':'el archivo'; const refN=(esMovimiento()&&baston)?'identificaciones leídas con el bastón':'animales en el archivo de la báscula';
   if(formUsaCamion()){ const rc=resumenCotas(); if(rc.total!==null && n>0 && rc.total!==n) out.push({ id:'guia_vs_lista', titulo:(rc.cantidad>1?'Las guías declaran ':'La guía declara ')+rc.total+' animales y '+ref+' tiene '+n, detalle:(rc.cantidad>1?'Suma de las '+rc.cantidad+' guías (COTAs): ':'Guía (COTA): ')+rc.total+' animales · '+refN+': '+n+' · diferencia: '+(n-rc.total>0?'+':'')+(n-rc.total)+'.' }); }
@@ -2839,7 +2844,7 @@ function calcInconformidades(){
 function renderInconformidades(){
   const list=$('inc-list'); list.innerHTML=''; const incs=calcInconformidades(); $('err3').classList.add('hidden');
   if(!incs.length){ const d=document.createElement('div'); d.className='msg ok'; d.textContent='No hay inconformidades: puede continuar.'; list.appendChild(d); return; }
-  const volver=()=>{ step=2; renderStep(); setTimeout(()=>{ const g=$('grp-animales'); if(g) g.scrollIntoView({block:'start'}); },60); };
+  const volver=(dest)=>{ step=2; renderStep(); setTimeout(()=>{ const g=$(typeof dest==='string'&&dest?dest:'grp-animales'); if(g) g.scrollIntoView({block:'center'}); },60); };
   incs.forEach(x=>{ const card=document.createElement('div'); card.className='card stack'; card.dataset.inc=x.id;
     if(x.tipo==='faltante'){
       card.classList.add('inc-falta'); card.innerHTML='<div class="inc-title"></div><div class="hint"></div><div class="row"><button class="btn" type="button" data-volver>‹ Volver y completar</button></div><label class="f"><span class="req">¿Por qué no se pudo completar?</span><textarea data-just style="min-height:64px;font-family:var(--font-body);font-size:16px" placeholder="Ej.: el archivo de la báscula se carga mañana"></textarea></label>';
@@ -2847,8 +2852,8 @@ function renderInconformidades(){
       const ta=card.querySelector('[data-just]'); ta.value=inc.just[x.id]||''; ta.addEventListener('input',e=>{ inc.just[x.id]=e.target.value; dirty=true; });
     } else if(x.id!=='sin_peso'){
       card.innerHTML='<div class="inc-title"></div><div class="hint"></div><div class="row"><button class="btn" type="button" data-volver>‹ Volver y corregir</button></div><label class="f"><span class="req">Justificación (si los datos están bien así)</span><textarea data-just style="min-height:70px;font-family:var(--font-body);font-size:16px" placeholder="Explique por qué no coinciden"></textarea></label>';
-      card.querySelector('.inc-title').textContent='⚠ '+x.titulo; card.querySelector('.hint').textContent=x.detalle; card.querySelector('[data-volver]').addEventListener('click',volver);
-      const ta=card.querySelector('[data-just]'); ta.value=inc.just[x.id]||''; ta.addEventListener('input',e=>{ inc.just[x.id]=e.target.value; dirty=true; });
+      card.querySelector('.inc-title').textContent='⚠ '+x.titulo.charAt(0).toUpperCase()+x.titulo.slice(1); card.querySelector('.hint').textContent=x.detalle; card.querySelector('[data-volver]').addEventListener('click',()=>volver(x.volver_a));
+      const ta=card.querySelector('[data-just]'); if(x.id==='ubic_lejos'){ ta.placeholder='Explique por qué el punto quedó ahí (ej.: murió en el traslado, el GPS falló)'; card.querySelector('[data-volver]').textContent='‹ Volver y corregir el punto'; } ta.value=inc.just[x.id]||''; ta.addEventListener('input',e=>{ inc.just[x.id]=e.target.value; dirty=true; });
     } else {
       const rest=x.ides.filter(i=>!(inc.hist[i]&&inc.hist[i].peso_kg!=null)); const prom=promedioBascula(); const nPes=unionAnimales().filter(a=>a.peso_kg!==null).length;
       card.innerHTML='<div class="inc-title"></div><div class="hint">El peso de cada animal se toma siempre de la báscula; si no lo hay, del último peso en la base de datos (hasta 60 días antes, el más reciente); y si tampoco hay, de lo que elija acá.</div><div class="mono" style="font-size:13px;white-space:pre-wrap" data-ides></div>'
@@ -3201,7 +3206,7 @@ function buildRecord(){
     r.control={ cantidad_aplicaciones:apl.length, cantidad_animales:brincos.length, fuera_de_lista:r.datos.fuera_de_lista };
     r.adjuntos={ foto_medicamento:mm==='simple'?(fotos.medic||null):null }; }
   if(tipo==='mortalidad'||tipo==='medicamento'){ const masiva=tipo==='medicamento'&&segVal('seg-medic-modo')==='masiva'; const ax={ sexo:masiva?null:(segVal('seg-ax-sexo')||null), raza:masiva?null:(segVal('seg-ax-raza')||null) }; /* datos opcionales del animal (informe sanitario) */
-    if(tipo==='mortalidad'){ ax.necropsia=segVal('seg-ax-necropsia')||null; let lug=null; try{ if(ubicacion){ const pp=pastoEn(r.estancia, ubicacion.lat, ubicacion.lon); if(pp&&pp.nm) lug=pp.nm; } }catch(e){} ax.lugar_muerte=lug; }
+    if(tipo==='mortalidad'){ try{ if(ubicacion){ const c=chequearUbic(r.estancia, ubicacion.lat, ubicacion.lon); if(c) r.datos.ubic_chequeo={estado:c.estado, km:Math.round(c.km*10)/10, otra_estancia:c.otra||null}; } const incU=calcInconformidades().filter(x=>x.id==='ubic_lejos'); if(incU.length) r.datos.inconformidades=incU.map(x=>({ tipo:x.id, titulo:x.titulo.charAt(0).toUpperCase()+x.titulo.slice(1), detalle:x.detalle||null, justificacion:(inc.just[x.id]||'').trim()||null, resolucion:'justificado' })); }catch(e){} ax.necropsia=segVal('seg-ax-necropsia')||null; let lug=null; try{ if(ubicacion){ const pp=pastoEn(r.estancia, ubicacion.lat, ubicacion.lon); if(pp&&pp.nm) lug=pp.nm; } }catch(e){} ax.lugar_muerte=lug; }
     Object.assign(r.datos, ax); if(tipo==='medicamento') (r.datos.aplicaciones||[]).forEach(p=>{ if(!p.sexo&&ax.sexo) p.sexo=ax.sexo; if(!p.raza&&ax.raza) p.raza=ax.raza; }); }
   return r;
 }
@@ -3556,7 +3561,14 @@ $('file-faltantes').addEventListener('change', async e=>{ const files=Array.from
 ['f-falt-lugar','f-falt-motivo','f-falt-capataz','f-falt-auditor','f-falt-conforme','f-falt-cantidad','f-falt-peso-medio','f-falt-ids'].forEach(id=>$(id).addEventListener('input',()=>{ dirty=true; }));
 
 /* ---------- ubicación de lo ocurrido (mortalidad): GPS o punto en el mapa ---------- */
-function renderUbic(){ const b=$('ubic-badge'); b.className='badge'; if(!ubicacion){ b.textContent='Sin ubicación'; return; } b.classList.add('ok'); b.textContent=ubicTxt(ubicacion); }
+function renderUbic(){ const b=$('ubic-badge'); b.className='badge'; const av=$('ubic-aviso'); if(av){ av.className='msg hidden'; av.innerHTML=''; } if(!ubicacion){ b.textContent='Sin ubicación'; return; } b.classList.add('ok'); b.textContent=ubicTxt(ubicacion);
+  if(tipo!=='mortalidad' || !av) return; let c=null; try{ c=chequearUbic(estanciaValue(), ubicacion.lat, ubicacion.lon); }catch(e){ c=null; } if(!c || c.estado==='dentro') return;
+  if(c.estado==='cerca'){ av.className='msg'; av.textContent='El punto está fuera del mapa de '+estanciaValue()+', a '+fmtKm(c.km)+' del límite. Si el animal murió ahí, está bien.'; return; }
+  if(c.estado==='otra'){ b.className='badge warn'; av.className='msg warn'; const p=document.createElement('div'); p.textContent='⚠ El punto cae dentro de '+c.otra+', a '+fmtKm(c.km)+' de '+estanciaValue()+'. ¿La muerte es de '+c.otra+'?'; av.appendChild(p);
+    if(opcionesEstancia().includes(c.otra)){ const bt=document.createElement('button'); bt.type='button'; bt.className='btn'; bt.id='btn-ubic-cambiar'; bt.style.marginTop='8px'; bt.textContent='Cambiar la estancia a '+c.otra; bt.addEventListener('click',()=>{ setEstancia(c.otra); updateTilesInt(); ['f-lote','f-piquete'].forEach(id=>$(id).value=''); try{ const pp=pastoEn(c.otra, ubicacion.lat, ubicacion.lon); ubicacion.pasto=pp&&pp.nm?pp.nm:null; }catch(e){} dirty=true; renderUbic(); toast('Estancia cambiada a '+c.otra+'. Revise el lote y el piquete.'); }); av.appendChild(bt); }
+    else { const q=document.createElement('div'); q.className='hint'; q.textContent='Usted no tiene permiso para '+c.otra+': si es de allá, avise a quien registra en esa estancia.'; av.appendChild(q); }
+    const n=document.createElement('div'); n.className='hint'; n.style.marginTop='6px'; n.textContent='Si es de '+estanciaValue()+' igual, al continuar le pedimos que explique por qué el punto quedó allá.'; av.appendChild(n); return; }
+  b.className='badge warn'; av.className='msg warn'; av.textContent='⚠ El punto está a '+fmtKm(c.km)+' de '+estanciaValue()+' y no cae en ninguna estancia. Revise la ubicación en el mapa. Si está bien así, al continuar le pedimos que explique por qué.'; }
 function setUbic(u){ ubicacion=u; renderUbic(); dirty=true; }
 function gpsActual(){ return new Promise((res,rej)=>{ if(MAPA.watch!=null && MAPA.gps && MAPA.gps.t && Date.now()-MAPA.gps.t<20000) return res(Object.assign({},MAPA.gps)); if(!navigator.geolocation) return rej(new Error('Este teléfono no permite usar la ubicación aquí.')); navigator.geolocation.getCurrentPosition(p=>res({lat:+p.coords.latitude.toFixed(6), lon:+p.coords.longitude.toFixed(6), precision_m:Math.round(p.coords.accuracy)}), e=>rej(new Error(e.code===1?'Permiso de ubicación denegado.':e.code===2?'Sin señal de GPS.':'La ubicación tardó demasiado.')), {enableHighAccuracy:true, timeout:15000, maximumAge:5000}); }); }
 $('btn-ubic-gps').addEventListener('click',async()=>{ const b=$('ubic-badge'); b.textContent='Buscando la ubicación…'; try{ const u=await gpsActual(); if(!dentroPY(u.lat,u.lon)){ renderUbic(); toast('La ubicación del teléfono está fuera del Paraguay ('+u.lat.toFixed(4)+', '+u.lon.toFixed(4)+'). Marque el punto en el mapa.'); return; } const pg=pastoEn(estanciaValue(), u.lat, u.lon); setUbic(Object.assign(u,{fuente:'gps', tomada_en:new Date().toISOString(), pasto:pg&&pg.nm?pg.nm:null})); if(pg&&pg.nm && !$('f-piquete').value.trim()) $('f-piquete').value=pg.nm; toast('Ubicación tomada'+(pg&&pg.nm?' (pasto '+pg.nm+')':'')); }catch(e){ renderUbic(); toast(e.message+' Puede elegir el punto en el mapa.'); } });
@@ -3583,6 +3595,19 @@ function geoBB(list){ const b=[180,90,-180,-90]; list.forEach(p=>{ b[0]=Math.min
 function enAnillo(lon,lat,r){ let d=false; for(let i=0,j=r.length-1;i<r.length;j=i++){ const xi=r[i][0], yi=r[i][1], xj=r[j][0], yj=r[j][1]; if(((yi>lat)!==(yj>lat)) && (lon<(xj-xi)*(lat-yi)/(yj-yi)+xi)) d=!d; } return d; }
 function enPol(p,lat,lon){ if(lon<p.bb[0]||lon>p.bb[2]||lat<p.bb[1]||lat>p.bb[3]) return false; let d=false; p.r.forEach(r=>{ if(enAnillo(lon,lat,r)) d=!d; }); return d; }
 function pastoEn(est, lat, lon){ const ls=geoPols(est).filter(p=>(p.n==='piquete'||p.n==='fazenda') && enPol(p,lat,lon)); if(!ls.length) return null; ls.sort((a,b)=>(a.n==='piquete'?0:1)-(b.n==='piquete'?0:1) || a.a-b.a); return ls[0]; }
+/* v4.6.4: distancia (km) de un punto a la estancia: 0 si cae dentro de algún polígono; si no, al borde más cercano. null si la estancia no tiene mapa. */
+const UBIC_CERCA_KM=3, UBIC_OTRA_KM=0.3;
+function distPolKm(p,lat,lon){ if(enPol(p,lat,lon)) return 0; const k=Math.cos(lat*Math.PI/180); const px=lon*k; let bd=Infinity;
+  p.r.forEach(r=>{ for(let i=0,j=r.length-1;i<r.length;j=i++){ const ax=r[j][0]*k, ay=r[j][1], bx=r[i][0]*k, by=r[i][1]; const vx=bx-ax, vy=by-ay; const L=vx*vx+vy*vy; let t=L?((px-ax)*vx+(lat-ay)*vy)/L:0; t=Math.max(0,Math.min(1,t)); const qx=ax+t*vx, qy=ay+t*vy; const dd=(px-qx)*(px-qx)+(lat-qy)*(lat-qy); if(dd<bd) bd=dd; } });
+  return Math.sqrt(bd)*111.2; }
+function distEstKm(est,lat,lon){ const ps=geoPols(est).filter(p=>p.n!=='divisa'); if(!ps.length) return null; let m=Infinity; const k=Math.cos(lat*Math.PI/180);
+  for(const p of ps){ const dxb=Math.max(p.bb[0]-lon,0,lon-p.bb[2])*k, dyb=Math.max(p.bb[1]-lat,0,lat-p.bb[3]); if(Math.hypot(dxb,dyb)*111.2>=m) continue; const d=distPolKm(p,lat,lon); if(d<m) m=d; if(m===0) break; } return m; }
+/* chequeo de la ubicación de una muerte respecto de la estancia del registro: dentro · cerca (≤ 3 km) · otra (cae en otra estancia) · lejos */
+function chequearUbic(est,lat,lon){ lat=Number(lat); lon=Number(lon); if(!est || !isFinite(lat) || !isFinite(lon) || (lat===0&&lon===0)) return null; const d=distEstKm(est,lat,lon); if(d==null) return null;
+  if(d===0) return {estado:'dentro', km:0}; if(d<=UBIC_CERCA_KM) return {estado:'cerca', km:d};
+  let otra=null, dOtra=Infinity; ESTANCIAS.forEach(e=>{ if(e===est || !geoTiene(e)) return; const de=distEstKm(e,lat,lon); if(de!=null && de<=UBIC_OTRA_KM && de<dOtra){ otra=e; dOtra=de; } });
+  return otra ? {estado:'otra', km:d, otra} : {estado:'lejos', km:d}; }
+const fmtKm=km=>km>=10?Math.round(km).toLocaleString('es-PY')+' km':km.toLocaleString('es-PY',{maximumFractionDigits:1})+' km';
 function estanciaEn(lat, lon, lista){ for(const e of lista){ if(geoPols(e).some(p=>p.n!=='divisa' && enPol(p,lat,lon))) return e; } return null; }
 const normPiq=s=>String(s||'').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[\s_.\-]+/g,'').replace(/^0+(?=\d)/,'');
 function pastoPorNombre(est, nombre){ const n=normPiq(nombre); if(!n) return null; let mejor=null; geoPols(est).forEach(p=>{ if(!p.nm || p.n!=='piquete') return; const k=normPiq(p.nm); if(n===k || (n.indexOf(k)===0 && !(/\d/.test(n[k.length]||'') && /\d$/.test(k)))){ if(!mejor || k.length>normPiq(mejor.nm).length) mejor=p; } }); return mejor; }
@@ -4244,11 +4269,12 @@ async function descargarCsv(w){ if(!w.csv){ toast('Este informe no tiene lista d
 function mostrarRespuestaIA(w){ $('ia-resp-titulo').textContent=(w.modo==='pregunta'?'💬 ':'🤖 ')+(w.modo==='pregunta'?'Respuesta de la IA':'Informe de la IA')+' · '+w.estancia; $('ia-resp-texto').textContent=(w.pregunta?'Pregunta: '+w.pregunta+'\n\n':'')+(w.texto||''); $('ia-resp-meta').textContent='Período '+fmtDate(w.desde)+' al '+fmtDate(w.hasta)+' · '+(w.cantidad!=null?w.cantidad+' registros leídos · ':'')+(w.modelo?'modelo '+w.modelo+' · ':'')+'⚠ La IA puede equivocarse: revise antes de usar.'; $('ia-resp-modal').classList.remove('hidden'); }
 $('ia-resp-cerrar').addEventListener('click',()=>$('ia-resp-modal').classList.add('hidden'));
 $('ia-resp-copiar').addEventListener('click',async()=>{ try{ await navigator.clipboard.writeText($('ia-resp-texto').textContent); toast('Copiado'); }catch(e){ toast('No se pudo copiar'); } });
-async function generarMortandad(w){ let j; try{ j=await postServidor({tipo:'consulta', clave:w.clave, estancia:w.estancia, desde:w.desde, hasta:w.hasta, con_fotos:true}); }
+async function generarMortandad(w){ let j; try{ j=await postServidor({tipo:'consulta', clave:w.clave, estancia:w.estancia, desde:w.desde, hasta:w.hasta, con_fotos:true, fotos_desde:w.mes+'-01', fotos_px:480}); /* v4.6.4: solo las fotos del mes, en miniatura */ }
   catch(e){ const w2=await dbGet(w.id); if(!w2) return; const msg=String(e.message||e); if(/clave|contrase/i.test(msg)){ w2.estado='error'; w2.error='El servidor rechazó la contraseña ('+msg+').'; } else if(e.servidor||/inválida|HTTP/i.test(msg)){ w2.estado='error'; w2.error=msg; } else { w2.estado='pendiente'; w2.error='Sin conexión con el servidor; se reintentará solo.'; } w2.actualizado_en=new Date().toISOString(); await dbPut(w2); renderHome(); return; }
   let conclusion=null; if(USR){ try{ const r=await postServidor({tipo:'informe_ia', usuario:USR.codigo, estancia:w.estancia, desde:w.mes+'-01', hasta:w.hasta, modo:'mortandad'}); if(r.texto) conclusion={texto:r.texto, modelo:r.modelo}; }catch(e){ conclusion=null; } }
   let rodeo=null; try{ const c=DATOS_PASTO[w.estancia]||datosPastoGuardados(w.estancia); if(c&&c.resumen&&c.resumen.length){ const cab=c.resumen.reduce((s,x)=>s+(Number(x.cab)||0),0); rodeo={cab, fecha:c.hoje||null}; } }catch(e){}
   const pols=geoTiene(w.estancia)?geoPols(w.estancia).filter(p=>p.n!=='divisa').map(p=>({g:p.r, nm:p.nm, n:p.n})):[];
+  (j.registros||[]).forEach(o=>{ if(o.tipo_evento!=='mortalidad') return; try{ o._ubic=chequearUbic(w.estancia, o.ubic_lat, o.ubic_lon); }catch(e){ o._ubic=null; } });
   const bytes=await makeMortandadPdf(w, j, {pols, rodeo, conclusion, usuario:USR?USR.nombre:''});
   const w2=await dbGet(w.id); if(!w2) return; w2.pdf=new Blob([bytes],{type:'application/pdf'}); w2.cantidad=(j.registros||[]).filter(o=>o.tipo_evento==='mortalidad' && String(o.fecha_evento).slice(0,7)===w.mes).length; w2.con_ia=!!conclusion; w2.estado='listo'; w2.generado_en=new Date().toISOString(); w2.actualizado_en=w2.generado_en; w2.clave=null; await dbPut(w2); renderHome(); toast('Informe de mortandad listo: '+w.estancia+' ('+w2.cantidad+' muertes)'); }
 async function generarIA(w){ if(!USR){ const w2=await dbGet(w.id); if(w2){ w2.estado='error'; w2.error='Entre con su código para usar la IA.'; await dbPut(w2); renderHome(); } return; }

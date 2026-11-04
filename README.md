@@ -1,9 +1,25 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.6.3
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.6.5
 
 App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, salida a faena, informe Padroniza y escore de heces.
 
 Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.6.5
+
+- **Los informes ya no dejan afuera el último día del período.** La planilla devuelve la fecha del evento como fecha (Date); el servidor la pasaba a texto con la hora ("2026-10-31T00:00:00") y la comparaba con el fin del período ("2026-10-31"): como texto, la primera es "mayor", y todo lo del último día quedaba afuera. Caso real: el informe de mortandad de Lusipar de octubre de 2026 salió con 29 muertes y faltaba la del 31/10 (brinco 05864 7416). Afectaba la consulta de los informes de **mortandad** y de **trazabilidad** (PDF y CSV de brincos) de todas las estancias; el informe de la IA y el sanitario ya comparaban solo la fecha. Ahora se compara solo la fecha.
+- **Servidor (.gs):** publicar en la **misma implementación** (Administrar implementaciones › ✏️ › Nueva versión) y volver a generar los informes de octubre que se hayan sacado antes.
+
+## Novedades 4.6.4
+
+- **Informe de mortandad liviano para el teléfono.** En Lusipar, octubre de 2026 (29 muertes, 58 fotos), el servidor mandaba todas las fotos enteras en una sola respuesta de unos 20 MB: en la computadora el informe salía en minuto y medio, pero en el teléfono, con la señal del campo, quedaba en "Generando…". Ahora el servidor manda **miniaturas de Drive de 480 px** (unos 40 KB cada una, pedidas de a 20 en paralelo) y **solo las fotos del mes del informe** (las muertes del mes anterior se usan solo para contar). La respuesta baja a unos 3 MB y el PDF también sale más liviano. Si Drive no entrega la miniatura de alguna foto, esa va entera, como antes.
+- **Ubicación de la muerte, controlada al elegir el punto.** El app compara el punto con el mapa de la estancia del registro:
+  1. **dentro de la estancia:** todo bien;
+  2. **fuera pero cerca** (hasta 3 km del límite): todo bien, con una nota;
+  3. **lejos y dentro de otra estancia:** avisa "el punto cae dentro de …" y ofrece **Cambiar la estancia** (si la persona tiene permiso para esa estancia);
+  4. **lejos de todas las estancias:** aviso en el momento y, al continuar, una **inconformidad obligatoria**: se puede guardar, pero hay que explicar por qué el punto quedó ahí (por ejemplo, murió en un traslado). La explicación queda en la base (`justificaciones`).
+  En los casos 3 y 4 el punto **no se dibuja en el mapa del informe de mortandad** (deformaba el mapa: el caso de Lusipar, octubre de 2026); la muerte sigue en la lista, con "ATENCIÓN: a … km de la estancia". El control se hace al armar el informe, así vale también para las muertes ya cargadas. El registro guarda `ubic_chequeo` (estado, km, otra estancia).
+- **Servidor (.gs):** cambia la consulta del informe (`fotos_desde`, `fotos_px`). Publicar en la **misma implementación** (Administrar implementaciones › ✏️ › Nueva versión). Con el app nuevo y el servidor viejo, el informe sale igual que antes (pesado).
 
 ## Novedades 4.6.3
 
