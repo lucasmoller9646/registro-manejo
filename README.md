@@ -1,9 +1,24 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.6.1
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.6.3
 
 App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, salida a faena, informe Padroniza y escore de heces.
 
 Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.6.3
+
+- **Un registro que ya está en la base no queda "En cola".** Caso de Lusipar (mortalidad del 31/10/2026, versión 2): el servidor la guardó a las 11:09, con PDF, JSON y fotos, pero el teléfono la seguía mostrando "En cola". Ahora, en cada sincronización, el app compara con la lista de la base: si la base ya tiene esa versión (o una mayor), el registro pasa solo a "En la base" y el historial dice "confirmado al sincronizar".
+- **El correo ya no tumba el envío.** El servidor manda el correo al final, cuando el registro, el PDF y las fotos ya están guardados; si el correo fallaba (por ejemplo, por la cuota diaria de correos de Google), respondía con error y el teléfono creía que el registro no había llegado. Ahora responde "guardado" con un aviso, y la falla del correo queda anotada en la hoja `log`.
+- **La cola nunca se traba.** Todo pedido al servidor tiene límite de tiempo (si la señal se corta a mitad, el pedido se da por fallido y se reintenta), y si el teléfono no puede guardar (por ejemplo, sin espacio libre) el app lo dice en vez de quedarse esperando.
+- **El error queda a la vista.** En la pantalla del registro, debajo de "En cola", aparece "Último intento de envío (hora): motivo", para que quien está en el campo pueda mandar una captura.
+- **PDF:** si no se puede generar, la pantalla lo dice con un botón "↻ Intentar de nuevo" (antes podía quedar en "Generando PDF…"); desde la lista, si el teléfono no deja abrir el PDF, avisa que quedó en Descargas.
+- **Servidor (.gs):** cambia el envío del correo. Publicar en la **misma implementación** (Administrar implementaciones › ✏️ › Nueva versión).
+
+## Novedades 4.6.2
+
+- **Informe de mortandad: ya no se pierden fotos.** El servidor descartaba sin aviso toda foto de más de 400 KB al armar el informe mensual; las fotos del animal en el pasto, con mucho detalle, pasan de ese tamaño (caso de Ybypora, 17/10/2026: 420 KB), y esa muerte salía solo con la foto del botón. Ahora entra hasta 2,5 MB por foto (30 MB por informe), y el app achica cada foto a 800 px antes de ponerla en el PDF, así el archivo sale más liviano que antes.
+- Cada muerte tiene siempre dos lugares, en el mismo orden: **foto del animal** y **foto del botón**. Si una no se puede incluir, en su lugar va un recuadro que dice por qué ("no se cargó", "archivo muy pesado", "no se pudo leer en Drive"…), en vez de desaparecer.
+- **Servidor (.gs):** cambia la consulta del informe (`con_fotos`). Publicar en la **misma implementación** (Administrar implementaciones › ✏️ › Nueva versión). Con el app nuevo y el servidor viejo, la foto pesada sigue sin llegar, pero el PDF ya muestra el recuadro.
 
 ## Novedades 4.6.1
 

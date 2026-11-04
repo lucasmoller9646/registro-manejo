@@ -1930,7 +1930,9 @@ async function makeMortandadPdf(w, data, extra){
   const parrafo=(t,size,f,c,maxW,x)=>{ wrap(t,size,f,maxW||CW).forEach(l=>{ need(size+3); txt(l,x||M,y-size,size,f,c); y-=size+3; }); y-=3; };
   const titulo=(t,extra)=>{ need(40+(extra||0)); y-=10; txt(t,M,y-14,14,bold,verde); y-=20; page.drawLine({start:{x:M,y:y},end:{x:M+CW,y:y},thickness:0.6,color:line}); y-=8; };
   const kv=(k,v,kw)=>{ kw=kw||120; const ls=wrap(v,9.5,font,CW-kw); need(ls.length*12+2); txt(k,M,y-9.5,9.5,bold,ink); ls.forEach((l,i)=>txt(l,M+kw,y-9.5-i*12,9.5,font,ink)); y-=ls.length*12+3; };
-  const embed=async(du)=>{ try{ const b64=du.split(',')[1]; const bytes=Uint8Array.from(atob(b64),ch=>ch.charCodeAt(0)); return /^data:image\/png/.test(du) ? await pdf.embedPng(bytes) : await pdf.embedJpg(bytes); }catch(e){ return null; } };
+  /* v4.6.2: cada foto se achica a 800 px y JPEG 0,72 antes de entrar al PDF (el archivo queda liviano aunque la foto original sea pesada) */
+  const achicar=du=>new Promise(res=>{ try{ const im=new Image(); im.onload=()=>{ try{ const s=Math.min(1,800/Math.max(im.naturalWidth,im.naturalHeight)); const c=document.createElement('canvas'); c.width=Math.round(im.naturalWidth*s); c.height=Math.round(im.naturalHeight*s); c.getContext('2d').drawImage(im,0,0,c.width,c.height); res(c.toDataURL('image/jpeg',0.72)); }catch(e){ res(du); } }; im.onerror=()=>res(du); im.src=du; }catch(e){ res(du); } });
+  const embed=async(du)=>{ try{ du=await achicar(du); const b64=du.split(',')[1]; const bytes=Uint8Array.from(atob(b64),ch=>ch.charCodeAt(0)); return /^data:image\/png/.test(du) ? await pdf.embedPng(bytes) : await pdf.embedJpg(bytes); }catch(e){ return null; } };
   // ---- datos ----
   const regs=(data.registros||[]).filter(o=>o.tipo_evento==='mortalidad'); const ft=x=>String(x||'').slice(0,10);
   const mesDe=iso=>ft(iso).slice(0,7); const delMes=regs.filter(o=>mesDe(o.fecha_evento)===w.mes); const mesAnt=(()=>{ const d=new Date(yy,mm-2,1); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); })(); const delAnt=regs.filter(o=>mesDe(o.fecha_evento)===mesAnt);
@@ -1976,16 +1978,22 @@ async function makeMortandadPdf(w, data, extra){
   // ---- ocurrencias ----
   titulo('Ocurrencias del mes ('+delMes.length+')', 110);
   const RIGHT_W=170, LEFT_W=CW-RIGHT_W-10;
-  for(let i=0;i<delMes.length;i++){ const o=delMes[i]; const fotos=(o.fotos||[]).filter(f=>f.b64 && (f.tipo_foto==='boton'||f.tipo_foto==='animal')).slice(0,2);
-    const imgs=[]; for(const f of fotos){ const im=await embed(f.b64); if(im) imgs.push(im); }
+  for(let i=0;i<delMes.length;i++){ const o=delMes[i];
+    /* siempre dos lugares, en orden: animal y botón. Si una foto no llegó, va un recuadro que dice por qué (antes la foto desaparecía sin aviso) */
+    const slots=[]; for(const tp of ['animal','boton']){ const f=(o.fotos||[]).find(x=>x.tipo_foto===tp); let im=null, motivo=null;
+      if(!f) motivo='no se cargó'; else if(!f.b64) motivo=f.omitida||'no llegó del servidor'; else { im=await embed(f.b64); if(!im) motivo='no se pudo leer'; }
+      slots.push({tp, im, motivo, hay:!!f}); }
+    const imgs=slots.map(s=>s.im);
     const lineas=[['Fecha',fmtDate(ft(o.fecha_evento))],['IDE',String(o.nro_boton||'-')],['Brinco',mortSiap(o.nro_boton)||'-'],['Causa de muerte',mortCausaNorm(o.causa_probable)],['Potrero',String(o.piquete||'-')+(o.lote_controlpasto?' · lote '+o.lote_controlpasto:'')],['Ubicación',(o.ubic_lat!==''&&o.ubic_lat!=null)?Number(o.ubic_lat).toFixed(5)+', '+Number(o.ubic_lon).toFixed(5)+(o.ubic_fuente?' ('+o.ubic_fuente+')':''):'sin ubicación'],['Registró',String(o.respondente||'-')]];
     if(o.observaciones) lineas.push(['Obs.',String(o.observaciones)]); if(o.items_faltantes) lineas.push(['Faltantes',String(o.items_faltantes).replace(/\n/g,' ')]);
     const ls=lineas.map(([k,v])=>[k,wrap(v,8.8,font,LEFT_W-78)]); const hTxt=ls.reduce((s,[k,l])=>s+l.length*11+2,0)+14;
-    let hImg=0; const imW=imgs.length===2?(RIGHT_W-6)/2:RIGHT_W; const dims=imgs.map(im=>{ const sc=Math.min(imW/im.width, 120/im.height); return {w:im.width*sc, h:im.height*sc}; }); if(dims.length) hImg=Math.max(...dims.map(d=>d.h))+6;
+    const imW=(RIGHT_W-6)/2; const dims=imgs.map(im=>{ if(!im) return {w:imW, h:Math.min(120, imW*4/3)}; const sc=Math.min(imW/im.width, 120/im.height); return {w:im.width*sc, h:im.height*sc}; }); const hImg=Math.max(...dims.map(d=>d.h))+6;
     const h=Math.max(hTxt,hImg)+10; need(h);
     const top=y; txt(String(i+1)+'.',M,y-10,10,bold,verde); let yy=y-2;
     ls.forEach(([k,l])=>{ txt(k+':',M+14,yy-8.8,8.8,bold,ink); l.forEach((s,j)=>txt(s,M+92,yy-8.8-j*11,8.8,font,ink)); yy-=l.length*11+2; });
-    let ix=M+LEFT_W+10; dims.forEach((d,j)=>{ page.drawImage(imgs[j],{x:ix,y:top-4-d.h,width:d.w,height:d.h}); page.drawRectangle({x:ix,y:top-4-d.h,width:d.w,height:d.h,borderColor:line,borderWidth:0.5}); ix+=d.w+6; });
+    let ix=M+LEFT_W+10; dims.forEach((d,j)=>{ const s=slots[j]; if(imgs[j]){ page.drawImage(imgs[j],{x:ix,y:top-4-d.h,width:d.w,height:d.h}); page.drawRectangle({x:ix,y:top-4-d.h,width:d.w,height:d.h,borderColor:line,borderWidth:0.5}); }
+      else { page.drawRectangle({x:ix,y:top-4-d.h,width:d.w,height:d.h,color:hex('#F2F0EA'),borderColor:line,borderWidth:0.5}); const ls2=wrap((s.tp==='animal'?'Foto del animal':'Foto del botón')+': '+s.motivo+(s.hay?'. Ver en la carpeta de fotos del registro en Drive.':'.'),6.8,ital,d.w-10); ls2.forEach((l,k)=>txt(l,ix+5,top-4-d.h/2+ls2.length*4.2-k*8.4-6,6.8,ital,grey)); }
+      ix+=d.w+6; });
     y=top-h+4; page.drawLine({start:{x:M,y:y},end:{x:M+CW,y:y},thickness:0.4,color:line}); y-=6; }
   if(!delMes.length) parrafo('No hay muertes registradas en '+mesTxt+' para '+w.estancia+'.', 9.5, font, ink);
   // ---- conclusión ----
@@ -2355,7 +2363,7 @@ async function makeSanitarioPdf(w, S, extra){ extra=extra||{};
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '4.6.1';
+const APP_VERSION = '4.6.3';
 const ESQUEMA = 'manejo-ypoti/3.7';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
@@ -2425,7 +2433,11 @@ function db(){
   });
   return dbp;
 }
-async function dbPut(rec){ const d=await db(); return new Promise((res,rej)=>{ const t=d.transaction('registros','readwrite'); t.objectStore('registros').put(rec); t.oncomplete=()=>res(); t.onerror=e=>rej(e.target.error); }); }
+/* v4.6.3: si la escritura se aborta (por ejemplo, teléfono sin espacio: QuotaExceededError llega solo como 'abort'), la promesa falla en vez de quedar
+   colgada para siempre: antes eso trababa la cola de guardado y el registro quedaba 'En cola' aunque ya estuviera en la base. */
+async function dbPut(rec){ const d=await db(); return new Promise((res,rej)=>{ let t; try{ t=d.transaction('registros','readwrite'); t.objectStore('registros').put(rec); }catch(e){ return rej(errDb(e)); } t.oncomplete=()=>res(); t.onerror=e=>rej(errDb(e.target.error)); t.onabort=e=>rej(errDb(t.error||(e.target&&e.target.error))); }); }
+function errDb(e){ const nm=(e&&e.name)||''; if(/Quota/i.test(nm)) return new Error('el teléfono no tiene espacio libre para guardar (borre fotos o videos viejos de WhatsApp y vuelva a intentar)'); return e instanceof Error ? e : new Error(String((e&&e.message)||e||'no se pudo guardar en el teléfono')); }
+function fetchSrv(url, opc, ms){ const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(), ms||330000); return fetch(url, Object.assign({}, opc, {signal:ctrl.signal})).catch(e=>{ throw (e&&e.name==='AbortError') ? new Error('el servidor no respondió a tiempo') : e; }); }
 async function dbGet(id){ const d=await db(); return new Promise((res,rej)=>{ const r=d.transaction('registros').objectStore('registros').get(id); r.onsuccess=()=>res(r.result); r.onerror=e=>rej(e.target.error); }); }
 async function dbAll(){ const d=await db(); return new Promise((res,rej)=>{ const r=d.transaction('registros').objectStore('registros').getAll(); r.onsuccess=()=>res(r.result||[]); r.onerror=e=>rej(e.target.error); }); }
 async function dbDel(id){ const d=await db(); return new Promise((res,rej)=>{ const t=d.transaction('registros','readwrite'); t.objectStore('registros').delete(id); t.oncomplete=()=>res(); t.onerror=e=>rej(e.target.error); }); }
@@ -2860,7 +2872,7 @@ function renderInconformidades(){
 async function buscarPesosHist(ides){
   if(!navigator.onLine){ toast('Sin conexión: para buscar en la base de datos hace falta señal.'); return; }
   const btn=document.querySelector('#inc-list [data-buscar]'); if(btn){ btn.disabled=true; btn.textContent='Buscando…'; }
-  try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'pesos', ides, fecha:$('f-fecha').value||todayISO(), dias:60, estancia:estanciaValue(), excluir:formId}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok||j.ok===false) throw new Error(j.error||('HTTP '+res.status));
+  try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'pesos', ides, fecha:$('f-fecha').value||todayISO(), dias:60, estancia:estanciaValue(), excluir:formId}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok||j.ok===false) throw new Error(j.error||('HTTP '+res.status));
     inc.hist={}; Object.keys(j.pesos||{}).forEach(ide=>{ const p=j.pesos[ide]; if(p&&p.peso_kg!=null&&!isNaN(Number(p.peso_kg))) inc.hist[ide]={peso_kg:Number(p.peso_kg), fecha:p.fecha||null, registro_id:p.registro_id||null, tipo:p.tipo_evento||null}; });
     const n=Object.keys(inc.hist).length; inc.hist_buscado=true; inc.hist_msg=(n ? 'La base de datos tiene el último peso (hasta 60 días antes) de '+n+' de '+ides.length+(ides.length===1?' animal':' animales')+'.' : 'Ningún animal tiene peso en la base de datos en los 60 días anteriores a la fecha del registro.')+' Consultado el '+fmtDT(new Date().toISOString()); dirty=true; }
   catch(e){ inc.hist_msg='No se pudo consultar la base de datos ('+(e.message||e)+'). Puede intentar de nuevo o completar los pesos acá.'; inc.hist={}; }
@@ -2975,7 +2987,7 @@ function hxConteoTxt(c){ return [3,4,2,1,5].filter(k=>c.conteo[k]).map(k=>c.cont
 const HX_HIST_KEY='manejo.hx_hist';
 async function hxCargarHist(){ const est=estanciaValue()||'Ypoti'; const desde=(()=>{ const d=new Date(); d.setDate(d.getDate()-35); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); })();
   let srv=[]; try{ srv=JSON.parse(localStorage.getItem(HX_HIST_KEY)||'[]')||[]; }catch(e){ srv=[]; }
-  if(navigator.onLine && USR && cfg.endpoint){ try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'heces_historial', usuario:USR.codigo, estancia:est, desde}), redirect:'follow'}); const j=JSON.parse(await res.text()); if(j.ok){ srv=(j.baias||[]); try{ localStorage.setItem(HX_HIST_KEY, JSON.stringify(srv)); }catch(e){} } }catch(e){} }
+  if(navigator.onLine && USR && cfg.endpoint){ try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'heces_historial', usuario:USR.codigo, estancia:est, desde}), redirect:'follow'}); const j=JSON.parse(await res.text()); if(j.ok){ srv=(j.baias||[]); try{ localStorage.setItem(HX_HIST_KEY, JSON.stringify(srv)); }catch(e){} } }catch(e){} }
   const loc=[]; try{ (await dbAll()).forEach(w=>{ const r=w.registro; if(!r || r.tipo_evento!=='escore_heces' || w.id===formId) return; ((r.datos||{}).baias||[]).forEach(b=>loc.push({fecha:r.fecha_evento, baia:b.baia, dieta:b.dieta||'', nota:b.nota})); }); }catch(e){}
   const vis={}; hxHist=[]; srv.concat(loc).forEach(h=>{ if(!h||!h.baia||!h.fecha) return; const k=String(h.fecha).slice(0,10)+'|'+h.baia; if(vis[k]) return; vis[k]=1; hxHist.push({fecha:String(h.fecha).slice(0,10), baia:h.baia, dieta:h.dieta||'', nota:h.nota}); });
   return hxHist; }
@@ -3114,7 +3126,7 @@ async function hxSubirFotos(w){ const r=w.registro; const bs=(r.datos&&r.datos.b
   if(!pend.length) return {w, cambio:false}; if(!USR) throw new Error('entre con su código para subir las fotos'); let cambio=false;
   for(let i=0;i<pend.length;i+=6){ const lote=pend.slice(i,i+6); const fotos=[];
     for(const it of lote){ let f=null; try{ f=await hxFotoGet(it.m.foto_id); }catch(e){} if(!f||!f.du){ it.m.foto_falta=true; continue; } fotos.push({id:it.m.foto_id, nombre:it.b.baia+'_'+String(it.m.n).padStart(2,'0'), baia:it.b.baia, n:it.m.n, imagen:f.du, leer_ia:!(it.m.ia>=1)}); }
-    if(fotos.length){ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'heces_fotos', usuario:USR.codigo, registro_id:r.id, estancia:r.estancia, fecha:r.fecha_evento, fotos}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok||!j.ok) throw new Error(j.error||('HTTP '+res.status));
+    if(fotos.length){ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'heces_fotos', usuario:USR.codigo, registro_id:r.id, estancia:r.estancia, fecha:r.fecha_evento, fotos}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok||!j.ok) throw new Error(j.error||('HTTP '+res.status));
       (j.fotos||[]).forEach(x=>{ const it=lote.find(o=>o.m.foto_id===x.id); if(!it) return; it.m.url_foto=x.url||null; if(x.ia && +x.ia.nota>=1 && +x.ia.nota<=5 && !(it.m.ia>=1)){ it.m.ia=+x.ia.nota; it.m.ia_conf=x.ia.seguro===false?'baja':'alta'; it.m.ia_motivo=String(x.ia.motivo||'').slice(0,120); it.m.ia_modelo=x.ia.modelo||''; it.m.ia_vista=false; cambio=true; } }); }
     await enCola(async()=>{ const x=await dbGet(w.id); if(x){ x.registro=r; await dbPut(x); } }); }
   if(cambio){ const co=hxCoincidencia(bs); r.datos.ia={ leidas:co.leidas, iguales:co.iguales, a_un_punto:co.a_un_punto, pct:co.pct, ciegas:co.ciegas, ciegas_iguales:co.ciegas_iguales, aceptadas_sin_cambiar:co.aceptadas_sin_cambiar }; if(r.control) r.control.ia_coincide_pct=co.pct; }
@@ -3351,7 +3363,7 @@ function solMensaje(r){ const d=r.datos||{}; const L=[]; L.push('📨 *Solicitud
 function solEstadoInfo(w){ const s=(w.solicitud&&w.solicitud.estado)||'pendiente'; if(w.estado!=='enviado') return {cls:'warn', txt:'Sin enviar', key:'sin_enviar'}; if(s==='aprobada') return {cls:'ok', txt:'Aprobada', key:'aprobada'}; if(s==='rechazada') return {cls:'bad', txt:'Rechazada', key:'rechazada'}; return {cls:'pend', txt:'Pendiente', key:'pendiente'}; }
 async function consultarSolicitudes(ws, silencioso){ // pregunta al servidor el estado de las solicitudes enviadas y guarda la decisión (y el PDF firmado) en el teléfono
   if(!navigator.onLine || !cfg.endpoint || !ws.length) return []; const cambiadas=[];
-  try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'estado_solicitud', solicitudes:ws.map(w=>({id:w.id, token:w.registro.datos.token, con_pdf:!!(w.solicitud&&w.solicitud.pdf_firmado)}))}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok||j.ok===false) throw new Error(j.error||('HTTP '+res.status));
+  try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'estado_solicitud', solicitudes:ws.map(w=>({id:w.id, token:w.registro.datos.token, con_pdf:!!(w.solicitud&&w.solicitud.pdf_firmado)}))}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok||j.ok===false) throw new Error(j.error||('HTTP '+res.status));
     for(const w of ws){ const e=(j.solicitudes||{})[w.id]; if(!e) continue; const w2=await dbGet(w.id); if(!w2) continue; w2.solicitud=Object.assign({}, w2.solicitud||{}, {estado:e.estado||'pendiente', decidido_en:e.decidido_en||null, aprobador:e.aprobador||null, comentario:e.comentario||null, hash:e.hash||null, url_pdf_firmado:e.url_pdf_firmado||null, consultado_en:new Date().toISOString()}); if(e.version) w2.solicitud.version=e.version; if(e.anteriores){ w2.solicitud.anteriores=e.anteriores; w2.solicitud.modificacion=e.anteriores.length>0; } if(e.cambios) w2.solicitud.cambios=e.cambios; if(e.pdf_base64){ try{ w2.solicitud.pdf_firmado=new Blob([Uint8Array.from(atob(e.pdf_base64),ch=>ch.charCodeAt(0))],{type:'application/pdf'}); }catch(x){} }
       const antes=(w.solicitud&&w.solicitud.estado)||'pendiente'; if(antes!==w2.solicitud.estado){ logEntry(w2, 'solicitud '+w2.solicitud.estado+(e.aprobador?' por '+e.aprobador:'')); cambiadas.push(w2); } await dbPut(w2); if(doneW&&doneW.id===w2.id) doneW=w2; } }
   catch(e){ if(!silencioso) toast('No se pudo consultar el estado: '+(e.message||e)); }
@@ -3378,7 +3390,7 @@ $('btn-sol-pdf-firmado').addEventListener('click',async()=>{ let w=await dbGet(d
 const BRINCOS={}; // estancia -> {t, lista:[[ide, lote, categoría, fuente]]}
 function brincosGuardados(est){ try{ return JSON.parse(localStorage.getItem('manejo.brincos.'+est)||'null'); }catch(e){ return null; } }
 async function cargarBrincos(est, forzar){ if(!est) return null; let c=BRINCOS[est]||brincosGuardados(est); const viejo=!c || (Date.now()-(c.t||0) > 6*3600*1000);
-  if((viejo||forzar) && navigator.onLine && cfg.endpoint){ try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'brincos', estancia:est}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(res.ok && j.ok!==false && Array.isArray(j.brincos)){ c={t:Date.now(), lista:j.brincos}; try{ localStorage.setItem('manejo.brincos.'+est, JSON.stringify(c)); }catch(e){} } }catch(e){} }
+  if((viejo||forzar) && navigator.onLine && cfg.endpoint){ try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'brincos', estancia:est}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(res.ok && j.ok!==false && Array.isArray(j.brincos)){ c={t:Date.now(), lista:j.brincos}; try{ localStorage.setItem('manejo.brincos.'+est, JSON.stringify(c)); }catch(e){} } }catch(e){} }
   BRINCOS[est]=c||null; return BRINCOS[est]; }
 const soloDigitos=s=>String(s||'').replace(/\D/g,'');
 function buscarBrincos(est, q){ const c=BRINCOS[est]; const d=soloDigitos(q); if(!c||!c.lista||d.length<3) return []; const r=[]; for(const it of c.lista){ const ide=String(it[0]); const i=ide.indexOf(d); if(i<0) continue; r.push({it, rank: ide===d?0 : ide.endsWith(d)?1 : ide.startsWith(d)?2 : 3, pos:i}); } r.sort((x,y)=>x.rank-y.rank || x.it[0].localeCompare(y.it[0])); return r.slice(0,8).map(x=>Object.assign({pos:x.pos, d}, {ide:String(x.it[0]), lote:x.it[1]||'', cat:x.it[2]||''})); }
@@ -3587,7 +3599,7 @@ function datosPastoGuardados(est){ try{ return JSON.parse(localStorage.getItem('
 function msgDatosError(m){ m=String(m||''); if(/payload inválido/i.test(m)) return 'el servidor todavía es la versión anterior (falta "Nueva versión" del Apps Script)'; if(/pasto_semente|base de pasto/i.test(m)) return 'el servidor todavía no tiene la base del ControlPasto'; return m; }
 async function cargarDatosPasto(est, forzar){ if(!est) return null; let c=DATOS_PASTO[est]||datosPastoGuardados(est); const viejo=!c || !c.porPol || (Date.now()-(c.t||0) > 20*60*1000);
   if((viejo||forzar) && navigator.onLine && cfg.endpoint && USR){ MAPA.cargando=true; mapaPedirDibujo();
-    try{ const lista=geoPols(est).filter(p=>p.n!=='divisa'); const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'mapa_pasto', usuario:USR.codigo, estancia:est, mapas:lista.map(p=>({c:p.c, r:(GEO.capas[p.c]||{}).r||p.c, n:p.n, nm:p.nm, a:p.a, fz:(GEO.capas[p.c]||{}).fz||[], f:p.f||null}))}), redirect:'follow'});
+    try{ const lista=geoPols(est).filter(p=>p.n!=='divisa'); const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'mapa_pasto', usuario:USR.codigo, estancia:est, mapas:lista.map(p=>({c:p.c, r:(GEO.capas[p.c]||{}).r||p.c, n:p.n, nm:p.nm, a:p.a, fz:(GEO.capas[p.c]||{}).fz||[], f:p.f||null}))}), redirect:'follow'});
       const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){}
       if(res.ok && j.ok){ const porPol={}; (j.pols||[]).forEach(x=>{ const p=lista[x.i]; if(p) porPol[p.i]=x; }); c={t:Date.now(), porPol, resumen:j.resumen||[], sin_pol:j.sin_pol||[], datos:j.datos||{}, meses:j.meses_media||0, hoje:j.hoje||null, fazendas:j.fazendas||[]}; try{ localStorage.setItem('manejo.mapa_pasto.'+est, JSON.stringify(c)); }catch(e){} }
       else c=Object.assign({}, c||{}, {error:msgDatosError(j.error||('HTTP '+res.status))}); }
@@ -3927,7 +3939,7 @@ $('f-enfermedad-otra').addEventListener('input',()=>{ dirty=true; });
    Aviso estándar en todo el app: mientras lee, "🤖 La IA está leyendo … en la foto…" con una ruedita (y el campo lo dice); al terminar,
    "🤖 La IA leyó …: X. Revise: si está mal, corríjalo." — el campo queda siempre editable. ---------- */
 async function leerFotoIA(clase, dataUrl){ if(!USR || !navigator.onLine || !cfg.endpoint || !dataUrl) return null;
-  try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'leer_foto', usuario:USR.codigo, clase, imagen:dataUrl}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){ return null; } if(!res.ok||!j.ok) return {error:j.error||('HTTP '+res.status)}; return j; }catch(e){ return null; } }
+  try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'leer_foto', usuario:USR.codigo, clase, imagen:dataUrl}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){ return null; } if(!res.ok||!j.ok) return {error:j.error||('HTTP '+res.status)}; return j; }catch(e){ return null; } }
 const IA_QUE={boton:'el número del botón', chapa:'la chapa del camión', precinto:'el número del precinto', guia:'los datos de la guía'};
 function iaPintar(el, estado, txt){ if(!el) return; el.className='ia-msg'+(estado?' '+estado:''); el.textContent=''; if(!txt) return; if(estado==='leyendo'){ const s=document.createElement('span'); s.className='ia-spin'; el.appendChild(s); } el.appendChild(document.createTextNode(txt)); }
 const iaLeyendo=clase=>'🤖 La IA está leyendo '+IA_QUE[clase]+' en la foto… puede seguir completando lo demás.';
@@ -4022,17 +4034,18 @@ function resumen(r){ const d=r.datos||{}; let s='*'+TIPO_LABEL[r.tipo_evento]+'*
 
 /* ---------- publicación en la base de datos ---------- */
 function markEnvio(id, canal, detalle){ return enCola(()=>markEnvio0(id, canal, detalle)); }
-async function markEnvio0(id, canal, detalle){ const w=await dbGet(id); if(!w) return; w.envios=w.envios||[]; w.envios.push({canal, fecha:new Date().toISOString(), detalle:detalle||null, version:w.version||1}); if(canal==='servidor'){ w.estado='enviado'; logEntry(w,'publicado en la base de datos'); if(!w.edicion) w.nube={pendiente:false, publicado_en:new Date().toISOString()}; } else if(w.estado!=='enviado'){ w.estado='compartido'; logEntry(w,'compartido ('+canal+')'); } await dbPut(w); return w; }
+async function markEnvio0(id, canal, detalle){ const w=await dbGet(id); if(!w) return; w.envios=w.envios||[]; w.envios.push({canal, fecha:new Date().toISOString(), detalle:detalle||null, version:w.version||1}); if(canal==='servidor'){ w.estado='enviado'; delete w.ultimo_error; logEntry(w,'publicado en la base de datos', detalle||null); if(!w.edicion) w.nube={pendiente:false, publicado_en:new Date().toISOString()}; } else if(w.estado!=='enviado'){ w.estado='compartido'; logEntry(w,'compartido ('+canal+')'); } await dbPut(w); return w; }
 async function postToEndpoint(w, files){
   if(!cfg.endpoint) return {ok:false, skipped:true};
   if(w.registro && esHeces(w.registro.tipo_evento)){ const sb=await hxSubirFotos(w); w=sb.w; if(sb.cambio || !files) files=await buildFiles(w); } /* escore de heces: primero las fotos (en tandas), después el registro con los enlaces */
   const payload={ tipo:'registro', clave:(USR&&USR.codigo)||w.clave||null, usuario_id:USR?USR.id:null, registro:exportRecord(w), destinatario:cfg.mail, nombre_pdf:files.pdfFile.name, nombre_json:files.jsonFile.name, pdf_base64:b64(files.pdfBytes) };
-  const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify(payload), redirect:'follow'});
+  const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify(payload), redirect:'follow'});
   const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){}
   if(!res.ok || j.ok===false) throw new Error(j.error||('HTTP '+res.status));
   return {ok:true, resp:j};
 }
 let syncing=false; const publicandoIds=new Set();
+async function anotarError(id, e){ try{ await enCola(async()=>{ const x=await dbGet(id); if(!x || x.estado==='enviado') return; x.ultimo_error={fecha:new Date().toISOString(), texto:String((e&&e.message)||e).slice(0,200)}; await dbPut(x); }); }catch(x){} }
 const RECHAZO=/clave|contrase|código|permiso|aprobado|bloqueado/i;
 function verV4(v){ const m=/^(\d+)\./.exec(String(v||'')); return !!m && +m[1]>=4; }
 async function rescatarSinPublicar(){ if(!USR) return; let todos=[]; try{ todos=await dbAll(); }catch(e){ return; }
@@ -4042,7 +4055,7 @@ async function syncPendientes(){
   if(syncing || !cfg.endpoint || !navigator.onLine || !USR) return; syncing=true;
   try{ await procesarBorradosNube(); await subirRespaldos();
     await rescatarSinPublicar();
-    const todos=await dbAll(); const all=todos.filter(w=>w.tipo!=='informe' && w.publicar && w.estado!=='enviado' && w.estado!=='borrador'); for(const w of all){ if(publicandoIds.has(w.id) || !usrPuede(w.registro.estancia)) continue; publicandoIds.add(w.id); try{ const files=await buildFiles(w); await postToEndpoint(w,files); await markEnvio(w.id,'servidor'); publicandoIds.delete(w.id); }catch(e){ publicandoIds.delete(w.id); console.warn('sync',w.id,e); if(RECHAZO.test(String(e.message||e))){ await enCola(async()=>{ const w2=await dbGet(w.id); if(w2){ w2.publicar=false; w2.clave=null; logEntry(w2,'rechazado por el servidor', String(e.message||e)); await dbPut(w2); } }); } } }
+    const todos=await dbAll(); const all=todos.filter(w=>w.tipo!=='informe' && w.publicar && w.estado!=='enviado' && w.estado!=='borrador'); for(const w of all){ if(publicandoIds.has(w.id) || !usrPuede(w.registro.estancia)) continue; publicandoIds.add(w.id); try{ const files=await buildFiles(w); const rs=await postToEndpoint(w,files); await markEnvio(w.id,'servidor', rs&&rs.resp&&rs.resp.aviso||null); publicandoIds.delete(w.id); }catch(e){ publicandoIds.delete(w.id); console.warn('sync',w.id,e); await anotarError(w.id, e); if(RECHAZO.test(String(e.message||e))){ await enCola(async()=>{ const w2=await dbGet(w.id); if(w2){ w2.publicar=false; w2.clave=null; logEntry(w2,'rechazado por el servidor', String(e.message||e)); await dbPut(w2); } }); } } }
     for(const w of todos.filter(w=>w.estado==='borrador' && w.borrador_db && w.borrador_db.pendiente)){ await enviarBorradorBD(w.id); }
     for(const w of todos.filter(w=>w.tipo==='informe' && (w.estado==='pendiente'||w.estado==='generando'))){ await generarInforme(w.id); }
     const pend=(await dbAll()).filter(w=>w.registro && esSolicitud(w.registro.tipo_evento) && w.estado==='enviado' && solEstadoInfo(w).key==='pendiente'); if(pend.length){ const camb=await consultarSolicitudes(pend, true); camb.forEach(w=>toast('Solicitud '+solEstadoInfo(w).txt.toLowerCase()+': '+(w.registro.datos.categoria||'')+' a '+(w.registro.datos.destino_nombre||''))); } }
@@ -4064,7 +4077,7 @@ function pedirPin(opc){ return new Promise(res=>{ const m=$('pwd-modal'), err=$(
   pad.onclick=e=>{ const bt=e.target.closest('button'); if(bt) tecla(bt.dataset.k); }; $('pwd-cancel').onclick=()=>cerrar(null); document.addEventListener('keydown',teclado,true);
   aviso(opc.ayuda||'','info'); pintar(); m.classList.remove('hidden'); }); }
 async function verificarClave(estancia, clave){ if(!navigator.onLine||!cfg.endpoint) return true; // sin señal se acepta y la verifica el servidor al publicar
-  try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'verificar_clave', estancia, clave}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){ return true; } if(j.ok) return true; return /demasiados/i.test(j.error||'') ? 'Demasiados intentos: espere 15 minutos.' : 'Contraseña incorrecta'+(estancia==='*'?' (hace falta la clave maestra).':' para '+estancia+'.'); }catch(e){ return true; } }
+  try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'verificar_clave', estancia, clave}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){ return true; } if(j.ok) return true; return /demasiados/i.test(j.error||'') ? 'Demasiados intentos: espere 15 minutos.' : 'Contraseña incorrecta'+(estancia==='*'?' (hace falta la clave maestra).':' para '+estancia+'.'); }catch(e){ return true; } }
 function pedirClave(){ return Promise.resolve(USR ? USR.codigo : null); } /* v4: ya no se pide contraseña: va el código personal con el que se entró */
 async function publicarBD(w, files){ if(!w || !files || publicandoIds.has(w.id)) return; publicandoIds.add(w.id); try{ await publicarBD0(w, files); } finally{ publicandoIds.delete(w.id); } }
 async function publicarBD0(w, files){
@@ -4075,7 +4088,7 @@ async function publicarBD0(w, files){
   const w2=await enCola(async()=>{ const x=await dbGet(w.id); const ya=!!x.publicar; x.publicar=true; x.clave=null; x.autorizado_en=x.autorizado_en||new Date().toISOString(); if(!ya) logEntry(x,'autorizado para publicar'); await dbPut(x); return x; }); if(doneW&&doneW.id===w.id) doneW=w2;
   if(!navigator.onLine){ msg.className='msg warn'; msg.textContent='Sin conexión: el registro quedó autorizado y en cola. Se publicará solo cuando el teléfono tenga señal.'; renderDoneStatus(w2); renderHome(); return; }
   try{ msg.textContent=esSolicitud(w.registro.tipo_evento)?'Enviando la solicitud…':'Guardando en la base de datos…'; const rs=await postToEndpoint(w2,files); await markEnvio(w.id,'servidor'); msg.className='msg ok'; msg.textContent= esSolicitud(w.registro.tipo_evento) ? 'Solicitud enviada: quedó en la base de datos y el aprobador'+(rs&&rs.resp&&rs.resp.aprobador?' ('+rs.resp.aprobador+')':'')+' recibió el correo con el enlace. También puede mandarle el mensaje por WhatsApp.' : 'Guardado en la base de datos. El servidor también lo envía a '+cfg.mail+'.'; }
-  catch(e){ const txt=String(e.message||e); if(RECHAZO.test(txt)){ await enCola(async()=>{ const x=await dbGet(w.id); if(x){ x.publicar=false; x.clave=null; logEntry(x,'rechazado por el servidor', txt); await dbPut(x); } }); msg.className='msg bad'; msg.textContent='El servidor no lo aceptó ('+txt+'). No se publicó.'; } else { msg.className='msg warn'; msg.textContent='El servidor no respondió ('+txt+'). El registro quedó en cola y se reintentará automáticamente.'; } }
+  catch(e){ const txt=String(e.message||e); await anotarError(w.id, e); if(RECHAZO.test(txt)){ await enCola(async()=>{ const x=await dbGet(w.id); if(x){ x.publicar=false; x.clave=null; logEntry(x,'rechazado por el servidor', txt); await dbPut(x); } }); msg.className='msg bad'; msg.textContent='El servidor no lo aceptó ('+txt+'). No se publicó.'; } else { msg.className='msg warn'; msg.textContent='El servidor no respondió ('+txt+'). El registro quedó en cola y se reintentará automáticamente.'; } }
   const wf=await dbGet(w.id); renderDoneStatus(wf); if(doneW&&doneW.id===w.id){ doneW=wf; renderSolPanel(wf); } renderHome();
 }
 async function compartir(w, files){
@@ -4098,6 +4111,7 @@ function renderOtro(w){ const b=$('btn-otro'), pub=$('btn-publish-db'); const r=
   const head=$('done-head'); /* principal: arriba de todo, a la vista sin bajar; si falta la contraseña, debajo de "Guardar en Banco de Datos" */
   if(prin){ if(b.nextElementSibling!==head) head.parentNode.insertBefore(b, head); } else if(pub.nextElementSibling!==b) pub.parentNode.insertBefore(b, pub.nextSibling); }
 function renderDoneStatus(w){ renderOtro(w); const st=$('done-status'); st.innerHTML=''; const b=document.createElement('span'); const [cls,txt]=estadoLabel(w); b.className='badge '+cls; b.textContent=txt; st.appendChild(b);
+  if(w.ultimo_error && w.estado!=='enviado'){ const e=document.createElement('div'); e.className='hint'; e.id='done-ultimo-error'; e.style.cssText='margin-top:6px;color:var(--bad,#8A1C1C)'; e.textContent='Último intento de envío ('+fmtDT(w.ultimo_error.fecha)+'): '+w.ultimo_error.texto+'. Se reintenta solo; si sigue igual, mande una captura de esta pantalla.'; st.appendChild(e); }
   const lg=$('done-log'); const h=w.historial||[]; if(h.length){ lg.classList.remove('hidden'); lg.innerHTML=''; h.slice(-8).forEach(e=>{ const div=document.createElement('div'); div.textContent=fmtDT(e.fecha)+' · v'+(e.version||1)+' · '+e.accion+(e.detalle?' — '+e.detalle:''); lg.appendChild(div); }); } else lg.classList.add('hidden'); }
 async function openDone(w){
   doneW=w; const r=w.registro; show('scr-done'); $('btn-edit-rec').textContent = w.edicion ? '✎ Seguir la edición sin terminar' : '✎ Editar registro';
@@ -4107,7 +4121,7 @@ async function openDone(w){
   if(esSolicitud(r.tipo_evento) && w.estado==='enviado' && solEstadoInfo(w).key==='pendiente'){ consultarSolicitudes([w], true).then(async()=>{ const w2=await dbGet(w.id); if(w2&&doneW&&doneW.id===w.id){ doneW=w2; renderSolPanel(w2); renderDoneStatus(w2); } }); }
   const fl=$('done-files'); fl.innerHTML='<div class="msg">Generando PDF…</div>';
   ['btn-share-both','btn-publish-db'].forEach(id=>$(id).disabled=true);
-  try{ doneFiles=await buildFiles(w); }catch(e){ fl.innerHTML='<div class="msg bad">No se pudo generar el PDF: '+e.message+'</div>'; return; }
+  try{ doneFiles=await Promise.race([buildFiles(w), new Promise((_,rej)=>setTimeout(()=>rej(new Error('tardó demasiado')), 90000))]); }catch(e){ fl.innerHTML=''; const m=document.createElement('div'); m.className='msg bad'; m.textContent='No se pudo generar el PDF: '+(e.message||e)+'. '; const bt=document.createElement('button'); bt.className='btn small'; bt.type='button'; bt.textContent='↻ Intentar de nuevo'; bt.addEventListener('click',async()=>{ const x=await dbGet(w.id).catch(()=>null); openDone(x||w); }); m.appendChild(bt); fl.appendChild(m); return; }
   fl.innerHTML='';
   [['PDF',doneFiles.pdfFile],['JSON',doneFiles.jsonFile]].forEach(([k,f])=>{ const d=document.createElement('div'); d.className='file'; d.innerHTML='<span class="ico">'+k+'</span><span class="name"></span><span class="size">'+fmtBytes(f.size)+'</span>'; d.querySelector('.name').textContent=f.name; const a=document.createElement('a'); a.href='#'; a.textContent= k==='PDF'?'Ver':'Guardar'; a.addEventListener('click',ev=>{ ev.preventDefault(); if(k==='PDF') openPdf(f); else saveFile(f); }); d.appendChild(a); fl.appendChild(d); });
   ['btn-share-both','btn-publish-db'].forEach(id=>$(id).disabled=false);
@@ -4224,7 +4238,7 @@ async function pedirIAFlujo(modo){ cerrarInformes(); const p=await pedirIA(modo)
   await dbPut(w); renderHome(); toast(p.modo==='pregunta'?'Preguntando a la IA…':'La IA está escribiendo el informe…'); generarInforme(w.id); }
 $('inf-op-ia').addEventListener('click',()=>pedirIAFlujo('informe'));
 $('inf-op-pregunta').addEventListener('click',()=>pedirIAFlujo('pregunta'));
-async function postServidor(body){ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify(body), redirect:'follow'}); const txt=await res.text(); let j; try{ j=JSON.parse(txt); }catch(e){ throw new Error('respuesta inválida del servidor'); } if(!res.ok || !j.ok) throw Object.assign(new Error(j.error||('HTTP '+res.status)),{servidor:true}); return j; }
+async function postServidor(body){ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify(body), redirect:'follow'}); const txt=await res.text(); let j; try{ j=JSON.parse(txt); }catch(e){ throw new Error('respuesta inválida del servidor'); } if(!res.ok || !j.ok) throw Object.assign(new Error(j.error||('HTTP '+res.status)),{servidor:true}); return j; }
 function csvInforme(ids){ const cols=['registro_id','tipo_evento','fecha_evento','ide','peso_kg','peso_fuente','fuente','origen','destino','nro_guia','cota_nro','lote','piquete','causa','detalle','respondente']; const esc=v=>{ const t=String(v==null?'':v); return /[;"\n]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t; }; return '﻿'+cols.join(';')+'\n'+(ids||[]).map(o=>cols.map(k=>esc(k==='tipo_evento'?(TIPO_LABEL[o[k]]||o[k]):o[k])).join(';')).join('\n'); }
 async function descargarCsv(w){ if(!w.csv){ toast('Este informe no tiene lista de brincos.'); return; } try{ await saveFile(new File([new Blob([w.csv],{type:'text/csv'})], w.nombre_csv||'brincos.csv', {type:'text/csv'})); }catch(e){ toast('No se pudo guardar el CSV: '+(e.message||e)); } }
 function mostrarRespuestaIA(w){ $('ia-resp-titulo').textContent=(w.modo==='pregunta'?'💬 ':'🤖 ')+(w.modo==='pregunta'?'Respuesta de la IA':'Informe de la IA')+' · '+w.estancia; $('ia-resp-texto').textContent=(w.pregunta?'Pregunta: '+w.pregunta+'\n\n':'')+(w.texto||''); $('ia-resp-meta').textContent='Período '+fmtDate(w.desde)+' al '+fmtDate(w.hasta)+' · '+(w.cantidad!=null?w.cantidad+' registros leídos · ':'')+(w.modelo?'modelo '+w.modelo+' · ':'')+'⚠ La IA puede equivocarse: revise antes de usar.'; $('ia-resp-modal').classList.remove('hidden'); }
@@ -4253,7 +4267,7 @@ async function generarInforme(id){
     if(w.clase==='mortandad'){ await generarMortandad(w); return; } if(w.clase==='sanitario'){ await generarSanitario(w); return; } if(w.clase==='ia'){ await generarIA(w); return; }
     let j;
     const esGuia=w.clase==='guia';
-    try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify(esGuia?{tipo:'guia_estancia', estancia:w.estancia}:{tipo:'consulta', clave:w.clave, estancia:w.estancia, desde:w.desde, hasta:w.hasta, con_ids:true}), redirect:'follow'}); const txt=await res.text(); try{ j=JSON.parse(txt); }catch(e){ throw new Error('respuesta inválida del servidor'); } if(!res.ok || !j.ok) throw Object.assign(new Error(j.error||('HTTP '+res.status)),{servidor:true}); }
+    try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify(esGuia?{tipo:'guia_estancia', estancia:w.estancia}:{tipo:'consulta', clave:w.clave, estancia:w.estancia, desde:w.desde, hasta:w.hasta, con_ids:true}), redirect:'follow'}); const txt=await res.text(); try{ j=JSON.parse(txt); }catch(e){ throw new Error('respuesta inválida del servidor'); } if(!res.ok || !j.ok) throw Object.assign(new Error(j.error||('HTTP '+res.status)),{servidor:true}); }
     catch(e){ w=await dbGet(id); if(!w) return; const msg=String(e.message||e); if(e.servidor && esGuia){ w.estado='error'; w.error=guiaMsgError(msg); } else if(/clave|contrase/i.test(msg)){ w.estado='error'; w.error='El servidor rechazó la contraseña ('+msg+').'; } else if(/inválida|HTTP|servidor/i.test(msg)){ w.estado='error'; w.error=msg; } else { w.estado='pendiente'; w.error='Sin conexión con el servidor; se reintentará solo.'; } w.actualizado_en=new Date().toISOString(); await dbPut(w); renderHome(); return; }
     if(esGuia){ const bytes=await makeGuiaPdf(w, j);
       w=await dbGet(id); if(!w) return; w.pdf=new Blob([bytes],{type:'application/pdf'}); w.cantidad=null; w.datos_hasta=(j.datos||{}).manejo_ate||null; w.aviso=(j.sinc&&!j.sinc.ok)?('ControlPasto sin leer ahora: '+j.sinc.error):null; w.estado='listo'; w.generado_en=new Date().toISOString(); w.actualizado_en=w.generado_en; await dbPut(w);
@@ -4352,7 +4366,7 @@ function envolverSwipe(item, w){
   const mk=(cls,ico,txt,fn)=>{ const bt=document.createElement('button'); bt.type='button'; bt.className=cls; bt.innerHTML='<i></i><span></span>'; bt.querySelector('i').textContent=ico; bt.querySelector('span').textContent=txt; bt.addEventListener('click',ev=>{ ev.stopPropagation(); cerrarSwipe(); fn(); }); acts.appendChild(bt); };
   if(w.tipo==='informe'){ if(w.estado==='listo') mk('a-pdf','📄',w.clase==='ia'&&w.formato!=='pdf'?'Ver':'PDF',()=>abrirInforme(w)); if(w.estado==='listo'&&w.csv) mk('a-json','📊','CSV',()=>descargarCsv(w)); if(w.estado==='error'||w.estado==='pendiente') mk('a-edit','↻','Reintentar',()=>{ generarInforme(w.id); }); mk('a-del','🗑','Borrar',()=>borrarItem(w)); }
   else if(w.estado==='borrador'){ mk('a-edit','✎','Editar',()=>openDraft(w)); mk('a-del','🗑','Borrar',()=>borrarItem(w)); }
-  else { mk('a-json','{ }','JSON',async()=>{ try{ const f=await buildFiles(w); await saveFile(f.jsonFile); }catch(e){ toast('No se pudo generar el JSON: '+e.message); } }); mk('a-pdf','📄','PDF',async()=>{ toast('Generando PDF…'); try{ const f=await buildFiles(w); await openPdf(f.pdfFile); }catch(e){ toast('No se pudo generar el PDF: '+e.message); } }); mk('a-edit','✎','Editar',()=>openEdit(w)); mk('a-del','🗑','Borrar',()=>borrarItem(w)); }
+  else { mk('a-json','{ }','JSON',async()=>{ try{ const f=await buildFiles(w); await saveFile(f.jsonFile); }catch(e){ toast('No se pudo generar el JSON: '+e.message); } }); mk('a-pdf','📄','PDF',async()=>{ toast('Generando PDF…'); try{ const f=await buildFiles(w); const r=await openPdf(f.pdfFile); if(r==='saved') toast('PDF listo: quedó en Descargas ('+f.pdfFile.name+').'); else if(r!=='opened' && r!=='declined') toast('No se pudo abrir el PDF: abra el registro y toque «Ver».'); }catch(e){ toast('No se pudo generar el PDF: '+e.message); } }); mk('a-edit','✎','Editar',()=>openEdit(w)); mk('a-del','🗑','Borrar',()=>borrarItem(w)); }
   wrap.appendChild(acts); wrap.appendChild(item);
   const ancho=()=>acts.children.length*66; let sx=0, sy=0, dx=0, moviendo=false, horizontal=null, abiertoAlEmpezar=false;
   const setX=x=>{ item.style.transform='translateX('+x+'px)'; };
@@ -4401,7 +4415,7 @@ async function subirRespaldos(){
   try{ const lista=(await dbAll()).filter(necesitaRespaldo);
     for(const w of lista){ const marca=w.guardado_en||w.actualizado_en||''; const b=w.borrador||{}; const r=w.registro||{};
       const body={tipo:'respaldo', id:w.id, estancia:r.estancia||b.estancia||'', tipo_evento:r.tipo_evento||b.tipo||'', estado_local:w.estado, edicion:!!w.edicion, version:w.version||0, respondente:r.respondente||b.respondente||'', actualizado_en:marca, dispositivo:dispositivoId(), app_version:APP_VERSION, usuario_id:autorDe(w)||USR.id, usuario_nombre:nombreAutorDe(w)||USR.nombre, wrapper:paraNube(w)};
-      try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify(body), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok||j.ok===false) throw new Error(j.error||('HTTP '+res.status));
+      try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify(body), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok||j.ok===false) throw new Error(j.error||('HTTP '+res.status));
         await enCola(async()=>{ const w2=await dbGet(w.id); if(!w2) return; const igual=(w2.guardado_en||w2.actualizado_en||'')===marca; w2.nube=Object.assign({}, w2.nube||{}, {pendiente:!igual, subido_en:new Date().toISOString(), error:null}); await dbPut(w2); });
       }catch(e){ console.warn('copia en la nube', w.id, e); try{ await enCola(async()=>{ const w2=await dbGet(w.id); if(w2&&w2.nube){ w2.nube.error=new Date().toISOString(); await dbPut(w2); } }); }catch(x){} } }
   } finally{ subiendo=false; if(formActivo()) pintarAutosave(); }
@@ -4409,7 +4423,7 @@ async function subirRespaldos(){
 function listaBorrar(){ try{ return JSON.parse(localStorage.getItem('manejo.borrar_nube')||'[]'); }catch(e){ return []; } }
 function guardarListaBorrar(l){ try{ localStorage.setItem('manejo.borrar_nube', JSON.stringify(l)); }catch(e){} }
 function borrarNube(id){ const l=listaBorrar(); if(!l.includes(id)){ l.push(id); guardarListaBorrar(l); } procesarBorradosNube(); }
-async function procesarBorradosNube(){ if(!navigator.onLine || !cfg.endpoint) return; for(const id of listaBorrar()){ try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'borrar_respaldo', id}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(res.ok && j.ok!==false) guardarListaBorrar(listaBorrar().filter(x=>x!==id)); }catch(e){} } }
+async function procesarBorradosNube(){ if(!navigator.onLine || !cfg.endpoint) return; for(const id of listaBorrar()){ try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'borrar_respaldo', id}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(res.ok && j.ok!==false) guardarListaBorrar(listaBorrar().filter(x=>x!==id)); }catch(e){} } }
 setInterval(autoGuardar, 2000);
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'){ autoGuardar(); prepararBorradorBD(true).catch(()=>{}).then(()=>programarSubida(1500)); } else if(USR && navigator.onLine) sincronizar(); });
 window.addEventListener('pagehide',()=>{ autoGuardar(); });
@@ -4440,7 +4454,7 @@ $('nube-ok').addEventListener('click',async()=>{
   if(!navigator.onLine || !cfg.endpoint){ nubeMsg('Sin conexión: para traer los registros de la nube hace falta señal.','warn'); return; }
   const dias=parseInt($('nube-periodo').value,10); let desde=''; if(dias>0){ const d=new Date(Date.now()-dias*86400000); desde=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
   $('nube-ok').disabled=true; nubeMsg('Buscando en la nube…');
-  try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'recuperar', clave, estancia:est, desde}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok||j.ok===false) throw new Error(j.error||('HTTP '+res.status));
+  try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'recuperar', clave, estancia:est, desde}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok||j.ok===false) throw new Error(j.error||('HTTP '+res.status));
     const locales=new Map((await dbAll()).map(w=>[w.id,w])); const porId=new Map();
     (j.registros||[]).forEach(x=>porId.set(x.id,{id:x.id, fuente:'registro', version:Number(x.version)||1, item:x}));
     (j.respaldos||[]).forEach(x=>{ const p=porId.get(x.id); if(!p || (Number(x.version)||0)>=p.version) porId.set(x.id,{id:x.id, fuente:'respaldo', version:Number(x.version)||0, item:x}); });
@@ -4456,7 +4470,7 @@ $('nube-ok').addEventListener('click',async()=>{
 });
 async function ejecutarRecuperacion(){ const plan=nubePlan||[]; if(!plan.length||!nubeCtx) return; $('nube-ok').disabled=true; $('nube-cancel').disabled=true; const prog=$('nube-prog'); prog.classList.remove('hidden'); const bar=prog.querySelector('i'); let hechos=0, fallas=0;
   for(let i=0;i<plan.length;i+=3){ const lote=plan.slice(i,i+3); nubeMsg('Trayendo '+Math.min(i+lote.length,plan.length)+' de '+plan.length+'… (con fotos puede tardar)');
-    try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'recuperar_items', clave:nubeCtx.clave, estancia:nubeCtx.estancia, items:lote.map(c=>({id:c.id, fuente:c.fuente}))}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok||j.ok===false) throw new Error(j.error||('HTTP '+res.status));
+    try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'recuperar_items', clave:nubeCtx.clave, estancia:nubeCtx.estancia, items:lote.map(c=>({id:c.id, fuente:c.fuente}))}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok||j.ok===false) throw new Error(j.error||('HTTP '+res.status));
       for(const it of (j.items||[])){ try{ if(!it.contenido){ fallas++; continue; } const w=wrapperDesdeNube(it); if(!w.id){ fallas++; continue; } await enCola(()=>dbPut(w)); hechos++; }catch(e){ fallas++; } }
       fallas += lote.length - (j.items||[]).length;
     }catch(e){ fallas+=lote.length; console.warn('recuperar',e); }
@@ -4484,7 +4498,7 @@ function registroBorrador(){ const r=buildRecord(); r.borrador=true; r.estado_re
   r.faltantes=[...new Set(falt)].map(x=>({ item:x.replace(/\.$/,''), justificacion:null })); r.version=0; return r; }
 async function enviarBorradorBD(id){ const w=await dbGet(id); if(!w || !w.borrador_db || !w.borrador_db.pendiente || !w.borrador_db.registro) return false; if(!navigator.onLine || !cfg.endpoint || !USR) return false;
   const r=w.borrador_db.registro; r.historial=w.historial||[]; const marca=w.borrador_db.marca||null, pedido=w.borrador_db.pedido_en||null;
-  try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({ tipo:'registro', borrador:true, clave:USR.codigo, usuario_id:USR.id, registro:r, destinatario:cfg.mail, nombre_json:'borrador_'+slug(r.estancia)+'_'+r.fecha_evento+'_'+r.tipo_evento+'_'+r.id.slice(0,8)+'.json' }), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok || j.ok===false) throw Object.assign(new Error(j.error||('HTTP '+res.status)),{servidor:!!j.error});
+  try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({ tipo:'registro', borrador:true, clave:USR.codigo, usuario_id:USR.id, registro:r, destinatario:cfg.mail, nombre_json:'borrador_'+slug(r.estancia)+'_'+r.fecha_evento+'_'+r.tipo_evento+'_'+r.id.slice(0,8)+'.json' }), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok || j.ok===false) throw Object.assign(new Error(j.error||('HTTP '+res.status)),{servidor:!!j.error});
     await enCola(async()=>{ const w2=await dbGet(id); if(!w2 || !w2.borrador_db) return; if(w2.borrador_db.pedido_en!==pedido) return; const primera=!w2.borrador_db.enviado_en; w2.borrador_db={ pendiente:false, enviado_en:new Date().toISOString(), faltan:(r.faltantes||[]).length, mensaje:j.mensaje||'', marca }; if(primera) logEntry(w2,'borrador enviado a la base de datos', (r.faltantes||[]).length+' datos por completar'); await dbPut(w2); }); return true; }
   catch(e){ if(e.servidor){ await enCola(async()=>{ const w2=await dbGet(id); if(!w2||!w2.borrador_db) return; w2.borrador_db.pendiente=false; w2.borrador_db.error=String(e.message||e); delete w2.borrador_db.registro; delete w2.borrador_db.clave; logEntry(w2,'borrador rechazado por el servidor', String(e.message||e)); await dbPut(w2); }); toast('La base de datos rechazó el borrador: '+(e.message||e)); } return false; } }
 /* Borrador automático: lo que se está escribiendo va a la base de datos como BORRADOR (cada minuto, al tocar Borrador y al salir) */
@@ -4552,7 +4566,7 @@ function loginPintar(){ const dots=$('login-dots').children; for(let i=0;i<dots.
 function loginSacudir(){ const p=$('login-pad'); p.classList.remove('sacude'); void p.offsetWidth; p.classList.add('sacude'); if(navigator.vibrate) try{ navigator.vibrate(120); }catch(e){} }
 async function loginEnviar(){ if(loginV.length!==6 || loginOcupado) return; const c=loginV; loginOcupado=true; loginPintar(); loginAviso('Verificando…','info');
   let r=null, red=false;
-  if(navigator.onLine && cfg.endpoint){ try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'login', codigo:c, dispositivo:dispositivoId(), app_version:APP_VERSION}), redirect:'follow'}); const txt=await res.text(); try{ r=JSON.parse(txt); }catch(e){ red=true; } }catch(e){ red=true; } } else red=true;
+  if(navigator.onLine && cfg.endpoint){ try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'login', codigo:c, dispositivo:dispositivoId(), app_version:APP_VERSION}), redirect:'follow'}); const txt=await res.text(); try{ r=JSON.parse(txt); }catch(e){ red=true; } }catch(e){ red=true; } } else red=true;
   loginOcupado=false;
   if(!red && r && r.ok && r.usuario){ await recordarUsuario(c, r.usuario); loginV=''; loginAviso(''); loginPintar(); iniciarSesion(c, r.usuario); return; }
   if(!red && r && !r.ok && !/payload inválido/i.test(r.error||'')){ loginV=''; loginPintar(); loginSacudir(); loginAviso(r.pendiente ? 'Su código todavía no fue aprobado: avise a la administración.' : /demasiados/i.test(r.error||'') ? 'Demasiados intentos: espere 15 minutos.' : /incorrecto/i.test(r.error||'') ? 'Código incorrecto.' : (r.error||'Código no válido.')); return; }
@@ -4576,7 +4590,7 @@ $('cr-enviar').addEventListener('click',async()=>{ const msg=$('cr-msg'); const 
   if(e.length){ ver(e.join(' '),'bad'); return; }
   if(!navigator.onLine || !cfg.endpoint){ ver('Sin señal: para pedir el código hace falta conexión.','warn'); return; }
   $('cr-enviar').disabled=true; ver('Enviando…');
-  try{ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'crear_usuario', nombre, estancias:ests, codigo:c, dispositivo:dispositivoId(), app_version:APP_VERSION}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(x){} if(!res.ok || !j.ok) throw new Error(j.error||('HTTP '+res.status));
+  try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'crear_usuario', nombre, estancias:ests, codigo:c, dispositivo:dispositivoId(), app_version:APP_VERSION}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(x){} if(!res.ok || !j.ok) throw new Error(j.error||('HTTP '+res.status));
     ver('Pedido enviado ('+nombre+' · '+ests.join(', ')+'). Cuando la administración apruebe su código, entre con él.','ok'); $('cr-codigo').value=''; $('cr-codigo2').value=''; }
   catch(x){ ver('No se pudo enviar: '+(x.message||x),'bad'); $('cr-enviar').disabled=false; } });
 
@@ -4592,15 +4606,16 @@ function sincronizar(){ if(!USR || !navigator.onLine || !cfg.endpoint){ pintarSy
     catch(e){ syncError=String(e.message||e).slice(0,90); console.warn('sincronizar',e); return false; }
     finally{ sincronizando=null; pintarSync(); renderHome(); refrescarDone(); } })();
   return sincronizando; }
-async function traerItems(lista){ const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'recuperar_items', clave:USR.codigo, estancia:'*', items:lista.map(c=>({id:c.id, fuente:c.fuente}))}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok || j.ok===false) throw new Error(j.error||('HTTP '+res.status)); return j.items||[]; }
+async function traerItems(lista){ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'recuperar_items', clave:USR.codigo, estancia:'*', items:lista.map(c=>({id:c.id, fuente:c.fuente}))}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){} if(!res.ok || j.ok===false) throw new Error(j.error||('HTTP '+res.status)); return j.items||[]; }
 async function guardarDeNube(it){ if(!it || !it.contenido) return null; const w=wrapperDesdeNube(it, true); if(!w || !w.id) return null; let ok=false;
   await enCola(async()=>{ const l=await dbGet(w.id); if(l && ((l.nube&&l.nube.pendiente) || (l.borrador_db&&l.borrador_db.pendiente))) return; if(formActivo() && formId===w.id) return; if(l && (Number(l.version)||0)>(Number(w.version)||0)) return; await dbPut(w); ok=true; });
   return ok ? w : null; }
 async function bajarNube(){ if(!USR) return;
-  const res=await fetch(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'sync_lista', usuario:USR.codigo}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){ throw new Error('respuesta inválida del servidor'); }
+  const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'sync_lista', usuario:USR.codigo}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){ throw new Error('respuesta inválida del servidor'); }
   if(!res.ok || !j.ok){ const er=String(j.error||('HTTP '+res.status)); if(/payload inválido/i.test(er)) throw new Error('el servidor es la versión anterior'); if(/código|aprobado|bloqueado|rechazado/i.test(er) && !/demasiados/i.test(er)){ cerrarSesion('Su código ya no vale: '+er+'.'); } throw new Error(er); }
   if(j.usuario) actualizarUsuario(j.usuario); if(!USR) return;
   const locales=new Map((await dbAll()).filter(w=>w.tipo!=='informe').map(w=>[w.id,w])); const nb=new Set(noBajar()); const porId=new Map();
+  for(const x of (j.registros||[])){ if(/^BORRADOR/i.test(String(x.estado_registro||''))) continue; const l=locales.get(x.id); if(!l || l.estado==='enviado' || l.estado==='borrador' || l.edicion || !l.registro || esSolicitud(l.registro.tipo_evento)) continue; if((Number(x.version)||1) >= (Number(l.version)||1)){ try{ const w2=await markEnvio(l.id,'servidor','confirmado al sincronizar: la base ya tenía la versión '+(Number(x.version)||1)); if(w2) locales.set(l.id,w2); }catch(e){ console.warn('confirmar',l.id,e); } } }
   (j.registros||[]).forEach(x=>{ if(/^BORRADOR/i.test(String(x.estado_registro||''))) return; porId.set(x.id,{id:x.id, fuente:'registro', version:Number(x.version)||1, autor:String(x.creado_por_id||''), estancia:x.estancia, tipo_evento:x.tipo_evento, fecha:x.fecha_evento||'', respondente:x.respondente||'', marca:String(x.actualizado||'')}); });
   (j.respaldos||[]).forEach(x=>{ const v=Number(x.version)||0; const p=porId.get(x.id); if(p && (p.version>v || (p.version===v && !x.edicion))) return; porId.set(x.id,{id:x.id, fuente:'respaldo', version:v, autor:String(x.usuario_id||(p&&p.autor)||''), estancia:x.estancia, tipo_evento:x.tipo_evento, fecha:(p&&p.fecha)||'', respondente:x.respondente||'', marca:String(x.actualizado_en||''), estado_local:x.estado_local, edicion:!!x.edicion}); });
   const bajar=[], solo=[]; const limite=new Date(Date.now()-90*86400000).toISOString().slice(0,10);
@@ -4622,7 +4637,7 @@ function saveConfigFromForm(){ cfg.respondente=$('c-respondente').value.trim(); 
   const m=$('c-mail').value.trim(), ep=$('c-endpoint').value.trim(); cfg.mail=m||DEFAULT_MAIL; cfg.mail_custom = cfg.mail!==DEFAULT_MAIL; cfg.endpoint=ep||DEFAULT_ENDPOINT; cfg.endpoint_custom = cfg.endpoint!==DEFAULT_ENDPOINT; saveCfg(); }
 ['c-respondente','c-estancia','c-lista','c-mail','c-endpoint'].forEach(id=>$(id).addEventListener('change',()=>{ saveConfigFromForm(); toast('Configuración guardada'); }));
 $('btn-reset-server').addEventListener('click',()=>{ $('c-mail').value=DEFAULT_MAIL; $('c-endpoint').value=DEFAULT_ENDPOINT; saveConfigFromForm(); toast('Servidor y correo restablecidos'); });
-$('btn-test-endpoint').addEventListener('click',async()=>{ saveConfigFromForm(); const m=$('c-msg'); m.classList.remove('hidden'); m.className='msg'; m.textContent='Probando…'; try{ const res=await fetch(cfg.endpoint,{method:'POST',body:JSON.stringify({tipo:'ping'}),redirect:'follow'}); const t=await res.text(); let j={}; try{j=JSON.parse(t);}catch(e){} if(res.ok && j.ok){ m.className='msg ok'; m.textContent='Conexión correcta'+(j.mensaje?': '+j.mensaje:'.'); syncPendientes(); } else throw new Error(j.error||('HTTP '+res.status)); }catch(e){ m.className='msg bad'; m.textContent='No responde: '+e.message; } });
+$('btn-test-endpoint').addEventListener('click',async()=>{ saveConfigFromForm(); const m=$('c-msg'); m.classList.remove('hidden'); m.className='msg'; m.textContent='Probando…'; try{ const res=await fetchSrv(cfg.endpoint,{method:'POST',body:JSON.stringify({tipo:'ping'}),redirect:'follow'}); const t=await res.text(); let j={}; try{j=JSON.parse(t);}catch(e){} if(res.ok && j.ok){ m.className='msg ok'; m.textContent='Conexión correcta'+(j.mensaje?': '+j.mensaje:'.'); syncPendientes(); } else throw new Error(j.error||('HTTP '+res.status)); }catch(e){ m.className='msg bad'; m.textContent='No responde: '+e.message; } });
 
 /* ---------- actualización automática: cada versión nueva subida a GitHub llega sola (sin desinstalar el app) ----------
    El service worker pide la página siempre a la red; además el app mira cada tanto sw.js (1 KB) y, si trae otra versión, recarga
