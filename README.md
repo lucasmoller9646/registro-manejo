@@ -1,9 +1,16 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.6.5
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.7.0
 
 App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, salida a faena, informe Padroniza y escore de heces.
 
 Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.7.0
+
+- **El "Mapa de la estancia" de la Ypoti muestra el confinamiento (Bovino.OS).** Arriba del mapa aparecen el botón **🐂 Confinamiento** (lleva a los corrales) y un selector para pintar los corrales con los mismos criterios de "Currais e lotes" del app de escritorio: dueño (boitel × propio), fase de la dieta, cabezas por corral, fecha prevista de faena, señales del Consultor, consumo en % del peso vivo, consumo de MS, lectura de comedero, entrega × previsión, peso estimado y días de comedero (mismos colores y leyenda). Al tocar un corral se ve la ficha de cada lote: cabezas (entradas y muertes), dueño, categoría y genética, dieta y fase, días de comedero, consumo de MS y % del peso vivo, peso estimado y de salida, faena prevista, lectura de comedero y los motivos del Consultor. Los lotes del Bovino.OS que están en pastos de la Ypoti pintan esos pastos y aparecen al tocarlos. Abajo: total de cabezas, lotes y corrales ocupados, y de cuándo es la foto (con aviso si tiene 2 días o más). Sin señal se ve la última foto guardada en el teléfono.
+- **De dónde salen los datos:** la API del Bovino.OS solo responde en la red de la Ypoti, así que el app de escritorio **ypoti-integracao** manda una foto de los lotes activos al servidor del app (`ferramentas/enviar_confinamento_app.py --enviar`, o solo cada 2 horas desde el segundo plano si existe la variable `REGISTRO_MANEJO_TOKEN_CONF`). Solo la ven los usuarios con permiso para la Ypoti.
+- **Servidor (.gs):** nuevo archivo `confinamiento.gs` incluido en `servidor_apps_script.gs` (pedidos `confinamiento_base` y `mapa_confinamiento`). Crear en Propiedades del script `CONFINAMIENTO_TOKEN` (16 caracteres o más; el mismo valor va en la variable de Windows `REGISTRO_MANEJO_TOKEN_CONF` del PC de la Ypoti). Publicar en la misma implementación (Nueva versión).
+- **Informe de mortandad, mapa más limpio (retroactivo, sirve para los informes de octubre):** en las estancias **sin mapa en el app** (Bella Vista, Cerro Memby…), un punto a más de 15 km de la mediana de las demás muertes del mes no se dibuja (se avisa en la lista); las muertes con el **mismo punto** (a menos de 50 m: registradas desde la sede con "Ubicación del teléfono") van como un solo marcador **×N** con una nota; y si la estancia no tiene mapa y todas las muertes tienen el mismo punto, no se dibuja el mapa y se explica por qué.
 
 ## Novedades 4.6.5
 

@@ -270,6 +270,12 @@ body.modo-solicitud #wrap-tipos{display:none}
 #mapa-modal .mapa-leyenda{position:absolute;left:8px;right:64px;bottom:16px;background:rgba(17,17,17,.88);color:#fff;border-radius:10px;padding:8px 10px;font-size:12px;line-height:1.5;pointer-events:none}
 #mapa-modal .mapa-leyenda i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(255,255,255,.4)}
 #mapa-modal .mapa-info{font-size:14px;line-height:1.45;color:#eee}
+#mapa-modal .mapa-conf .btn{flex:0 0 auto!important;padding:0 12px;font-size:14px;min-height:42px!important}
+#mapa-modal .mapa-conf select{flex:1;min-width:0;font-size:14.5px}
+#mapa-modal .conf-lote{border-top:1px solid #333;padding-top:6px;margin-top:6px}
+#mapa-modal .conf-lote b.l{color:#fff;font-size:15px}
+#mapa-modal .conf-al{color:#F1D9A0}
+#mapa-modal .mapa-info .sub{color:#bbb;font-size:12.5px}
 #mapa-modal .mapa-info b{color:#fff}
 #mapa-modal .mapa-info .lotes{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 #mapa-modal .mapa-info .lotes button{background:#262626;color:#fff;border:1px solid #555;border-radius:999px;padding:6px 10px;font-size:13.5px}
@@ -1185,6 +1191,7 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
   <div class="bar top">
     <div class="row"><span class="titulo" id="mapa-titulo">📍 ¿Dónde está el animal?</span><button class="btn" type="button" id="mapa-capa">🛰 Satélite</button></div>
     <div class="row mapa-guia-ctrl hidden" id="mapa-guia-ctrl"><select id="mapa-estancia" aria-label="Estancia"></select></div>
+    <div class="row mapa-conf hidden" id="mapa-conf-row"><button class="btn" type="button" id="mapa-conf-ir">🐂 Confinamiento</button><select id="mapa-conf" aria-label="Pintar los corrales por"></select></div>
     <div class="seg mapa-lot hidden" id="mapa-lotacion"><button type="button" data-v="">Sin colores</button><button type="button" data-v="hoy">Lotación hoy</button><button type="button" data-v="media">Media 12 meses</button></div>
   </div>
   <div class="lienzo">
@@ -1958,7 +1965,13 @@ async function makeMortandadPdf(w, data, extra){
   // ---- mapa con puntos ----
   const pols=(extra.pols||[]).filter(p=>p.g&&p.g.length); const tieneUbic=o=>o.ubic_lat!==''&&o.ubic_lat!=null&&o.ubic_lon!==''&&o.ubic_lon!=null&&!isNaN(Number(o.ubic_lat))&&!isNaN(Number(o.ubic_lon)); const lejos=o=>!!(o._ubic&&(o._ubic.estado==='lejos'||o._ubic.estado==='otra'));
   /* v4.6.4: los puntos lejos de la estancia (en otra estancia o fuera de todas) no se dibujan: deformaban el mapa */ const conUbic=delMes.filter(o=>tieneUbic(o)&&!lejos(o)); const fueraMapa=delMes.filter(o=>tieneUbic(o)&&lejos(o)); const sinUbic=delMes.filter(o=>!tieneUbic(o));
-  if(pols.length || conUbic.length){
+  /* grupos de muertes en el mismo punto (a ≤ 50 m del primer punto del grupo) */
+  const grupos=[]; conUbic.forEach(o=>{ const la=Number(o.ubic_lat), lo=Number(o.ubic_lon); const g=grupos.find(g=>{ const a=g[0]; return Math.hypot(la-Number(a.ubic_lat), (lo-Number(a.ubic_lon))*Math.cos(la*Math.PI/180))*111200<=50; }); if(g) g.push(o); else grupos.push([o]); });
+  const juntos=grupos.filter(g=>g.length>=3);
+  const sinMapaUtil=!pols.length && grupos.length<2 && conUbic.length>0;
+  if(sinMapaUtil){ titulo('Mapa de la estancia · dónde murió cada animal');
+    parrafo('No se dibuja el mapa: la estancia no tiene mapa en el app y '+(conUbic.length===1?'la única muerte con ubicación tiene':'las '+conUbic.length+' muertes con ubicación tienen el mismo punto')+' ('+Number(conUbic[0].ubic_lat).toFixed(5)+', '+Number(conUbic[0].ubic_lon).toFixed(5)+')'+(conUbic.length>1?': probablemente se marcó dónde estaba el teléfono al cargar el registro (por ejemplo, la sede), no dónde murió el animal.':'.'), 8.4, ital, grey); }
+  if(!sinMapaUtil && (pols.length || conUbic.length)){
     titulo('Mapa de la estancia · dónde murió cada animal (un color por causa)');
     const pts=[]; pols.forEach(p=>p.g.forEach(an=>an.forEach(c=>pts.push(c)))); conUbic.forEach(o=>pts.push([Number(o.ubic_lon),Number(o.ubic_lat)]));
     const lat0=pts.reduce((s,c)=>s+c[1],0)/pts.length; const kx=Math.cos(lat0*Math.PI/180); const xs=pts.map(c=>c[0]*kx), ys=pts.map(c=>c[1]);
@@ -1968,14 +1981,19 @@ async function makeMortandadPdf(w, data, extra){
     page.drawRectangle({x:left-2,y:top-mh-2,width:mw+4,height:mh+4,color:campo,borderColor:line,borderWidth:0.5});
     pols.forEach(p=>p.g.forEach(an=>page.drawSvgPath(path(an),{x:left,y:top,color:p.n==='piquete'?hex('#DCEBDF'):undefined,borderColor:p.n==='piquete'?hex('#8FB39A'):verde,borderWidth:p.n==='piquete'?0.5:1.1,opacity:0.95})));
     const fs=pols.length<=30?5.6:pols.length<=70?4.4:3.4; pols.forEach(p=>{ if(!p.nm||p.n!=='piquete') return; const cs=[].concat(...p.g); const lx=cs.map(c=>c[0]*kx), ly=cs.map(c=>c[1]); const cx=((Math.min(...lx)+Math.max(...lx))/2-x0)*s, cy=(y1-(Math.min(...ly)+Math.max(...ly))/2)*s; const t=ansi(p.nm); page.drawText(t,{x:left+cx-font.widthOfTextAtSize(t,fs)/2,y:top-cy-fs*0.35,size:fs,font,color:grey}); });
-    conUbic.forEach((o,i)=>{ const px=left+(Number(o.ubic_lon)*kx-x0)*s, py=top-(y1-Number(o.ubic_lat))*s; const c=hex(colorDe[mortCausaNorm(o.causa_probable)]||'#000000'); page.drawCircle({x:px,y:py,size:4.2,color:c,borderColor:branco,borderWidth:1}); const n=String(delMes.indexOf(o)+1); page.drawText(n,{x:px+5,y:py-2.5,size:6,font:bold,color:ink}); });
+    grupos.forEach(g=>{ const o=g[0]; const lat=g.reduce((a,x)=>a+Number(x.ubic_lat),0)/g.length, lon=g.reduce((a,x)=>a+Number(x.ubic_lon),0)/g.length; const px=left+(lon*kx-x0)*s, py=top-(y1-lat)*s;
+      const causasG=[...new Set(g.map(x=>mortCausaNorm(x.causa_probable)))]; const c=hex(causasG.length===1?(colorDe[causasG[0]]||'#000000'):'#4A4F49');
+      if(g.length===1){ page.drawCircle({x:px,y:py,size:4.2,color:c,borderColor:branco,borderWidth:1}); page.drawText(String(delMes.indexOf(o)+1),{x:px+5,y:py-2.5,size:6,font:bold,color:ink}); return; }
+      const r=g.length>=3?6.2:4.8; page.drawCircle({x:px,y:py,size:r,color:c,borderColor:branco,borderWidth:1.2});
+      const lab=g.length>=3?'×'+g.length:g.map(x=>delMes.indexOf(x)+1).join(','); const fsz=g.length>=3?7:6; const tw2=bold.widthOfTextAtSize(ansi(lab),fsz);
+      if(g.length>=3){ page.drawRectangle({x:px+r+2,y:py-4.6,width:tw2+4,height:9.2,color:branco,opacity:0.85}); } page.drawText(ansi(lab),{x:px+r+4,y:py-2.6,size:fsz,font:bold,color:ink}); });
     y=top-mh-8;
     // leyenda
     let lx=M; const lh=10; need(lh*Math.ceil(causasOrd.length/3)+10); let row=0;
     causasOrd.forEach((c,i)=>{ const t=c+' ('+causas[c]+')'; const wdt=tw(t,7.6)+18; if(lx+wdt>M+CW){ lx=M; row++; } const yy=y-row*lh; page.drawCircle({x:lx+4,y:yy-3.6,size:3.6,color:hex(colorDe[c])}); txt(t,lx+11,yy-6.4,7.6,font,ink); lx+=wdt+6; });
     y-=(row+1)*lh+2;
     const nros=l=>l.map(o=>'nº '+(delMes.indexOf(o)+1)).join(', ');
-    parrafo('El número junto a cada punto es el de la ocurrencia en la lista.'+(sinUbic.length?' '+sinUbic.length+(sinUbic.length===1?' muerte no tiene':' muertes no tienen')+' ubicación registrada ('+nros(sinUbic)+').':'')+(fueraMapa.length?' '+fueraMapa.length+(fueraMapa.length===1?' muerte tiene':' muertes tienen')+' la ubicación lejos de la estancia y no se dibuja'+(fueraMapa.length===1?'':'n')+' en el mapa para no deformarlo ('+nros(fueraMapa)+'; ver la lista).':''), 7.6, ital, grey);
+    parrafo('El número junto a cada punto es el de la ocurrencia en la lista.'+(juntos.length?' '+juntos.map(g=>g.length+' muertes tienen el mismo punto (×'+g.length+')').join(' y ')+': probablemente se marcó dónde estaba el teléfono al cargar el registro (por ejemplo, la sede), no dónde murió el animal.':'')+(sinUbic.length?' '+sinUbic.length+(sinUbic.length===1?' muerte no tiene':' muertes no tienen')+' ubicación registrada ('+nros(sinUbic)+').':'')+(fueraMapa.length?' '+fueraMapa.length+(fueraMapa.length===1?' muerte tiene':' muertes tienen')+(fueraMapa.some(o=>o._ubic.ref==='mediana')?' la ubicación lejos de las demás muertes del mes (la estancia no tiene mapa en el app) y no se dibuja':' la ubicación lejos de la estancia y no se dibuja')+(fueraMapa.length===1?'':'n')+' en el mapa para no deformarlo ('+nros(fueraMapa)+'; ver la lista).':''), 7.6, ital, grey);
   }
   // ---- ocurrencias ----
   titulo('Ocurrencias del mes ('+delMes.length+')', 110);
@@ -1986,7 +2004,7 @@ async function makeMortandadPdf(w, data, extra){
       if(!f) motivo='no se cargó'; else if(!f.b64) motivo=f.omitida||'no llegó del servidor'; else { im=await embed(f.b64); if(!im) motivo='no se pudo leer'; }
       slots.push({tp, im, motivo, hay:!!f}); }
     const imgs=slots.map(s=>s.im);
-    const lineas=[['Fecha',fmtDate(ft(o.fecha_evento))],['IDE',String(o.nro_boton||'-')],['Brinco',mortSiap(o.nro_boton)||'-'],['Causa de muerte',mortCausaNorm(o.causa_probable)],['Potrero',String(o.piquete||'-')+(o.lote_controlpasto?' · lote '+o.lote_controlpasto:'')],['Ubicación',(o.ubic_lat!==''&&o.ubic_lat!=null)?Number(o.ubic_lat).toFixed(5)+', '+Number(o.ubic_lon).toFixed(5)+(o.ubic_fuente?' ('+o.ubic_fuente+')':'')+(lejos(o)?' · ATENCIÓN: a '+(o._ubic.km>=10?Math.round(o._ubic.km):o._ubic.km.toFixed(1)).toString().replace('.',',')+' km de la estancia'+(o._ubic.estado==='otra'?', dentro de '+o._ubic.otra:'')+' (no va en el mapa)':''):'sin ubicación'],['Registró',String(o.respondente||'-')]];
+    const lineas=[['Fecha',fmtDate(ft(o.fecha_evento))],['IDE',String(o.nro_boton||'-')],['Brinco',mortSiap(o.nro_boton)||'-'],['Causa de muerte',mortCausaNorm(o.causa_probable)],['Potrero',String(o.piquete||'-')+(o.lote_controlpasto?' · lote '+o.lote_controlpasto:'')],['Ubicación',(o.ubic_lat!==''&&o.ubic_lat!=null)?Number(o.ubic_lat).toFixed(5)+', '+Number(o.ubic_lon).toFixed(5)+(o.ubic_fuente?' ('+o.ubic_fuente+')':'')+(lejos(o)?' · ATENCIÓN: a '+(o._ubic.km>=10?Math.round(o._ubic.km):o._ubic.km.toFixed(1)).toString().replace('.',',')+(o._ubic.ref==='mediana'?' km de las demás muertes del mes':' km de la estancia')+(o._ubic.estado==='otra'?', dentro de '+o._ubic.otra:'')+' (no va en el mapa)':''):'sin ubicación'],['Registró',String(o.respondente||'-')]];
     if(o.observaciones) lineas.push(['Obs.',String(o.observaciones)]); if(o.items_faltantes) lineas.push(['Faltantes',String(o.items_faltantes).replace(/\n/g,' ')]);
     const ls=lineas.map(([k,v])=>[k,wrap(v,8.8,font,LEFT_W-78)]); const hTxt=ls.reduce((s,[k,l])=>s+l.length*11+2,0)+14;
     const imW=(RIGHT_W-6)/2; const dims=imgs.map(im=>{ if(!im) return {w:imW, h:Math.min(120, imW*4/3)}; const sc=Math.min(imW/im.width, 120/im.height); return {w:im.width*sc, h:im.height*sc}; }); const hImg=Math.max(...dims.map(d=>d.h))+6;
@@ -2365,7 +2383,7 @@ async function makeSanitarioPdf(w, S, extra){ extra=extra||{};
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '4.6.5';
+const APP_VERSION = '4.7.0';
 const ESQUEMA = 'manejo-ypoti/3.7';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
@@ -3679,8 +3697,10 @@ function mapaDraw(){ const cv=$('mapa-canvas'); if(!$('mapa-modal').classList.co
     if(p.n==='contorno'){ g.lineWidth=2.5; g.strokeStyle=sat?'rgba(255,214,0,.95)':'#2b3a26'; g.setLineDash([]); g.stroke(); return; }
     if(p.n==='divisa'){ g.lineWidth=0.8; g.strokeStyle=sat?'rgba(255,255,255,.6)':'rgba(70,95,60,.7)'; g.stroke(); return; }
     let fill=null; if(mia && lotModo && dpc && dpc.porPol){ const d=dpc.porPol[p.i]; fill = d ? lotColor(lotModo==='hoy'?d.lot_h:d.lot_m) : null; if(fill){ g.globalAlpha=sat?0.55:0.62; g.fillStyle=fill; g.fill('evenodd'); g.globalAlpha=1; } }
+    if(!fill && mia && MAPA.conf && confTiene(MAPA.est)){ const lc=confLotesPiq(p); if(lc.length){ fill=confCor(lc, MAPA.conf); g.globalAlpha=sat?0.6:0.75; g.fillStyle=fill; g.fill('evenodd'); g.globalAlpha=1; } }
     if(!fill && !sat){ g.fillStyle=mia?'#CADDB8':'#D6DECF'; g.fill('evenodd'); }
     g.lineWidth=mia?1.3:0.8; g.strokeStyle=sat?'rgba(255,255,255,.85)':'#56744A'; g.stroke(); });
+  if(MAPA.modo==='guia') confDibujar(g, ox, oy, s, sat);
   // pasto elegido
   if(MAPA.sel && enVista(MAPA.sel)){ trazar(g,MAPA.sel,ox,oy,s); g.lineWidth=4; g.strokeStyle='#FFD400'; g.stroke(); g.lineWidth=1.5; g.strokeStyle='#5a4500'; g.stroke(); }
   // nombres de los pastos (cuando se ven grandes)
@@ -3714,21 +3734,29 @@ function mapaInfo(faltan){ const info=$('mapa-info'), msg=$('mapa-msg'); const d
     if(dpc && dpc.datos && dpc.datos.manejo_ate) h+='<div class="sub">ControlPasto hasta '+txtFecha(dpc.datos.manejo_ate)+(dpc.t?' · leído '+fmtDT(new Date(dpc.t).toISOString()):'')+'</div>';
     info.innerHTML=h; info.querySelectorAll('[data-l]').forEach(b=>b.addEventListener('click',()=>{ MAPA.lotSel=Number(b.dataset.l); mapaInfo(); })); msg.textContent=''; return; }
   // guía
-  info.classList.remove('hidden'); const ley=$('mapa-leyenda'); if(MAPA.lot){ ley.innerHTML='<b>'+(MAPA.lot==='hoy'?'Lotación hoy':'Media de 12 meses')+'</b> <span style="opacity:.75">UA/ha (UA = 450 kg)</span><br>'+LOT_CORTOS.map((t,k)=>'<span style="white-space:nowrap;margin-right:8px"><i style="background:'+LOT_COLORES[k][0]+'"></i>'+t+'</span>').join(' '); ley.classList.remove('hidden'); } else ley.classList.add('hidden');
+  info.classList.remove('hidden'); const ley=$('mapa-leyenda'); const conConf=confTiene(MAPA.est) && MAPA.conf && DATOS_CONF && DATOS_CONF.base;
+  if(MAPA.lot || conConf){ ley.innerHTML=(MAPA.lot?'<b>'+(MAPA.lot==='hoy'?'Lotación hoy':'Media de 12 meses')+'</b> <span style="opacity:.75">UA/ha (UA = 450 kg)</span><br>'+LOT_CORTOS.map((t,k)=>'<span style="white-space:nowrap;margin-right:8px"><i style="background:'+LOT_COLORES[k][0]+'"></i>'+t+'</span>').join(' '):'')+(MAPA.lot&&conConf?'<br>':'')+(conConf?confLeyenda(MAPA.conf):''); ley.classList.remove('hidden'); } else ley.classList.add('hidden');
+  if(MAPA.selPen && confTiene(MAPA.est)){ const ls=CONF_IX.baia[MAPA.selPen]||[]; const cab=ls.reduce((a,l)=>a+(l.cab||0),0);
+    let hp='<div><b>Corral '+hxBaiaTxt(MAPA.selPen)+'</b>'+(ls.length?' · '+fmtN(cab)+' cab'+(ls.length>1?' en '+ls.length+' lotes':''):'')+'</div>';
+    if(DATOS_CONF && DATOS_CONF.base) hp+= ls.length ? ls.slice().sort((a,b)=>(b.cab||0)-(a.cab||0)).map(confFicha).join('') : '<div class="sub">Corral vacío en el Bovino.OS.</div>';
+    info.innerHTML=hp+confInfoBase(); msg.textContent=''; return; }
   let h=''; const gpsP=MAPA.gps?pastoEn(MAPA.est, MAPA.gps.lat, MAPA.gps.lon):null;
   if(!geoTiene(MAPA.est)) h+='<div class="sub">Todavía no hay mapa de los pastos de '+esc(MAPA.est)+': se ve el satélite.</div>';
   if(gpsP) h+='<div>📍 Usted está en el pasto <b>'+esc(gpsP.nm||MAPA.est)+'</b></div>'; else if(MAPA.gps && geoTiene(MAPA.est)) h+='<div class="sub">📍 Usted está fuera de los pastos del mapa de '+esc(MAPA.est)+'.</div>';
   const p=MAPA.sel;
   if(p){ const d=datosDe(p); h+='<div><b>Pasto '+esc(p.nm||'(sin nombre)')+'</b> · '+fmtN(p.a,1)+' ha</div>';
     if(d){ h+='<div>Hoy: <b>'+fmtN(d.cab)+' cab</b> · '+fmtN(d.lot_h,2)+' UA/ha'+(d.lot_m!=null?' · media 12 meses '+fmtN(d.lot_m,2)+' UA/ha':'')+'</div>'; const ls=d.lotes||[]; h+= ls.length ? '<div class="sub">'+ls.map(l=>esc(l.lote)+' — '+fmtN(l.cab)+' cab'+(l.pv?' · '+fmtN(l.pv)+' kg':'')+(l.piquete&&normPiq(l.piquete)!==normPiq(p.nm)?' · piquete '+esc(l.piquete):'')).join('<br>')+'</div>' : '<div class="sub">Sin animales hoy (descansando).</div>'; }
-    else if(dpc && dpc.porPol) h+='<div class="sub">Este pasto no figura en el ControlPasto.</div>'; }
+    else if(dpc && dpc.porPol) h+='<div class="sub">Este pasto no figura en el ControlPasto.</div>';
+    const lc=confTiene(MAPA.est)?confLotesPiq(p):[]; if(lc.length) h+='<div class="sub" style="margin-top:4px">Lotes del Bovino.OS en este pasto:</div>'+lc.map(confFicha).join(''); }
   else { const rs=(dpc&&dpc.resumen)||[]; if(rs.length){ rs.forEach(r=>{ h+='<div><b>'+esc(r.fazenda)+'</b> · hoy '+fmtN(r.cab)+' cab en '+fmtN(r.lotes)+' lotes'+(r.lot_h!=null?' · '+fmtN(r.lot_h,2)+' UA/ha':'')+(r.lot_m!=null?' (media 12 m '+fmtN(r.lot_m,2)+')':'')+'</div>'; }); }
-    h+='<div class="sub">Toque un pasto para ver sus lotes.'+(MAPA.lot?'':' Elija "Lotación hoy" o "Media 12 meses" para ver los colores.')+'</div>'; }
+    if(confTiene(MAPA.est)) h+=confResumen();
+    h+='<div class="sub">Toque un pasto'+(confTiene(MAPA.est)?' o un corral':'')+' para ver sus lotes.'+(MAPA.lot?'':' Elija "Lotación hoy" o "Media 12 meses" para ver los colores.')+'</div>'; }
+  if(confTiene(MAPA.est)) h+=confInfoBase();
   if(MAPA.cargando) h+='<div class="sub">Consultando el ControlPasto…</div>'; else if(dpc && dpc.error) h+='<div class="sub">⚠ No se pudo actualizar el ControlPasto: '+esc(dpc.error)+(dpc.porPol?' (se muestran los datos guardados)':'')+'.</div>';
   if(dpc && dpc.datos && dpc.datos.manejo_ate) h+='<div class="sub">Datos del ControlPasto hasta '+txtFecha(dpc.datos.manejo_ate)+(dpc.t?' · leídos '+fmtDT(new Date(dpc.t).toISOString()):'')+'</div>';
   info.innerHTML=h; msg.textContent=''; }
 function mapaTocar(x,y){ const ll=mapaLL(x,y);
-  if(MAPA.modo==='guia'){ MAPA.sel=pastoEn(MAPA.est, ll.lat, ll.lon); mapaPedirDibujo(); return; }
+  if(MAPA.modo==='guia'){ const pen=confPenEn(ll.lat, ll.lon); MAPA.selPen=pen?pen.nm:null; MAPA.sel=pen?null:pastoEn(MAPA.est, ll.lat, ll.lon); mapaPedirDibujo(); return; }
   MAPA.lat=ll.lat; MAPA.lon=ll.lon; centrarEnPY(); MAPA.movido=true; mapaPedirDibujo(); }
 function mapaVerGps(u, centrar){ MAPA.gps=u; if(centrar){ MAPA.lat=u.lat; MAPA.lon=u.lon; mapaSetZ(Math.max(MAPA.z,15)); MAPA.movido=true; } mapaPedirDibujo(); }
 function mapaSeguirGps(on){ if(MAPA.watch!=null){ try{ navigator.geolocation.clearWatch(MAPA.watch); }catch(e){} MAPA.watch=null; } if(on && navigator.geolocation){ try{ MAPA.watch=navigator.geolocation.watchPosition(p=>{ mapaVerGps({lat:+p.coords.latitude.toFixed(6), lon:+p.coords.longitude.toFixed(6), precision_m:Math.round(p.coords.accuracy), t:Date.now()}, false); }, ()=>{}, {enableHighAccuracy:true, maximumAge:15000, timeout:30000}); }catch(e){} } }
@@ -3739,7 +3767,7 @@ function mapaAbrir(o){ MAPA.modo=o.modo; MAPA.est=o.est||''; MAPA.cb=o.cb||null;
   $('mapa-titulo').textContent=o.titulo||(o.modo==='piquete'?'🗺 Elegir el pasto':o.modo==='guia'?'🗺 Guía de la estancia':'📍 ¿Dónde está el animal?');
   $('mapa-guia-ctrl').classList.toggle('hidden', o.modo!=='guia'); $('mapa-lotacion').classList.toggle('hidden', o.modo!=='guia'); setSeg($('mapa-lotacion'), MAPA.lot);
   $('mapa-pdf').classList.toggle('hidden', o.modo!=='guia'); $('mapa-ok').classList.toggle('hidden', o.modo==='guia'); $('mapa-ok').disabled=false; $('mapa-ok').textContent = o.modo==='piquete' ? '✓ Usar este pasto' : '✓ OK'; $('mapa-cancel').textContent = o.modo==='guia' ? '✕ Cerrar' : '✕ Cancelar';
-  $('mapa-leyenda').classList.add('hidden'); pintarBotonCapa();
+  $('mapa-leyenda').classList.add('hidden'); pintarBotonCapa(); MAPA.selPen=null; confCtrl();
   setTimeout(()=>{ const pols=geoPols(MAPA.est).filter(p=>p.n!=='divisa');
     if(o.inicial && isFinite(o.inicial.lat)){ MAPA.lat=o.inicial.lat; MAPA.lon=o.inicial.lon; mapaSetZ(16); }
     else if(o.centrarEn){ MAPA.lat=o.centrarEn.cen[1]; MAPA.lon=o.centrarEn.cen[0]; mapaFit(o.centrarEn.bb); mapaSetZ(Math.min(MAPA.z,16)); MAPA.lat=o.centrarEn.cen[1]; MAPA.lon=o.centrarEn.cen[0]; }
@@ -3773,11 +3801,109 @@ function openMapa(inicial, cb){ mapaAbrir({modo:'ubic', est:estanciaValue(), ini
     const p=pastoBajoPin(); const u={lat:+MAPA.lat.toFixed(6), lon:+MAPA.lon.toFixed(6), precision_m:null, fuente:'mapa', tomada_en:new Date().toISOString(), pasto:p&&p.nm?p.nm:null}; closeMapa(); if(cb) cb(u); toast('Ubicación elegida'+(u.pasto?' (pasto '+u.pasto+')':'')); });
   $('mapa-lotacion').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ MAPA.lot=b.dataset.v; setSeg($('mapa-lotacion'), MAPA.lot); if(MAPA.lot) cargarDatosPasto(MAPA.est); mapaPedirDibujo(); }));
   $('mapa-estancia').addEventListener('change',()=>cambiarEstanciaGuia($('mapa-estancia').value));
+  $('mapa-conf').addEventListener('change',()=>{ MAPA.conf=$('mapa-conf').value; try{ localStorage.setItem('manejo.mapa_conf.crit', MAPA.conf); }catch(e){} cargarConf(); mapaPedirDibujo(); });
+  $('mapa-conf-ir').addEventListener('click',()=>{ MAPA.sel=null; const b=confBB(); const ley=!$('mapa-leyenda').classList.contains('hidden')||!!MAPA.conf; mapaFit(ley?[b[0], b[1]-(b[3]-b[1])*0.45, b[2], b[3]]:b); MAPA.movido=true; cargarConf(); mapaPedirDibujo(); });
+  try{ MAPA.conf=localStorage.getItem('manejo.mapa_conf.crit')||''; }catch(e){}
   $('mapa-pdf').addEventListener('click',()=>{ const est=MAPA.est; closeMapa(); guiaPdf(est); });
   const rz=()=>{ if($('mapa-modal').classList.contains('on')){ ajustarAltoMapa(); mapaPedirDibujo(); } }; window.addEventListener('resize',rz); window.addEventListener('orientationchange',()=>setTimeout(rz,250)); if(window.visualViewport) window.visualViewport.addEventListener('resize',rz);
 })();
+/* ---------- Confinamiento de la Ypoti en el mapa (foto del Bovino.OS que manda el app de escritorio ypoti-integracao) ----------
+   Mismos criterios y colores que "Currais e lotes" del app de escritorio (fechamento/cores_mapa.py). */
+const CONF_EST='Ypoti';
+const CONF_CRIT=[['','Corrales sin colores'],['dueno','Dueño (boitel × propio)'],['fase','Fase de la dieta'],['cab','Cabezas por corral'],['faena','Fecha prevista de faena'],['senal','Señales del Consultor'],
+  ['pv','Consumo en % del peso vivo'],['ms','Consumo de MS (kg/cab/día)'],['cocho','Lectura de comedero'],['desvio','Entrega × previsión (7 días)'],['peso','Peso estimado'],['dias','Días de comedero']];
+const CF={ verde:'#04522B', verdeOsc:'#03391E', seq:'#1F1F1F', vacio:'#FFFFFF', sinDato:'#D9DEDA', ocupado:'#CFE6D6', alerta:'#B4532A', aviso:'#E0A458', avisoLeve:'#F1D9A0', azul:'#3B6EA8', azulLeve:'#9DBBDE' };
+const CF_TIPO={'Boitel':['#C98A2B','Boitel'],'Animais próprios':[CF.verde,'Propios'],'Parceria':['#3B6EA8','Aparcería'],'Compra':['#7A8C82','Compra']};
+const CF_FASE={'Adaptação':['#A9D6BA','Adaptación'],'Crescimento':['#5EAE7D','Crecimiento'],'Terminação':[CF.verde,'Terminación'],'RIP':['#2E7D55','RIP'],'Dieta total':['#7FB893','Dieta total'],'Pré-confinamento':['#BFDCC8','Preconfinamiento']};
+const CF_FASE_OTRA='#8FBF9F';
+const CF_CAB=['#E4F1E8','#BFDFCB','#8FC7A5','#5EAE7D','#2E8A5A',CF.verde,CF.verdeOsc];
+const CF_FAENA=[['vencida / esta semana',0,CF.verdeOsc],['1 semana',1,CF.verde],['2 semanas',2,'#2E8A5A'],['3 semanas',3,'#5EAE7D'],['4 a 6 semanas',6,'#8FC7A5'],['7 a 10 semanas',10,'#BFDFCB'],['más de 10 semanas',1e6,'#E4F1E8']];
+const CF_FAIXAS={ pv:[['pv3','pv1'],[[1.6,CF.alerta,'menos de 1,6 %'],[1.8,CF.aviso,'1,6 a 1,8 %'],[2.2,'#BFDFCB','1,8 a 2,2 %'],[2.6,'#5EAE7D','2,2 a 2,6 %'],[99,CF.verde,'2,6 % o más']]],
+  ms:[['ms3','ms1'],[[6,'#E4F1E8','hasta 6 kg'],[8,'#BFDFCB','6 a 8 kg'],[10,'#8FC7A5','8 a 10 kg'],[12,'#2E8A5A','10 a 12 kg'],[99,CF.verdeOsc,'12 kg o más']]],
+  desvio:[['desvio7'],[[-5,CF.azul,'5 % o más de menos'],[-2,CF.azulLeve,'2 a 5 % de menos'],[2.0001,'#8FC7A5','dentro de ±2 %'],[5,CF.aviso,'2 a 5 % de más'],[999,CF.alerta,'5 % o más de más']]],
+  peso:[['peso'],[[380,'#E4F1E8','hasta 380 kg'],[440,'#BFDFCB','380 a 440 kg'],[500,'#8FC7A5','440 a 500 kg'],[540,'#2E8A5A','500 a 540 kg'],[9999,CF.verdeOsc,'540 kg o más']]],
+  dias:[['d_conf'],[[30,'#E4F1E8','hasta 30 días'],[60,'#BFDFCB','30 a 60'],[90,'#8FC7A5','60 a 90'],[120,'#5EAE7D','90 a 120'],[150,'#2E8A5A','120 a 150'],[99999,CF.verdeOsc,'150 días o más']]] };
+const CF_RIESGO=[[0,'#8FC7A5','nada fuera de lo normal'],[1,CF.avisoLeve,'señal leve'],[3,CF.aviso,'mirar esta semana'],[99,CF.alerta,'mirar hoy']];
+const CF_COCHO=[['#E9B949','comedero limpio (aumenta)'],['#5EAE7D','ideal (mantiene)'],[CF.alerta,'sobra (disminuye)']];
+let DATOS_CONF=null, CONF_IX={baia:{}, piq:{}, fuera:[]};
+function confGuardado(){ try{ return JSON.parse(localStorage.getItem('manejo.mapa_conf')||'null'); }catch(e){ return null; } }
+function confTiene(est){ return est===CONF_EST && typeof hxPens==='function' && hxPens().length>0; }
+function confKeyPiq(s){ const t=String(s||'').toUpperCase().replace(/\s+/g,''); const m=/^([A-Z])0*(\d+)([A-Z]?)$/.exec(t); return m ? m[1]+m[2]+m[3] : t; }
+function confIndexar(){ const ix={baia:{}, piq:{}, fuera:[]}; const b=DATOS_CONF&&DATOS_CONF.base;
+  if(b) (b.lotes||[]).forEach(l=>{ if(l.linha==='PASTO'){ const k=confKeyPiq(String(l.baia||'').replace(/^P(?=[A-Z])/,'')); (ix.piq[k]=ix.piq[k]||[]).push(l); return; } const k=hxNorm(l.baia); if(k) (ix.baia[k]=ix.baia[k]||[]).push(l); else ix.fuera.push(l); });
+  CONF_IX=ix; }
+async function cargarConf(forzar){ let c=DATOS_CONF||confGuardado(); const viejo=!c || !c.base || (Date.now()-(c.t||0) > 20*60*1000);
+  if((viejo||forzar) && navigator.onLine && cfg.endpoint && USR){ MAPA.confCargando=true; mapaPedirDibujo();
+    try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'mapa_confinamiento', usuario:USR.codigo, version:c&&c.base?c.base.gerado_em:''}), redirect:'follow'}, 60000);
+      const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){}
+      if(res.ok && j.ok){ c = (j.igual && c && c.base) ? Object.assign({}, c, {t:Date.now(), error:null}) : {t:Date.now(), base:j.base, error:null}; try{ localStorage.setItem('manejo.mapa_conf', JSON.stringify(c)); }catch(e){} }
+      else c=Object.assign({}, c||{}, {error:/payload inválido/i.test(j.error||'')?'el servidor todavía es la versión anterior (falta "Nueva versión" del Apps Script)':(j.error||('HTTP '+res.status))}); }
+    catch(e){ c=Object.assign({}, c||{}, {error:'sin conexión con el servidor'}); }
+    MAPA.confCargando=false; }
+  DATOS_CONF=c||null; confIndexar(); mapaPedirDibujo(); return DATOS_CONF; }
+function cfNum(v){ const n=(v==null||v==='')?NaN:Number(v); return isFinite(n)?n:null; }
+function cfPrincipal(ls){ return ls.slice().sort((a,b)=>(b.cab||0)-(a.cab||0))[0]; }
+function cfFaixaCab(){ const cabs=[]; Object.values(CONF_IX.baia).forEach(ls=>{ if(!ls.some(l=>l.seq)) cabs.push(ls.reduce((a,l)=>a+(l.cab||0),0)); }); return cabs.length?[Math.min(...cabs),Math.max(...cabs)]:[0,0]; }
+function confCor(ls, crit){ if(!ls||!ls.length) return CF.vacio; if(ls.some(l=>l.seq)) return CF.seq; const x=cfPrincipal(ls);
+  if(crit==='dueno') return (CF_TIPO[x.tipo]||[CF_FASE_OTRA])[0];
+  if(crit==='fase') return (CF_FASE[x.fase]||[CF_FASE_OTRA])[0];
+  if(crit==='cab'){ const [lo,hi]=cfFaixaCab(); const v=ls.reduce((a,l)=>a+(l.cab||0),0); const k=hi<=lo?0:Math.max(0,Math.min(CF_CAB.length-1, Math.floor((v-lo)/(hi-lo)*(CF_CAB.length-1)+1e-9))); return CF_CAB[k]; }
+  if(CF_FAIXAS[crit]){ const [campos,faixas]=CF_FAIXAS[crit]; if((crit==='pv'||crit==='ms') && (x.fase==='RIP'||x.fase==='Pré-confinamiento')) return CF.sinDato;
+    const v=campos.map(c=>cfNum(x[c])).find(v=>v!=null); if(v==null) return CF.sinDato; const f=faixas.find(f=>v<f[0]); return (f||faixas[faixas.length-1])[1]; }
+  if(crit==='senal'){ const r=cfNum(x.risco); if(r==null) return CF.sinDato; return (CF_RIESGO.find(f=>r<=f[0])||CF_RIESGO[CF_RIESGO.length-1])[1]; }
+  if(crit==='cocho'){ const aj=cfNum(x.aj_cocho); if(aj==null) return CF.sinDato; return aj>0?CF_COCHO[0][0]:aj===0?CF_COCHO[1][0]:CF_COCHO[2][0]; }
+  if(crit==='faena'){ const d=cfNum(x.d_abate); if(d==null) return CF.sinDato; const sem=Math.floor(Math.max(0,d)/7); return (CF_FAENA.find(f=>sem<=f[1])||CF_FAENA[CF_FAENA.length-1])[2]; }
+  return CF.ocupado; }
+function confLeyenda(crit){ const it=[];
+  if(crit==='dueno') Object.values(CF_TIPO).forEach(v=>it.push(v)); else if(crit==='fase') ['Adaptação','Crescimento','Terminação','RIP'].forEach(k=>it.push(CF_FASE[k]));
+  else if(crit==='cab'){ const [lo,hi]=cfFaixaCab(); it.push([CF_CAB[0],lo+' cab'],[CF_CAB[3],'…'],[CF_CAB[6],hi+' cab']); }
+  else if(CF_FAIXAS[crit]){ CF_FAIXAS[crit][1].forEach(f=>it.push([f[1],f[2]])); it.push([CF.sinDato,'sin dato']); }
+  else if(crit==='senal'){ CF_RIESGO.forEach(f=>it.push([f[1],f[2]])); it.push([CF.sinDato,'sin dato']); }
+  else if(crit==='cocho'){ CF_COCHO.forEach(f=>it.push(f)); it.push([CF.sinDato,'sin lectura']); }
+  else if(crit==='faena'){ CF_FAENA.forEach(f=>it.push([f[2],f[0]])); it.push([CF.sinDato,'sin previsión']); }
+  it.push([CF.seq,'Secuestro de terneros'],[CF.vacio,'Corral vacío']);
+  return '<b>'+(CONF_CRIT.find(c=>c[0]===crit)||['',''])[1]+'</b> <span style="opacity:.75">· Bovino.OS</span><br>'+it.map(v=>'<span style="white-space:nowrap;margin-right:8px"><i style="background:'+v[0]+'"></i>'+v[1]+'</span>').join(' '); }
+function confPenEn(lat,lon){ if(!confTiene(MAPA.est)) return null; return hxPens().find(p=>{ const r=p.ring; let d=false; for(let i=0,j=r.length-1;i<r.length;j=i++){ const xi=r[i][0], yi=r[i][1], xj=r[j][0], yj=r[j][1]; if(((yi>lat)!==(yj>lat)) && (lon<(xj-xi)*(lat-yi)/(yj-yi)+xi)) d=!d; } return d; })||null; }
+function confBB(){ const ps=hxPens(); let b=[180,90,-180,-90]; ps.forEach(p=>p.ring.forEach(c=>{ b=[Math.min(b[0],c[0]),Math.min(b[1],c[1]),Math.max(b[2],c[0]),Math.max(b[3],c[1])]; })); return b; }
+function confLotesPiq(p){ return (p && p.c && /ypoti/.test(p.c) && p.nm) ? (CONF_IX.piq[confKeyPiq(p.nm)]||[]) : []; }
+function confDibujar(g, ox, oy, s, sat){ if(!confTiene(MAPA.est)) return; const crit=MAPA.conf||''; const hay=!!(DATOS_CONF&&DATOS_CONF.base); const {W,H}=mapaTam();
+  const pens=hxPens(); g.textAlign='center'; g.textBaseline='middle';
+  pens.forEach(pen=>{ const pts=pen.ring.map(c=>[(lon2x(c[0],0)-ox)*s, (lat2y(c[1],0)-oy)*s]); const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]); if(Math.max(...xs)<0||Math.min(...xs)>W||Math.max(...ys)<0||Math.min(...ys)>H) return;
+    g.beginPath(); pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1])); g.closePath(); const ls=CONF_IX.baia[pen.nm]||[];
+    const fill=!hay ? (sat?null:'#EEF2EA') : !ls.length ? CF.vacio : (crit ? confCor(ls,crit) : CF.ocupado); if(fill){ g.globalAlpha=sat?0.88:1; g.fillStyle=fill; g.fill(); g.globalAlpha=1; }
+    const sel=MAPA.selPen===pen.nm; g.lineWidth=sel?3.5:0.9; g.strokeStyle=sel?'#FFD400':(sat?'rgba(255,255,255,.85)':'#3d5a35'); g.stroke();
+    const ancho=Math.max(...xs)-Math.min(...xs), alto=Math.max(...ys)-Math.min(...ys); const cx=xs.reduce((a,b)=>a+b,0)/xs.length, cy=ys.reduce((a,b)=>a+b,0)/ys.length;
+    if(Math.min(ancho,alto)>=22){ const oscuro=fill && /^#(1F1F1F|04522B|03391E|2E7D55|2E8A5A|3B6EA8|B4532A|C98A2B|5EAE7D)$/i.test(fill); const cab=ls.reduce((a,l)=>a+(l.cab||0),0);
+      g.font='700 '+(Math.min(ancho,alto)>=40?12:10)+'px system-ui,sans-serif'; g.fillStyle=oscuro?'#fff':'#14240f'; g.fillText(pen.nm, cx, cab&&Math.min(ancho,alto)>=34?cy-6:cy);
+      if(cab && Math.min(ancho,alto)>=34){ g.font='600 10px system-ui,sans-serif'; g.fillText(cab+' cab', cx, cy+7); } } }); }
+function confFicha(l){ const esc=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;'); const f=(v,d)=>v==null||v===''?'—':fmtN(v,d);
+  const tipo=(CF_TIPO[l.tipo]||[null,l.tipo||''])[1], fase=(CF_FASE[l.fase]||[null,l.fase||''])[1];
+  let h='<div class="conf-lote"><b class="l">'+esc(l.lote||l.nome||'Lote')+'</b> · <b>'+fmtN(l.cab||0)+' cab</b>'+(l.ent?' <span class="sub">('+fmtN(l.ent)+' entraron'+(l.mor?', '+fmtN(l.mor)+' murieron':'')+')</span>':'');
+  h+='<div>'+esc(l.dono||l.cli||'')+(tipo?' · '+esc(tipo):'')+(l.cat&&l.cat!==l.dono?' · '+esc(l.cat):'')+(l.gen?' · '+esc(l.gen):'')+'</div>';
+  if(l.dieta) h+='<div>Dieta: '+esc(l.dieta)+(fase?' ('+esc(fase)+(l.d_dieta!=null?', '+fmtN(l.d_dieta)+' día'+(l.d_dieta==1?'':'s'):'')+')':'')+'</div>';
+  const dias=[]; if(l.d_conf!=null) dias.push(fmtN(l.d_conf)+' días de comedero'); if(l.d_trato!=null) dias.push(fmtN(l.d_trato)+' de trato'); if(l.d_ent) dias.push('entrada '+txtFecha(l.d_ent)); if(dias.length) h+='<div class="sub">'+dias.join(' · ')+'</div>';
+  if(l.ms3!=null||l.ms1!=null) h+='<div>Consumo MS: <b>'+f(l.ms3!=null?l.ms3:l.ms1,1)+' kg/cab/día</b> (3 días)'+(l.pv3!=null||l.pv1!=null?' · '+f(l.pv3!=null?l.pv3:l.pv1,2)+' % del peso vivo':'')+(l.ms1!=null&&l.ms3!=null?' <span class="sub">· ayer '+f(l.ms1,1)+' kg</span>':'')+'</div>';
+  if(l.peso!=null) h+='<div>Peso estimado <b>'+f(l.peso,0)+' kg</b>'+(l.peso_cons!=null?' <span class="sub">(por el consumo '+f(l.peso_cons,0)+' kg'+(l.gmd_cons!=null?', GMD '+f(l.gmd_cons,2)+' kg':'')+')</span>':'')+(l.peso_saida!=null?' → salida '+f(l.peso_saida,0)+' kg':'')+'</div>';
+  const cuando=l.d_abate==null?'':(l.d_abate<0?'hace '+fmtN(-l.d_abate)+' días':l.d_abate==0?'hoy':'en '+fmtN(l.d_abate)+' días');
+  if(l.saida||cuando) h+='<div>Faena prevista: '+(l.saida?'<b>'+txtFecha(l.saida)+'</b>'+(cuando?' ('+cuando+')':''):cuando+' <span class="sub">(por el peso de salida)</span>')+'</div>';
+  if(l.desvio7!=null) h+='<div class="sub">Entrega × previsión (7 días): '+(l.desvio7>0?'+':'')+f(l.desvio7,1)+' %</div>';
+  if(l.cocho4) h+='<div class="sub">Lectura de comedero (4 días): '+esc(l.cocho4)+'</div>';
+  if(l.risco>0 && (l.motivos||[]).length) h+='<div class="conf-al">⚠ '+(l.motivos||[]).map(esc).join(' · ')+'</div>';
+  if(l.seq) h+='<div class="sub">Secuestro de terneros</div>';
+  return h+'</div>'; }
+function confInfoBase(){ const c=DATOS_CONF; const b=c&&c.base; let h='';
+  if(MAPA.confCargando && !b) h+='<div class="sub">Buscando el confinamiento (Bovino.OS)…</div>';
+  else if(!b) h+='<div class="sub">'+(c&&c.error?'⚠ Confinamiento: '+String(c.error).replace(/</g,'&lt;')+'.':'Sin datos del confinamiento (hace falta señal una vez).')+'</div>';
+  else { const dias=Math.round((Date.now()-new Date(String(b.data_ref)+'T12:00:00').getTime())/864e5);
+    h+='<div class="sub">Confinamiento: Bovino.OS, posición del '+txtFecha(b.data_ref)+(b.gerado_em?' (foto de las '+String(b.gerado_em).slice(11,16)+')':'')+(dias>=2?' · <span class="conf-al">⚠ hace '+dias+' días: el app de escritorio no mandó una nueva</span>':'')+(c.error?' · ⚠ no se pudo actualizar: '+String(c.error).replace(/</g,'&lt;'):'')+'</div>'; }
+  return h; }
+function confResumen(){ const b=DATOS_CONF&&DATOS_CONF.base; if(!b) return ''; const ls=b.lotes||[]; const enC=ls.filter(l=>l.linha!=='PASTO'), enP=ls.filter(l=>l.linha==='PASTO'); const sum=a=>a.reduce((x,l)=>x+(l.cab||0),0);
+  const ocup=Object.keys(CONF_IX.baia).length; const alertas=ls.filter(l=>l.risco>=2).length;
+  return '<div><b>Confinamiento</b> · '+fmtN(sum(enC))+' cab en '+fmtN(enC.length)+' lotes ('+fmtN(ocup)+' corrales ocupados)'+(enP.length?' · '+fmtN(sum(enP))+' cab en '+fmtN(enP.length)+' lotes del Bovino.OS en pastos':'')+(alertas?' · <span class="conf-al">'+alertas+' lote'+(alertas>1?'s':'')+' para mirar</span>':'')+'</div>'; }
+function confCtrl(){ const on=MAPA.modo==='guia' && confTiene(MAPA.est); $('mapa-conf-row').classList.toggle('hidden', !on); const sel=$('mapa-conf'); if(!sel.options.length) CONF_CRIT.forEach(c=>{ const o=document.createElement('option'); o.value=c[0]; o.textContent=c[1]; sel.appendChild(o); }); sel.value=MAPA.conf||''; if(on) cargarConf(); }
+
 /* guía de la estancia: el mapa de la estancia de la persona (la que tiene su ubicación, o la última que miró) */
-function cambiarEstanciaGuia(est){ if(!est) return; MAPA.est=est; MAPA.sel=null; $('mapa-estancia').value=est; try{ localStorage.setItem('manejo.guia.estancia',est); }catch(e){} MAPA.capa=mapaCapas()[0]; pintarBotonCapa(); const pols=geoPols(est).filter(p=>p.n!=='divisa'); if(pols.length) mapaFit(geoBB(pols)); mapaPedirDibujo(); cargarDatosPasto(est); }
+function cambiarEstanciaGuia(est){ if(!est) return; MAPA.est=est; MAPA.sel=null; MAPA.selPen=null; confCtrl(); $('mapa-estancia').value=est; try{ localStorage.setItem('manejo.guia.estancia',est); }catch(e){} MAPA.capa=mapaCapas()[0]; pintarBotonCapa(); const pols=geoPols(est).filter(p=>p.n!=='divisa'); if(pols.length) mapaFit(geoBB(pols)); mapaPedirDibujo(); cargarDatosPasto(est); }
 function abrirGuia(){ const ests=usrEstancias(); if(!ests.length){ toast('Su usuario no tiene estancias.'); return; } let ult=''; try{ ult=localStorage.getItem('manejo.guia.estancia')||''; }catch(e){}
   const conMapa=ests.filter(geoTiene); const est=ests.includes(ult)?ult:(conMapa[0]||ests[0]);
   const sel=$('mapa-estancia'); sel.innerHTML=''; ests.forEach(e=>{ const o=document.createElement('option'); o.value=e; o.textContent=e+(geoTiene(e)?'':' (sin mapa de pastos)'); sel.appendChild(o); }); sel.value=est;
@@ -4275,6 +4401,11 @@ async function generarMortandad(w){ let j; try{ j=await postServidor({tipo:'cons
   let rodeo=null; try{ const c=DATOS_PASTO[w.estancia]||datosPastoGuardados(w.estancia); if(c&&c.resumen&&c.resumen.length){ const cab=c.resumen.reduce((s,x)=>s+(Number(x.cab)||0),0); rodeo={cab, fecha:c.hoje||null}; } }catch(e){}
   const pols=geoTiene(w.estancia)?geoPols(w.estancia).filter(p=>p.n!=='divisa').map(p=>({g:p.r, nm:p.nm, n:p.n})):[];
   (j.registros||[]).forEach(o=>{ if(o.tipo_evento!=='mortalidad') return; try{ o._ubic=chequearUbic(w.estancia, o.ubic_lat, o.ubic_lon); }catch(e){ o._ubic=null; } });
+  if(!geoTiene(w.estancia)){ /* sin mapa de la estancia: los puntos a más de 15 km de la mediana de las muertes del mes se toman como lejanos */
+    const pts=(j.registros||[]).filter(o=>o.tipo_evento==='mortalidad' && String(o.fecha_evento).slice(0,7)===w.mes && o.ubic_lat!=='' && o.ubic_lat!=null && isFinite(Number(o.ubic_lat)) && isFinite(Number(o.ubic_lon)) && !(Number(o.ubic_lat)===0&&Number(o.ubic_lon)===0));
+    const med=a=>{ const s=a.slice().sort((x,y)=>x-y); const n=s.length; return n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2; };
+    if(pts.length>=3){ const mLat=med(pts.map(o=>Number(o.ubic_lat))), mLon=med(pts.map(o=>Number(o.ubic_lon))); const k=Math.cos(mLat*Math.PI/180);
+      pts.forEach(o=>{ const km=Math.hypot((Number(o.ubic_lat)-mLat), (Number(o.ubic_lon)-mLon)*k)*111.2; if(km>15) o._ubic={estado:'lejos', km, ref:'mediana'}; }); } }
   const bytes=await makeMortandadPdf(w, j, {pols, rodeo, conclusion, usuario:USR?USR.nombre:''});
   const w2=await dbGet(w.id); if(!w2) return; w2.pdf=new Blob([bytes],{type:'application/pdf'}); w2.cantidad=(j.registros||[]).filter(o=>o.tipo_evento==='mortalidad' && String(o.fecha_evento).slice(0,7)===w.mes).length; w2.con_ia=!!conclusion; w2.estado='listo'; w2.generado_en=new Date().toISOString(); w2.actualizado_en=w2.generado_en; w2.clave=null; await dbPut(w2); renderHome(); toast('Informe de mortandad listo: '+w.estancia+' ('+w2.cantidad+' muertes)'); }
 async function generarIA(w){ if(!USR){ const w2=await dbGet(w.id); if(w2){ w2.estado='error'; w2.error='Entre con su código para usar la IA.'; await dbPut(w2); renderHome(); } return; }
