@@ -1,9 +1,21 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.7.0
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.8.0
 
 App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, salida a faena, informe Padroniza y escore de heces.
 
 Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.8.0
+
+- **Nuevo informe "🐂 Guía del confinamiento" (solo usuarios de la Ypoti).** En Informes aparece solo para quien tiene permiso para la Ypoti. Abre un mapa **solo de los corrales** (sin pastos), pintado por el criterio elegido (empieza por la fase de la dieta), con la leyenda, el resumen (cabezas, lotes, corrales ocupados), la lista "Para mirar hoy / esta semana" de las señales del Consultor y, al tocar un corral, la ficha de cada lote. El botón **📄 PDF** arma la guía: resumen, mapa pintado, resumen por línea, "para mirar", todos los lotes de los corrales (la celda del corral con el color del criterio) y, aparte, los lotes del Bovino.OS que están en potreros. Sin señal se arma con la última foto guardada en el teléfono.
+- **La guía de la estancia (pastura) vuelve a ser solo de pastos:** no mezcla los corrales ni los lotes del Bovino.OS.
+- **De cuándo es la foto:** "foto de las 17:16 (hace 20 min)"; si pasan más de 3 horas sin foto nueva, avisa que el app de integración de la oficina (con la VPN del Bovino.OS) no está mandando.
+- **Servidor (.gs):** cada foto que llega también se escribe en la planilla del app: pestaña `confinamiento` (la foto de ahora, un lote por renglón) y `confinamiento_envios` (un renglón por envío, para ver que llegan cada hora). El app de integración manda la foto cada hora: ver `pedido_app_integracao_confinamento.md`.
+
+## Novedades 4.7.1 (solo el servidor .gs)
+
+- **Los datos del ControlPasto vuelven a contar.** Desde octubre la API devuelve la operación como **código** (1 entrada, 2 salida, 3 muerte, 4 transferencia, 5 cambio de piquete, 6 pesaje, 8 previsión) y no como texto. El servidor guardaba "3", "4"… y no los contaba: las estancias quedaron sin entradas, salidas, muertes ni transferencias desde el último IAS41. Ahora se traducen los códigos, también en los movimientos ya guardados (no hace falta releer).
+- **Nuevo `verApiControlPasto()`** (Ejecutar en el editor): muestra los campos crudos que manda la API y un ejemplo por código, para revisar el piquete y el peso, que en los movimientos nuevos vienen vacíos.
 
 ## Novedades 4.7.0
 
