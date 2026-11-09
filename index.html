@@ -270,6 +270,17 @@ body.modo-solicitud #wrap-tipos{display:none}
 #mapa-modal .mapa-leyenda{position:absolute;left:8px;right:64px;bottom:16px;background:rgba(17,17,17,.88);color:#fff;border-radius:10px;padding:8px 10px;font-size:12px;line-height:1.5;pointer-events:none}
 #mapa-modal .mapa-leyenda i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(255,255,255,.4)}
 #mapa-modal .mapa-info{font-size:14px;line-height:1.45;color:#eee}
+#animal-modal .an-ide{font-family:var(--font-display);font-size:24px;font-weight:700;letter-spacing:.5px}
+#animal-modal .an-sit{border-radius:12px;padding:10px 12px;font-size:15px;line-height:1.4}
+#animal-modal .an-sit.activo{background:var(--ok-soft);color:var(--ok)} #animal-modal .an-sit.faenado,#animal-modal .an-sit.baja{background:var(--bad-soft);color:var(--bad)} #animal-modal .an-sit.tercero,#animal-modal .an-sit.sin_datos{background:var(--warn-soft);color:var(--warn)}
+#animal-modal .an-kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:14px} #animal-modal .an-kv span{color:var(--ink-2)}
+#animal-modal .an-mapa svg{width:100%;height:auto;display:block;border-radius:12px;background:#EEF2EA}
+#animal-modal .an-ev{display:grid;grid-template-columns:78px 26px 1fr;gap:6px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.35}
+#animal-modal .an-ev .f{font-size:12.5px;color:var(--ink-2);padding-top:2px} #animal-modal .an-ev .i{font-size:17px;text-align:center} #animal-modal .an-ev small{display:block;color:var(--ink-2);font-size:12.5px}
+#animal-modal .an-src{font-size:10.5px;font-weight:700;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:1px} #animal-modal .an-src.sen{background:#E3EEE6;color:#03391E} #animal-modal .an-src.app{background:#F6E7B8;color:#5A4200}
+#animal-modal .an-cand{display:flex;flex-direction:column;gap:6px} #animal-modal .an-cand button{text-align:left}
+#animal-modal h3{margin:6px 0 0;font-size:16px}
+#animal-modal table.an-pesos{width:100%;border-collapse:collapse;font-size:14px} #animal-modal table.an-pesos td,#animal-modal table.an-pesos th{padding:5px 4px;border-bottom:1px solid var(--line);text-align:left} #animal-modal table.an-pesos .r{text-align:right}
 #mapa-modal .mapa-conf .btn{flex:0 0 auto!important;padding:0 12px;font-size:14px;min-height:42px!important}
 #mapa-modal .mapa-conf select{flex:1;min-width:0;font-size:14.5px}
 #mapa-modal .conf-lote{border-top:1px solid #333;padding-top:6px;margin-top:6px}
@@ -1234,6 +1245,7 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
 <div id="informes-modal" class="modal hidden">
   <div class="card stack" style="max-width:460px;width:100%;max-height:92vh;overflow:auto">
     <h2>📑 Generar informes</h2>
+    <button class="op-informe" type="button" id="inf-op-animal"><b>🔎 Buscar un animal</b><small>Escriba el brinco y vea toda su historia: dónde lo identificaron, de quién se compró, por dónde viajó (mapa), los pesajes y los registros del app, con el historial oficial del SENACSA.</small></button>
     <button class="op-informe" type="button" id="inf-op-traz"><b>📋 Informe de trazabilidad</b><small>Todos los registros de la estancia en un período. PDF y CSV de brincos.</small></button>
     <button class="op-informe" type="button" id="inf-op-mort"><b>✝️ Informe de mortandad</b><small>Resumen del mes, cada muerte con sus fotos y el mapa de la estancia con los puntos por causa.</small></button>
     <button class="op-informe" type="button" id="inf-op-sanit"><b>🩺 Informe sanitario (morbilidad y mortalidad)</b><small>Como las planillas de FOCO: % de mortalidad y de morbilidad por mes contra la meta, causas, medicamentos, controle de mortes y ronda sanitaria. PDF y Excel.</small></button>
@@ -1267,6 +1279,18 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
     <div class="row"><button class="btn ghost" id="mort-cancel">Cancelar</button><button class="btn primary" id="mort-ok">Continuar</button></div>
   </div>
 </div>
+<div id="animal-modal" class="modal hidden">
+  <div class="card stack" style="max-width:560px;width:100%;max-height:94vh;overflow:auto">
+    <div class="row" style="justify-content:space-between;align-items:center;flex-wrap:nowrap"><h2 style="margin:0">🔎 Buscar un animal</h2><button class="btn ghost" type="button" id="animal-cerrar" style="flex:0 0 auto;width:auto">✕ Cerrar</button></div>
+    <div class="row" style="flex-wrap:nowrap"><input type="text" id="animal-q" inputmode="numeric" autocomplete="off" placeholder="600010…, SIAP 05864 7416 o los últimos números" style="flex:1;min-width:0"><button class="btn primary" type="button" id="animal-buscar" style="flex:0 0 auto;width:auto">Buscar</button></div>
+    <div id="animal-res" class="stack"></div>
+    <details id="animal-imp" class="hidden" style="border-top:1px solid var(--line);padding-top:10px"><summary style="cursor:pointer;font-weight:600">⬆ Importar la planilla del SENACSA (administración)</summary>
+      <p style="font-size:13.5px;color:var(--ink-2);margin:8px 0">Planillas de historial de DIs que entrega el SENACSA (.xls, una por establecimiento, o el .zip con todas). Se pueden elegir varias a la vez e importar las veces que quiera: lo que ya estaba no se repite.</p>
+      <input type="file" id="animal-file" multiple accept=".xls,.xlsx,.zip,application/vnd.ms-excel,application/zip">
+      <div id="animal-imp-msg" class="msg hidden" style="margin-top:8px"></div></details>
+  </div>
+</div>
+
 <div id="ia-modal" class="modal hidden">
   <div class="card stack" style="max-width:460px;width:100%;max-height:92vh;overflow:auto">
     <h2 id="ia-titulo">🤖 Pedir informe a la IA</h2>
@@ -1738,7 +1762,9 @@ async function inflateRaw(bytes){ if(typeof DecompressionStream==='undefined') t
 async function unzip(buf){ const b=new Uint8Array(buf); const files={}; let eocd=-1; for(let i=b.length-22;i>=Math.max(0,b.length-70000);i--){ if(u32(b,i)===0x06054b50){ eocd=i; break; } } if(eocd<0) throw new Error('El archivo no es un .xlsx válido.');
   const n=u16(b,eocd+10); let off=u32(b,eocd+16); const dec=new TextDecoder();
   for(let k=0;k<n;k++){ if(u32(b,off)!==0x02014b50) break; const comp=u16(b,off+10), csize=u32(b,off+20), nlen=u16(b,off+28), elen=u16(b,off+30), clen=u16(b,off+32), lho=u32(b,off+42); const name=dec.decode(b.subarray(off+46,off+46+nlen)); const lnlen=u16(b,lho+26), lelen=u16(b,lho+28); const start=lho+30+lnlen+lelen; files[name]={comp, data:b.subarray(start,start+csize)}; off+=46+nlen+elen+clen; }
-  return { async get(name){ const f=files[name]; if(!f) return null; const raw=f.comp===0?f.data:await inflateRaw(f.data); return dec.decode(raw); }, names:Object.keys(files) }; }
+  return { async get(name){ const f=files[name]; if(!f) return null; const raw=f.comp===0?f.data:await inflateRaw(f.data); return dec.decode(raw); }, async bytes(name){ const f=files[name]; if(!f) return null; return f.comp===0?f.data:await inflateRaw(f.data); }, names:Object.keys(files) }; }
+/* archivos de un .zip: [{nombre, bytes}] (sin carpetas) */
+async function leerZip(buf){ const z=await unzip(buf); const out=[]; for(const n of z.names){ if(/\/$/.test(n)) continue; out.push({nombre:n.split('/').pop(), bytes:await z.bytes(n)}); } return out; }
 function col2idx(ref){ let c=0; for(const ch of ref){ if(ch>='A'&&ch<='Z') c=c*26+(ch.charCodeAt(0)-64); else break; } return c-1; }
 async function leerXlsx(buf){
   const z=await unzip(buf); const parser=new DOMParser();
@@ -1777,9 +1803,75 @@ function escribirXlsx(hojas){ // hojas: [{nombre, filas:[[...]], anchos:[...]}] 
     f('xl/styles.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>') ];
   hojas.forEach((h,i)=>files.push(f('xl/worksheets/sheet'+(i+1)+'.xml', hojaXml(h.filas,h.anchos))));
   return zipStored(files); }
-const api={leerXlsx, escribirXlsx};
+const api={leerXlsx, escribirXlsx, leerZip};
 if(typeof module!=='undefined'&&module.exports) module.exports=api; else root.XlsxLite=api;
 })(typeof window!=='undefined'?window:globalThis);
+</script>
+<script>
+/* Lector mínimo de .xls (Excel 97-2003, BIFF8) sin librerías: abre el contenedor OLE (CFB), lee el stream "Workbook"
+   y devuelve las celdas de la primera hoja como filas [[valor, …], …] (texto o número). Lo usa la importación de la planilla
+   de historial de animales que entrega el SENACSA (JasperReports exporta .xls). */
+(function(root){
+'use strict';
+function u16(b,o){ return b[o]|(b[o+1]<<8); } function u32(b,o){ return (b[o]|(b[o+1]<<8)|(b[o+2]<<16)|(b[o+3]<<24))>>>0; }
+function i32(b,o){ return b[o]|(b[o+1]<<8)|(b[o+2]<<16)|(b[o+3]<<24); }
+function f64(b,o){ return new DataView(b.buffer,b.byteOffset+o,8).getFloat64(0,true); }
+const FIN=0xFFFFFFFE, LIBRE=0xFFFFFFFF;
+function cfb(buf){
+  const b=new Uint8Array(buf);
+  if(u32(b,0)!==0xE011CFD0 || u32(b,4)!==0xE11AB1A1) throw new Error('El archivo no es un .xls de Excel (97-2003).');
+  const ss=1<<u16(b,30), mss=1<<u16(b,32), nFat=u32(b,44), dir0=u32(b,48), corte=u32(b,56), mfat0=u32(b,60), nMfat=u32(b,64); let difat0=u32(b,68), nDifat=u32(b,72);
+  const sec=id=>b.subarray(ss+id*ss, ss+(id+1)*ss);
+  const fatIds=[]; for(let i=0;i<109 && fatIds.length<nFat;i++){ const v=u32(b,76+i*4); if(v!==LIBRE) fatIds.push(v); }
+  while(nDifat-- > 0 && difat0!==FIN && difat0!==LIBRE){ const s=sec(difat0); const n=ss/4-1; for(let i=0;i<n && fatIds.length<nFat;i++){ const v=u32(s,i*4); if(v!==LIBRE) fatIds.push(v); } difat0=u32(s,n*4); }
+  const fat=[]; fatIds.forEach(id=>{ const s=sec(id); for(let i=0;i<ss/4;i++) fat.push(u32(s,i*4)); });
+  const cadena=(id,tab)=>{ const out=[]; const vistos=new Set(); while(id!==FIN && id!==LIBRE && id<tab.length && !vistos.has(id)){ vistos.add(id); out.push(id); id=tab[id]; } return out; };
+  const leer=(id,size)=>{ const ids=cadena(id,fat); const out=new Uint8Array(ids.length*ss); ids.forEach((x,k)=>out.set(sec(x),k*ss)); return size!=null?out.subarray(0,Math.min(size,out.length)):out; };
+  const dir=leer(dir0); const ents=[];
+  for(let o=0;o+128<=dir.length;o+=128){ const nl=u16(dir,o+64); if(!nl) { ents.push(null); continue; } let nm=''; for(let i=0;i<nl-2;i+=2) nm+=String.fromCharCode(u16(dir,o+i)); ents.push({nm, tipo:dir[o+66], ini:u32(dir,o+116), size:u32(dir,o+120)}); }
+  const raiz=ents.find(e=>e&&e.tipo===5); let mini=null, mfat=null;
+  const stream=nm=>{ const e=ents.find(x=>x&&x.tipo===2&&x.nm.toLowerCase()===nm.toLowerCase()); if(!e) return null;
+    if(e.size>=corte) return leer(e.ini,e.size);
+    if(!mini){ mini=leer(raiz.ini,raiz.size); mfat=[]; if(nMfat){ const m=leer(mfat0); for(let i=0;i<m.length/4;i++) mfat.push(u32(m,i*4)); } }
+    const ids=cadena(e.ini,mfat); const out=new Uint8Array(ids.length*mss); ids.forEach((x,k)=>out.set(mini.subarray(x*mss,(x+1)*mss),k*mss)); return out.subarray(0,e.size); };
+  return {stream};
+}
+function rk(v){ let n; if(v&2){ n=(v>>2); } else { const dv=new DataView(new ArrayBuffer(8)); dv.setUint32(0,0,true); dv.setUint32(4,(v&0xFFFFFFFC)>>>0,true); n=dv.getFloat64(0,true); } return (v&1)?n/100:n; }
+/* lector del SST a través de los CONTINUE: los caracteres de un texto que cruzan un CONTINUE recomienzan con un byte de opciones */
+function sst(segs){
+  let si=0, p=0; const cur=()=>segs[si];
+  const avanzar=()=>{ while(si<segs.length && p>=segs[si].length){ si++; p=0; } };
+  const u8=()=>{ avanzar(); return segs[si][p++]; }; const r16=()=>u8()|(u8()<<8); const r32=()=>(r16()|(r16()<<16))>>>0;
+  const skip=n=>{ while(n>0){ avanzar(); if(si>=segs.length) return; const k=Math.min(n, cur().length-p); p+=k; n-=k; } };
+  const chars=(cch,alto)=>{ let s=''; while(cch>0){ if(si<segs.length && p>=cur().length){ si++; p=0; if(si>=segs.length) break; alto=cur()[p++]&1; } const disp=alto?Math.floor((cur().length-p)/2):cur().length-p; const k=Math.min(cch,disp); const c=cur();
+      if(alto){ for(let i=0;i<k;i++) s+=String.fromCharCode(c[p+i*2]|(c[p+i*2+1]<<8)); p+=k*2; } else { for(let i=0;i<k;i++) s+=String.fromCharCode(c[p+i]); p+=k; } cch-=k; } return s; };
+  skip(4); const n=r32(); const out=[];
+  for(let i=0;i<n;i++){ avanzar(); if(si>=segs.length) break; const cch=r16(); const fl=u8(); const runs=(fl&8)?r16():0; const ext=(fl&4)?r32():0; out.push(chars(cch,fl&1)); skip(runs*4+ext); }
+  return out;
+}
+function leerXls(buf){
+  const c=cfb(buf); const w=c.stream('Workbook')||c.stream('Book'); if(!w) throw new Error('No encuentro los datos dentro del .xls.');
+  let o=0; let strings=[]; let sstSegs=null; let hoja=-1; const celdas=[]; let maxR=-1, maxC=-1;
+  const poner=(r,cc,v)=>{ if(hoja!==1) return; (celdas[r]||(celdas[r]=[]))[cc]=v; if(r>maxR) maxR=r; if(cc>maxC) maxC=cc; };
+  while(o+4<=w.length){ const id=u16(w,o), len=u16(w,o+2); const d=w.subarray(o+4,o+4+len); o+=4+len;
+    if(sstSegs && id!==0x003C){ strings=sst(sstSegs); sstSegs=null; }
+    if(id===0x0809){ const dt=u16(d,2); if(dt===0x0010) hoja++; else if(dt===0x0005) hoja=0; continue; }
+    if(id===0x00FC){ sstSegs=[d]; continue; } if(id===0x003C && sstSegs){ sstSegs.push(d); continue; }
+    if(hoja!==1) continue;
+    if(id===0x000A){ break; }
+    if(id===0x00FD) poner(u16(d,0),u16(d,2),strings[u32(d,6)]==null?'':strings[u32(d,6)]);
+    else if(id===0x0203) poner(u16(d,0),u16(d,2),f64(d,6));
+    else if(id===0x027E) poner(u16(d,0),u16(d,2),rk(u32(d,6)));
+    else if(id===0x00BD){ const r=u16(d,0), c0=u16(d,2), n=(len-6)/6; for(let k=0;k<n;k++) poner(r,c0+k,rk(u32(d,4+k*6+2))); }
+    else if(id===0x0204){ const cch=u16(d,6), alto=d[8]&1; let s=''; for(let i=0;i<cch;i++) s+=alto?String.fromCharCode(u16(d,9+i*2)):String.fromCharCode(d[9+i]); poner(u16(d,0),u16(d,2),s); }
+    else if(id===0x0006){ if(!(d[12]===0xFF && d[13]===0xFF)) poner(u16(d,0),u16(d,2),f64(d,6)); }
+  }
+  const filas=[]; for(let r=0;r<=maxR;r++){ const f=[]; for(let k=0;k<=maxC;k++){ const v=celdas[r]&&celdas[r][k]; f.push(v==null?'':v); } filas.push(f); }
+  return filas;
+}
+const api={leerXls};
+if(typeof module!=='undefined'&&module.exports) module.exports=api; else root.XlsLite=api;
+})(typeof window!=='undefined'?window:this);
 </script>
 <script>
 /* Lista de artículos veterinarios del depósito (ARTICULO_VETERIANRIA_RURAL.xlsx, 183 artículos): código y descripción. Se usa para filtrar el medicamento al escribir. */
@@ -2384,7 +2476,7 @@ async function makeSanitarioPdf(w, S, extra){ extra=extra||{};
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '4.8.0';
+const APP_VERSION = '4.9.1';
 const ESQUEMA = 'manejo-ypoti/3.7';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
@@ -2853,6 +2945,10 @@ function calcInconformidades(){
   if(tipo==='mortalidad' && ubicacion){ let c=null; try{ c=chequearUbic(estanciaValue(), ubicacion.lat, ubicacion.lon); }catch(e){ c=null; }
     if(c && (c.estado==='otra'||c.estado==='lejos')) out.push({ id:'ubic_lejos', volver_a:'btn-ubic-mapa', titulo:'la ubicación de la muerte está a '+fmtKm(c.km)+' de '+estanciaValue()+(c.estado==='otra'?', dentro de '+c.otra:', fuera de toda estancia'),
       detalle:'Punto: '+ubicTxt(ubicacion)+'. '+(c.estado==='otra'?'Si la muerte es de '+c.otra+', vuelva y cambie la estancia. ':'')+'Si el punto está bien así (por ejemplo, el animal murió en un traslado), explique por qué. En el mapa del informe de mortandad este punto no se dibuja, para no deformarlo.' }); }
+  { const sp=senProblemasForm(); if(sp.length){ const est=estanciaValue(); const uno=sp.length===1;
+    out.push({ id:'senacsa', volver_a: tipo==='mortalidad'?'f-boton':tipo==='perdida_boton'?'f-perdida-boton':null,
+      titulo: uno ? 'el animal '+sp[0].ide+' no debería estar en '+est+': '+sp[0].texto : sp.length+' animales que, según el SENACSA, no deberían estar en '+est,
+      detalle: (uno?'':sp.slice(0,40).map(p=>p.ide+': '+p.texto).join(' · ')+(sp.length>40?' …':'')+'. ')+'Si está bien así (por ejemplo, el SENACSA todavía no registró el traslado), explique por qué; si no, vuelva y corrija el número o la estancia.' }); } }
   if(!usaBalanza(tipo) || tipo==='pesaje_simple') return out;
   const lista=unionAnimales(); const n=lista.length; const q=parseInt($('f-cantidad').value,10); const ref=(esMovimiento()&&baston)?'el bastón':'el archivo'; const refN=(esMovimiento()&&baston)?'identificaciones leídas con el bastón':'animales en el archivo de la báscula';
   if(formUsaCamion()){ const rc=resumenCotas(); if(rc.total!==null && n>0 && rc.total!==n) out.push({ id:'guia_vs_lista', titulo:(rc.cantidad>1?'Las guías declaran ':'La guía declara ')+rc.total+' animales y '+ref+' tiene '+n, detalle:(rc.cantidad>1?'Suma de las '+rc.cantidad+' guías (COTAs): ':'Guía (COTA): ')+rc.total+' animales · '+refN+': '+n+' · diferencia: '+(n-rc.total>0?'+':'')+(n-rc.total)+'.' }); }
@@ -2861,7 +2957,8 @@ function calcInconformidades(){
   return out;
 }
 function renderInconformidades(){
-  const list=$('inc-list'); list.innerHTML=''; const incs=calcInconformidades(); $('err3').classList.add('hidden');
+  const list=$('inc-list'); list.innerHTML=''; senRevisar(); const incs=calcInconformidades(); $('err3').classList.add('hidden');
+  if(SEN_CHK.estado==='cargando'||SEN_CHK.estado==='sin_senal'){ const d=document.createElement('div'); d.className='msg'; d.style.fontSize='13.5px'; d.textContent=SEN_CHK.estado==='cargando'?'Revisando los brincos con el historial del SENACSA…':'Sin señal: los brincos no se revisaron con el historial del SENACSA.'; list.appendChild(d); }
   if(!incs.length){ const d=document.createElement('div'); d.className='msg ok'; d.textContent='No hay inconformidades: puede continuar.'; list.appendChild(d); return; }
   const volver=(dest)=>{ step=2; renderStep(); setTimeout(()=>{ const g=$(typeof dest==='string'&&dest?dest:'grp-animales'); if(g) g.scrollIntoView({block:'center'}); },60); };
   incs.forEach(x=>{ const card=document.createElement('div'); card.className='card stack'; card.dataset.inc=x.id;
@@ -2872,7 +2969,7 @@ function renderInconformidades(){
     } else if(x.id!=='sin_peso'){
       card.innerHTML='<div class="inc-title"></div><div class="hint"></div><div class="row"><button class="btn" type="button" data-volver>‹ Volver y corregir</button></div><label class="f"><span class="req">Justificación (si los datos están bien así)</span><textarea data-just style="min-height:70px;font-family:var(--font-body);font-size:16px" placeholder="Explique por qué no coinciden"></textarea></label>';
       card.querySelector('.inc-title').textContent='⚠ '+x.titulo.charAt(0).toUpperCase()+x.titulo.slice(1); card.querySelector('.hint').textContent=x.detalle; card.querySelector('[data-volver]').addEventListener('click',()=>volver(x.volver_a));
-      const ta=card.querySelector('[data-just]'); if(x.id==='ubic_lejos'){ ta.placeholder='Explique por qué el punto quedó ahí (ej.: murió en el traslado, el GPS falló)'; card.querySelector('[data-volver]').textContent='‹ Volver y corregir el punto'; } ta.value=inc.just[x.id]||''; ta.addEventListener('input',e=>{ inc.just[x.id]=e.target.value; dirty=true; });
+      const ta=card.querySelector('[data-just]'); if(x.id==='senacsa'){ ta.placeholder='Explique por qué (ej.: el traslado todavía no figura en el SENACSA; el botón se leyó mal)'; } if(x.id==='ubic_lejos'){ ta.placeholder='Explique por qué el punto quedó ahí (ej.: murió en el traslado, el GPS falló)'; card.querySelector('[data-volver]').textContent='‹ Volver y corregir el punto'; } ta.value=inc.just[x.id]||''; ta.addEventListener('input',e=>{ inc.just[x.id]=e.target.value; dirty=true; });
     } else {
       const rest=x.ides.filter(i=>!(inc.hist[i]&&inc.hist[i].peso_kg!=null)); const prom=promedioBascula(); const nPes=unionAnimales().filter(a=>a.peso_kg!==null).length;
       card.innerHTML='<div class="inc-title"></div><div class="hint">El peso de cada animal se toma siempre de la báscula; si no lo hay, del último peso en la base de datos (hasta 60 días antes, el más reciente); y si tampoco hay, de lo que elija acá.</div><div class="mono" style="font-size:13px;white-space:pre-wrap" data-ides></div>'
@@ -3227,6 +3324,7 @@ function buildRecord(){
   if(tipo==='mortalidad'||tipo==='medicamento'){ const masiva=tipo==='medicamento'&&segVal('seg-medic-modo')==='masiva'; const ax={ sexo:masiva?null:(segVal('seg-ax-sexo')||null), raza:masiva?null:(segVal('seg-ax-raza')||null) }; /* datos opcionales del animal (informe sanitario) */
     if(tipo==='mortalidad'){ try{ if(ubicacion){ const c=chequearUbic(r.estancia, ubicacion.lat, ubicacion.lon); if(c) r.datos.ubic_chequeo={estado:c.estado, km:Math.round(c.km*10)/10, otra_estancia:c.otra||null}; } const incU=calcInconformidades().filter(x=>x.id==='ubic_lejos'); if(incU.length) r.datos.inconformidades=incU.map(x=>({ tipo:x.id, titulo:x.titulo.charAt(0).toUpperCase()+x.titulo.slice(1), detalle:x.detalle||null, justificacion:(inc.just[x.id]||'').trim()||null, resolucion:'justificado' })); }catch(e){} ax.necropsia=segVal('seg-ax-necropsia')||null; let lug=null; try{ if(ubicacion){ const pp=pastoEn(r.estancia, ubicacion.lat, ubicacion.lon); if(pp&&pp.nm) lug=pp.nm; } }catch(e){} ax.lugar_muerte=lug; }
     Object.assign(r.datos, ax); if(tipo==='medicamento') (r.datos.aplicaciones||[]).forEach(p=>{ if(!p.sexo&&ax.sexo) p.sexo=ax.sexo; if(!p.raza&&ax.raza) p.raza=ax.raza; }); }
+  if(!usaBalanza(tipo)){ try{ const s=calcInconformidades().filter(x=>x.id==='senacsa'); if(s.length){ r.datos=r.datos||{}; r.datos.inconformidades=(r.datos.inconformidades||[]).filter(x=>x.tipo!=='senacsa').concat(s.map(x=>({ tipo:'senacsa', titulo:x.titulo.charAt(0).toUpperCase()+x.titulo.slice(1), detalle:x.detalle||null, justificacion:(inc.just[x.id]||'').trim()||null, resolucion:'justificado' }))); } }catch(e){} }
   return r;
 }
 function diffRecords(a,b){ // campos que cambiaron entre dos registros (para el log)
@@ -3434,8 +3532,8 @@ function brincoAyudaEl(inp, box, est, alElegir, sinAyudaVacio){
       b.addEventListener('mousedown',ev=>ev.preventDefault()); b.addEventListener('click',()=>{ inp.value=s.ide; dirty=true; inp.dispatchEvent(new Event('change')); box.classList.add('hidden'); pintarEstado(); if(alElegir) alElegir(); }); box.appendChild(b); });
     box.classList.remove('hidden'); pintarEstado(); };
   inp.addEventListener('input',()=>{ delete inp.dataset.escrito; delete inp.dataset.dudoso; pintarSugs(); }); inp.addEventListener('focus',async()=>{ await cargarBrincos(estanciaValue()); pintarSugs(); }); inp.addEventListener('blur',()=>setTimeout(()=>box.classList.add('hidden'),150));
-  inp.addEventListener('change',()=>{ normalizarCampoBrinco(inp); box.classList.add('hidden'); setTimeout(pintarEstado,350); /* un momento después, así el toque en el botón siguiente no se pierde cuando el aviso corre la pantalla */ });
-  return { refrescar:()=>{ box.classList.add('hidden'); pintarEstado(); }, normalizar:()=>{ normalizarCampoBrinco(inp); pintarEstado(); } };
+  inp.addEventListener('change',()=>{ normalizarCampoBrinco(inp); box.classList.add('hidden'); setTimeout(()=>{ pintarEstado(); senAvisoCampo(inp, est); },350); /* un momento después, así el toque en el botón siguiente no se pierde cuando el aviso corre la pantalla */ });
+  return { refrescar:()=>{ box.classList.add('hidden'); pintarEstado(); senAvisoCampo(inp, est); }, normalizar:()=>{ normalizarCampoBrinco(inp); pintarEstado(); } };
 }
 const ayudaBoton=brincoAyuda('f-boton','boton-sugs','boton-estado',()=>{ $('f-causa').focus(); });
 const ayudaCria=brincoAyuda('f-cria-boton','cria-sugs','cria-estado',null,true); const ayudaPerdida=brincoAyuda('f-perdida-boton','perdida-sugs','perdida-estado',null);
@@ -3996,6 +4094,132 @@ async function makeConfPdf(w, base, crit){
   const pie='Rural Bioenergía S.A. - Guía del confinamiento Ypoti - Bovino.OS, foto '+(base.gerado_em?fecha(base.gerado_em)+' '+String(base.gerado_em).slice(11,16):'-')+' - generado '+new Date().toLocaleString('es-PY');
   pages.forEach((p,i)=>{ p.drawText(ansi(pie),{x:M,y:18,size:6.6,font,color:hex('#777777')}); const t='Página '+(i+1)+' de '+pages.length; p.drawText(t,{x:W-M-font.widthOfTextAtSize(t,6.6),y:18,size:6.6,font,color:hex('#777777')}); });
   return await pdf.save(); }
+
+/* ---------- SENACSA: chequeo de los brincos de un registro (¿el animal estaba en esta estancia en esa fecha?) ---------- */
+const SEN_CHK={key:'', estado:'', problemas:[], uno:{}};
+function senIdsForm(){ const q=v=>{ const d=soloDigitos(v); return d.length===15?[d]:[]; };
+  try{ if(tipo==='mortalidad') return q($('f-boton').value); if(tipo==='perdida_boton') return q($('f-perdida-boton').value);
+    if(tipo==='medicamento') return [...new Set(medBrincosValidos().map(soloDigitos).filter(x=>x.length===15))];
+    if(usaBalanza(tipo)) return [...new Set(unionAnimales().map(a=>soloDigitos(a.ide)).filter(x=>x.length===15))]; }catch(e){}
+  return []; }
+function senKey(ids){ return [estanciaValue(), $('f-fecha').value, tipo, ids.length, ids.slice(0,40).join(','), ids.slice(-5).join(',')].join('|'); }
+async function senRevisar(){ const ids=senIdsForm(); const key=senKey(ids);
+  if(!ids.length || !USR){ SEN_CHK.key=key; SEN_CHK.estado='listo'; SEN_CHK.problemas=[]; return; }
+  if(SEN_CHK.key===key && SEN_CHK.estado!=='sin_senal') return; if(SEN_CHK.key===key && !navigator.onLine) return;
+  SEN_CHK.key=key; SEN_CHK.problemas=[]; if(!navigator.onLine || !cfg.endpoint){ SEN_CHK.estado='sin_senal'; return; } SEN_CHK.estado='cargando';
+  try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'animal_situacion', usuario:USR.codigo, estancia:estanciaValue(), fecha:$('f-fecha').value, tipo_evento:tipo, ides:ids}), redirect:'follow'}, 60000); const j=JSON.parse(await res.text());
+    if(SEN_CHK.key!==key) return; if(j.ok){ SEN_CHK.problemas=j.problemas||[]; SEN_CHK.estado='listo'; } else SEN_CHK.estado='error'; }
+  catch(e){ if(SEN_CHK.key===key) SEN_CHK.estado='error'; }
+  if(SEN_CHK.key===key && step===3) renderInconformidades(); }
+async function senEsperar(ms){ const ids=senIdsForm(); if(!ids.length || !navigator.onLine) return; const p=senRevisar(); if(SEN_CHK.estado==='cargando') toast('Revisando los brincos con el historial del SENACSA…'); await Promise.race([p, new Promise(r=>setTimeout(r, ms||10000))]); }
+function senProblemasForm(){ const ids=senIdsForm(); return (ids.length && SEN_CHK.key===senKey(ids) && SEN_CHK.estado==='listo') ? SEN_CHK.problemas : []; }
+function senAvisoCampo(inp, est){ const d=soloDigitos(inp.value); if(d.length!==15 || !USR || !cfg.endpoint) return; const k=[estanciaValue(), $('f-fecha').value, tipo, d].join('|');
+  const pinta=p=>{ if(soloDigitos(inp.value)!==d || !p) return; est.textContent='⚠ '+p.texto.charAt(0).toUpperCase()+p.texto.slice(1)+'. Revise el número o la estancia.'; est.style.color='var(--bad)'; };
+  if(k in SEN_CHK.uno){ pinta(SEN_CHK.uno[k]); return; } if(!navigator.onLine) return; SEN_CHK.uno[k]=null;
+  fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'animal_situacion', usuario:USR.codigo, estancia:estanciaValue(), fecha:$('f-fecha').value, tipo_evento:tipo, ides:[d]}), redirect:'follow'}, 30000).then(r=>r.text()).then(t=>{ const j=JSON.parse(t); if(j.ok){ SEN_CHK.uno[k]=(j.problemas||[])[0]||null; pinta(SEN_CHK.uno[k]); } else delete SEN_CHK.uno[k]; }).catch(()=>{ delete SEN_CHK.uno[k]; }); }
+
+/* ---------- 🔎 Buscar un animal: historial oficial del SENACSA + registros del app ---------- */
+const AN_DEPTO={'00':[-25.29,-57.62,'Asunción'],'01':[-22.9,-57.3,'Concepción'],'02':[-24.1,-56.6,'San Pedro'],'03':[-25.3,-57.1,'Cordillera'],'04':[-25.8,-56.3,'Guairá'],'05':[-25.4,-55.8,'Caaguazú'],'06':[-26.2,-56.1,'Caazapá'],'07':[-26.8,-55.9,'Itapúa'],'08':[-26.8,-57.0,'Misiones'],'09':[-26.0,-57.1,'Paraguarí'],'10':[-25.5,-54.9,'Alto Paraná'],'11':[-25.5,-57.5,'Central'],'12':[-26.9,-58.1,'Ñeembucú'],'13':[-22.7,-56.0,'Amambay'],'14':[-24.3,-55.5,'Canindeyú'],'15':[-23.7,-59.5,'Presidente Hayes'],'16':[-22.0,-61.0,'Boquerón'],'17':[-20.5,-59.5,'Alto Paraguay']};
+const AN_PUESTOS={'POZO COLORADO':[-23.49,-58.80,'Pozo Colorado'],'CONCEPCION':[-23.41,-57.43,'Concepción'],'VILLA FLORIDA':[-26.40,-57.13,'Villa Florida']};
+const AN_RB='80050418';
+function anEsc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function anFecha(f){ return f?fmtDate(String(f).slice(0,10)):'—'; }
+function anIdeTxt(ide){ const d=soloDigitos(ide); return d.length===15?d.slice(0,6)+' '+d.slice(6,11)+' '+d.slice(11):d; }
+function anSiap(ide){ const d=soloDigitos(ide); return (d.length===15 && d.indexOf('600010')===0)?'SIAP '+d.slice(6,11)+' · '+d.slice(11):''; }
+function anGeoEstancia(nombre){ try{ const ps=geoPols(nombre).filter(p=>p.n!=='divisa'); if(ps.length){ const b=geoBB(ps); return [(b[1]+b[3])/2,(b[0]+b[2])/2]; } }catch(e){} return null; }
+function anLugar(e){ if(e.tipo==='Faena de Animales') return null;
+  if(e.tipo==='Paso por Puesto de Control'){ const n=String(e.lugar||'').toUpperCase(); const k=Object.keys(AN_PUESTOS).find(k=>n.indexOf(k)>=0); return k?{lat:AN_PUESTOS[k][0], lon:AN_PUESTOS[k][1], nombre:'Puesto de control '+AN_PUESTOS[k][2], aprox:false, puesto:true}:null; }
+  if(e.estancia){ const c=anGeoEstancia(e.estancia); if(c) return {lat:c[0], lon:c[1], nombre:e.estancia, aprox:false, rb:true}; }
+  const d=AN_DEPTO[String(e.estab_cod||'').slice(0,2)]; if(d) return {lat:d[0], lon:d[1], nombre:(e.estancia||e.estab_nombre||e.estab_cod)+' ('+d[2]+')', aprox:true, rb:!!e.estancia};
+  return null; }
+function anRuta(evs){ const pts=[]; evs.forEach(e=>{ if(e.tipo==='Baja de Animales') return; const l=anLugar(e); if(!l) return; const u=pts[pts.length-1]; if(u && u.nombre===l.nombre) return; pts.push(Object.assign({f:e.fecha}, l)); }); return pts; }
+function anMapaSvg(pts){ if(!pts.length) return '';
+  const W=400, H=300; const lat0=pts.reduce((a,p)=>a+p.lat,0)/pts.length; const k=Math.cos(lat0*Math.PI/180);
+  let x0=Math.min(...pts.map(p=>p.lon*k)), x1=Math.max(...pts.map(p=>p.lon*k)), y0=Math.min(...pts.map(p=>p.lat)), y1=Math.max(...pts.map(p=>p.lat));
+  const pad=Math.max(0.5,(x1-x0)*0.22,(y1-y0)*0.22); x0-=pad; x1+=pad; y0-=pad; y1+=pad; let dx=x1-x0, dy=y1-y0;
+  if(dx/dy<W/H){ const n=dy*W/H; x0-=(n-dx)/2; dx=n; } else { const n=dx*H/W; y0-=(n-dy)/2; y1=y0+n; dy=n; }
+  const X=lon=>(lon*k-x0)/dx*W, Y=lat=>(y1-lat)/dy*H; let s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Recorrido del animal">';
+  if(PY_POL.length) s+='<path d="'+PY_POL.map((c,i)=>(i?'L':'M')+X(c[0]).toFixed(1)+' '+Y(c[1]).toFixed(1)).join(' ')+' Z" fill="#FFFFFF" stroke="#B9C2BC" stroke-width="1.2"/>';
+  ESTANCIAS.forEach(e=>{ const c=anGeoEstancia(e); if(!c) return; const x=X(c[1]), y=Y(c[0]); if(x<-20||x>W+20||y<-20||y>H+20) return; s+='<rect x="'+(x-3).toFixed(1)+'" y="'+(y-3).toFixed(1)+'" width="6" height="6" fill="#C9D6CC"/><text x="'+(x+5).toFixed(1)+'" y="'+(y+3).toFixed(1)+'" font-size="9" fill="#8A948E">'+anEsc(e)+'</text>'; });
+  for(let i=1;i<pts.length;i++){ const a=pts[i-1], b=pts[i]; s+='<line x1="'+X(a.lon).toFixed(1)+'" y1="'+Y(a.lat).toFixed(1)+'" x2="'+X(b.lon).toFixed(1)+'" y2="'+Y(b.lat).toFixed(1)+'" stroke="#701E0C" stroke-width="2.4"'+((a.aprox||b.aprox)?' stroke-dasharray="6 4"':'')+' stroke-linecap="round"/>'; }
+  pts.forEach((p,i)=>{ const x=X(p.lon), y=Y(p.lat); const c=p.puesto?'#5E6963':p.rb?'#04522B':'#C98A2B'; s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="10" fill="'+c+'" stroke="#fff" stroke-width="2"'+(p.aprox?' stroke-dasharray="3 2"':'')+'/><text x="'+x.toFixed(1)+'" y="'+(y+4).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">'+(i+1)+'</text>'; });
+  return s+'</svg>'; }
+function anEventosSenacsa(evs){ let prop=''; return evs.map(e=>{ const rb=e.prop_doc===AN_RB; let ic='•', t=e.tipo, sub='';
+    const donde=(e.estancia||e.estab_nombre||'')+(e.estab_cod&&!e.estancia?' ('+e.estab_cod+')':'');
+    if(e.tipo==='Reidentificación'){ ic='🏷'; t='Reidentificado (botón nuevo) en '+donde; sub='propietario '+(e.prop_nombre||'—')+(e.protocolo?' · protocolo '+e.protocolo:''); }
+    else if(e.tipo==='Identificación'){ ic='🏷'; t='Identificado (botón aplicado) en '+donde; sub='propietario '+(e.prop_nombre||'—')+(e.protocolo?' · protocolo '+e.protocolo:''); }
+    else if(e.tipo==='Entrada de Cota'){ ic='🚚'; if(rb && prop && prop!==AN_RB){ t='Comprado: llegó a '+donde; sub='antes de '+(e._prev||'otro propietario')+' · COTA '+(e.protocolo||'—'); } else if(!rb && prop===AN_RB){ ic='↗'; t='Salió a un establecimiento de terceros: '+donde; sub='propietario '+(e.prop_nombre||'—')+' · COTA '+(e.protocolo||'—'); } else { t='Llegó a '+donde; sub=(rb?'':'propietario '+(e.prop_nombre||'—')+' · ')+'COTA '+(e.protocolo||'—'); } }
+    else if(e.tipo==='Paso por Puesto de Control'){ ic='🛂'; t='Pasó por el '+(e.lugar||'puesto de control').toLowerCase().replace(/^puesto/,'puesto'); sub='registro '+(e.protocolo||'—'); }
+    else if(e.tipo==='Baja de Animales'){ ic='✝️'; t='Dado de baja en '+donde; sub='registro de baja '+(e.protocolo||'—'); }
+    else if(e.tipo==='Faena de Animales'){ ic='🏭'; t='Faenado en '+(e.lugar||'frigorífico'); sub='planificación de faena '+(e.protocolo||'—'); }
+    if(e.tipo==='Identificación'||e.tipo==='Reidentificación'||e.tipo==='Entrada de Cota'){ e._prevProp=prop; if(e.prop_doc) prop=e.prop_doc; }
+    return {f:e.fecha, ic, t, sub, src:'sen'}; }); }
+function anEventosApp(app){ return app.map(x=>{ const lbl=TIPO_LABEL[x.tipo_evento]||x.tipo_evento; let ic='📝', t=lbl+' en '+x.estancia; const sub=[];
+    if(x.peso_kg!=null){ ic='⚖️'; t=lbl+': '+fmtN(x.peso_kg)+' kg en '+x.estancia; if(x.peso_fuente&&x.peso_fuente!=='bascula') sub.push('peso '+x.peso_fuente); }
+    if(x.tipo_evento==='mortalidad'){ ic='✝️'; t='Muerte registrada en '+x.estancia; if(x.causa) sub.push('causa: '+x.causa); }
+    if(x.tipo_evento==='medicamento'){ ic='💉'; } if(x.tipo_evento==='nacimiento'){ ic='🐄'; t='Nacimiento registrado en '+x.estancia; }
+    if(x.origen) sub.push('origen: '+x.origen); if(x.destino) sub.push('destino: '+x.destino); if(x.lote) sub.push('lote '+x.lote); if(x.piquete) sub.push('potrero '+x.piquete); if(x.categoria) sub.push(x.categoria); if(x.detalle) sub.push(x.detalle); if(x.cota_nro) sub.push('COTA '+x.cota_nro);
+    return {f:x.fecha||x.fecha_evento, ic, t, sub:sub.join(' · '), src:'app'}; }); }
+function anRender(j){ const box=$('animal-res'); const s=j.senacsa; const evs=(j.eventos||[]).slice(); const app=j.app||[];
+  for(let i=0;i<evs.length;i++){ if(evs[i].tipo==='Entrada de Cota' && evs[i].prop_doc===AN_RB){ const prev=evs.slice(0,i).reverse().find(e=>(e.tipo==='Identificación'||e.tipo==='Reidentificación'||e.tipo==='Entrada de Cota') && e.prop_doc && e.prop_doc!==AN_RB); if(prev) evs[i]._prev=prev.prop_nombre+' ('+(prev.estab_nombre||prev.estab_cod)+')'; } }
+  let h='<div><div class="an-ide">'+anIdeTxt(j.ide)+'</div><div style="color:var(--ink-2);font-size:14px">'+[anSiap(j.ide), s&&s.sexo, s&&s.carimbo?'carimbo '+s.carimbo:''].filter(Boolean).map(anEsc).join(' · ')+'</div></div>';
+  if(s){ const c={activo:'🟢 Activo en '+(s.estancia_actual||s.estab_actual)+(s.desde?' desde el '+anFecha(s.desde):''), faenado:'🏭 Faenado el '+anFecha(s.desde)+((evs.filter(e=>e.tipo==='Faena de Animales').pop()||{}).lugar?' en '+(evs.filter(e=>e.tipo==='Faena de Animales').pop()||{}).lugar:''), baja:'✝️ Dado de baja el '+anFecha(s.desde), tercero:'↗ En un establecimiento de terceros: '+s.estab_actual+(s.prop_actual?' ('+s.prop_actual+')':''), sin_datos:'Sin datos de ubicación'}[s.situacion]||s.situacion;
+    h+='<div class="an-sit '+anEsc(s.situacion)+'"><b>'+anEsc(c)+'</b><br><small>según el SENACSA</small></div>'; }
+  else h+='<div class="an-sit sin_datos">Este animal no está en el historial del SENACSA importado al app (por ahora solo hay datos de las estancias cuya planilla se importó).</div>';
+  const aa=j.animal_app; if(aa && (aa.estancia_actual||aa.estado)) h+='<div class="msg" style="font-size:13.5px">En el app: '+anEsc(aa.estado||'')+(aa.estancia_actual?' en '+anEsc(aa.estancia_actual):'')+(aa.lote_actual?' · lote '+anEsc(aa.lote_actual):'')+(aa.categoria?' · '+anEsc(aa.categoria):'')+(s&&s.situacion==='activo'&&aa.estancia_actual&&s.estancia_actual&&aa.estancia_actual!==s.estancia_actual?'<br><b style="color:var(--bad)">⚠ El app y el SENACSA no coinciden en la estancia.</b>':'')+'</div>';
+  if(s){ const ident=evs.find(e=>e.tipo==='Identificación'); const compra=evs.find(e=>e.tipo==='Entrada de Cota' && e._prev);
+    h+='<div class="an-kv">'+(ident?'<span>Identificado</span><b>'+anFecha(ident.fecha)+' en '+anEsc(ident.estancia||ident.estab_nombre)+'</b><span>Propietario</span><b>'+anEsc(ident.prop_nombre||'—')+(ident.prop_doc===AN_RB?' (nacido o identificado en la Rural)':'')+'</b>':'')
+      +(compra?'<span>Compra</span><b>'+anFecha(compra.fecha)+' · de '+anEsc(compra._prev)+'</b>':'')+'<span>Eventos</span><b>'+evs.length+' del SENACSA · '+app.length+' del app</b></div>'; }
+  const ruta=anRuta(evs); if(ruta.length){ h+='<h3>🗺 Por dónde pasó</h3><div class="an-mapa">'+anMapaSvg(ruta)+'</div><div style="font-size:12.5px;color:var(--ink-2)">'+ruta.map((p,i)=>'<b>'+(i+1)+'</b> '+anEsc(p.nombre)+' ('+anFecha(p.f)+')').join(' → ')+(ruta.some(p=>p.aprox)?'<br>Línea de puntos: ubicación aproximada (centro del departamento; el SENACSA no da las coordenadas de los establecimientos de terceros).':'')+'</div>'; }
+  const pes=app.filter(x=>x.peso_kg!=null).sort((a,b)=>a.fecha<b.fecha?-1:1);
+  if(pes.length){ h+='<h3>⚖️ Pesajes</h3><table class="an-pesos"><tr><th>Fecha</th><th>Estancia</th><th class="r">Peso</th><th class="r">GMD</th></tr>'+pes.map((x,i)=>{ const a=pes[i-1]; const dias=a?Math.round((new Date(x.fecha)-new Date(a.fecha))/864e5):0; const g=a&&dias>0?(x.peso_kg-a.peso_kg)/dias:null; return '<tr><td>'+anFecha(x.fecha)+'</td><td>'+anEsc(x.estancia)+'</td><td class="r"><b>'+fmtN(x.peso_kg)+' kg</b></td><td class="r">'+(g!=null?fmtN(g,3)+' kg/d':'—')+'</td></tr>'; }).join('')+'</table>'; }
+  const tl=anEventosSenacsa(evs).concat(anEventosApp(app)).sort((a,b)=>String(a.f)<String(b.f)?-1:String(a.f)>String(b.f)?1:0);
+  if(tl.length) h+='<h3>📜 Historia completa</h3><div>'+tl.map(e=>'<div class="an-ev"><div class="f">'+anFecha(e.f)+'</div><div class="i">'+e.ic+'</div><div>'+anEsc(e.t)+'<span class="an-src '+e.src+'">'+(e.src==='sen'?'SENACSA':'App')+'</span>'+(e.sub?'<small>'+anEsc(e.sub)+'</small>':'')+'</div></div>').join('')+'</div>';
+  if(j._guardado) h+='<div class="msg" style="font-size:13px">Sin señal: se muestra la búsqueda guardada del '+anEsc(fmtDT(new Date(j._guardado).toISOString()))+'.</div>';
+  box.innerHTML=h; }
+function anGuardados(){ try{ return JSON.parse(localStorage.getItem('manejo.animales_buscados')||'{}'); }catch(e){ return {}; } }
+async function anBuscar(texto){ const box=$('animal-res'); texto=String(texto||'').trim(); const dig=soloDigitos(texto); if(dig.length<3){ box.innerHTML='<div class="msg warn">Escriba al menos 3 números del brinco.</div>'; return; }
+  const g=anGuardados(); const local=dig.length===15?g[dig]:Object.values(g).find(x=>x.j&&String(x.j.ide||'').endsWith(dig));
+  if(!navigator.onLine || !cfg.endpoint){ if(local){ anRender(Object.assign({}, local.j, {_guardado:local.t})); } else box.innerHTML='<div class="msg warn">Sin señal: la búsqueda necesita conexión (solo se ven sin señal los animales ya buscados en este teléfono).</div>'; return; }
+  box.innerHTML='<div class="msg">Buscando '+anEsc(texto)+'…</div>';
+  try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'buscar_animal', usuario:USR.codigo, texto}), redirect:'follow'}, 90000); const j=JSON.parse(await res.text());
+    if(!j.ok){ box.innerHTML='<div class="msg bad">'+anEsc(/payload inválido/i.test(j.error||'')?'El servidor todavía es la versión anterior (falta "Nueva versión" del Apps Script).':j.error)+'</div>'; return; }
+    if(j.candidatos){ box.innerHTML='<div style="font-size:14px">Hay '+j.candidatos.length+' animales que terminan en <b>'+anEsc(dig)+'</b>. Toque el correcto:</div><div class="an-cand">'+j.candidatos.map(c=>'<button class="btn" type="button" data-ide="'+anEsc(c.ide)+'"><b>'+anIdeTxt(c.ide)+'</b><small style="display:block;color:var(--ink-2)">'+anEsc([c.situacion,c.estancia].filter(Boolean).join(' · '))+'</small></button>').join('')+'</div>';
+      box.querySelectorAll('[data-ide]').forEach(b=>b.addEventListener('click',()=>{ $('animal-q').value=b.dataset.ide; anBuscar(b.dataset.ide); })); return; }
+    if(j.no_encontrado || !j.ide){ box.innerHTML='<div class="msg warn">No encontré el brinco '+anEsc(texto)+' ni en el historial del SENACSA importado ni en los registros del app.</div>'; return; }
+    anRender(j); try{ g[j.ide]={t:Date.now(), j}; const ks=Object.keys(g).sort((a,b)=>g[b].t-g[a].t); ks.slice(30).forEach(k=>delete g[k]); localStorage.setItem('manejo.animales_buscados', JSON.stringify(g)); }catch(e){} }
+  catch(e){ if(local) anRender(Object.assign({}, local.j, {_guardado:local.t})); else box.innerHTML='<div class="msg bad">No se pudo consultar el servidor: '+anEsc(e.message||e)+'</div>'; } }
+function abrirBuscarAnimal(texto){ $('animal-modal').classList.remove('hidden'); $('animal-imp').classList.toggle('hidden', !(USR && USR.rol==='administrador' && usrTodas())); if(texto){ $('animal-q').value=texto; anBuscar(texto); } else { $('animal-res').innerHTML='<div style="font-size:14px;color:var(--ink-2)">Escriba el número del botón (los 15 dígitos, la serie y el número SIAP, o los últimos números) y toque Buscar.</div>'; setTimeout(()=>$('animal-q').focus(),50); } }
+$('inf-op-animal').addEventListener('click',()=>{ cerrarInformes(); abrirBuscarAnimal(); });
+$('animal-cerrar').addEventListener('click',()=>$('animal-modal').classList.add('hidden'));
+$('animal-buscar').addEventListener('click',()=>anBuscar($('animal-q').value));
+$('animal-q').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); anBuscar($('animal-q').value); } });
+/* importación de la planilla del SENACSA (.xls): solo administradores con todas las estancias; el servidor no repite lo que ya tenía */
+const AN_COLS=['nro. de di','sexo','carimbo','especie','fecha aplicación','doc. propietario','nombre propietario','cód. estab.','nombre estab.','tipo de evento','descripción','fecha de evento'];
+async function anLeerPlanilla(nombre, buf){ let filas;
+  if(/\.xlsx$/i.test(nombre)){ const csv=await XlsxLite.leerXlsx(buf); filas=csv.split('\n').map(l=>{ const out=[]; let cur='', q=false; for(let i=0;i<l.length;i++){ const ch=l[i]; if(q){ if(ch==='"'&&l[i+1]==='"'){ cur+='"'; i++; } else if(ch==='"') q=false; else cur+=ch; } else if(ch==='"') q=true; else if(ch===';'){ out.push(cur); cur=''; } else cur+=ch; } out.push(cur); return out; }); }
+  else filas=XlsLite.leerXls(buf);
+  const norm=s=>String(s==null?'':s).trim().toLowerCase(); const hi=filas.findIndex(f=>f.some(c=>norm(c)==='nro. de di')); if(hi<0) throw new Error(nombre+': no encuentro la columna "Nro. de DI" (¿es la planilla de historial de DIs del SENACSA?)');
+  const cab=filas[hi].map(norm); const idx=AN_COLS.map(c=>cab.indexOf(c)); const falta=AN_COLS.filter((c,i)=>idx[i]<0&&['nro. de di','tipo de evento','descripción','fecha de evento'].includes(c)); if(falta.length) throw new Error(nombre+': faltan columnas: '+falta.join(', '));
+  return filas.slice(hi+1).filter(f=>soloDigitos(f[idx[0]]).length===15).map(f=>idx.map(i=>i<0?'':f[i])); }
+async function anImportar(lista){ const msg=$('animal-imp-msg'); const pon=(t,c)=>{ msg.className='msg'+(c?' '+c:''); msg.textContent=t; msg.classList.remove('hidden'); };
+  try{ const arch=[]; for(const file of lista){ pon('Leyendo '+file.name+'…'); const buf=await file.arrayBuffer();
+      if(/\.zip$/i.test(file.name)){ for(const z of await XlsxLite.leerZip(buf)){ if(/\.(xls|xlsx)$/i.test(z.nombre)) arch.push({nombre:z.nombre, datos:await anLeerPlanilla(z.nombre, z.bytes.buffer.slice(z.bytes.byteOffset, z.bytes.byteOffset+z.bytes.length))}); } }
+      else arch.push({nombre:file.name, datos:await anLeerPlanilla(file.name, buf)}); }
+    if(!arch.length) throw new Error('no hay planillas del SENACSA en lo que eligió');
+    const total=arch.reduce((a,x)=>a+x.datos.length,0); if(!total) throw new Error('las planillas no tienen filas con un número de DI de 15 dígitos');
+    if(!navigator.onLine) throw new Error('hace falta señal para mandar las planillas al servidor');
+    let nuevos=0, rep=0, inv=0, enviadas=0, resumen=null; const T=4000;
+    for(let a=0;a<arch.length;a++){ const x=arch[a];
+      for(let i=0;i<x.datos.length;i+=T){ pon('Mandando al servidor… '+x.nombre+' ('+(a+1)+' de '+arch.length+') · '+Math.round((enviadas+Math.min(T,x.datos.length-i))*100/total)+' % de '+total.toLocaleString('es-PY')+' filas'+(a===arch.length-1&&i+T>=x.datos.length?' · armando el resumen de cada animal…':''));
+        const fin=a===arch.length-1 && i+T>=x.datos.length;
+        const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'senacsa_importar', clave:USR.codigo, archivo:x.nombre, filas:x.datos.slice(i,i+T), fin}), redirect:'follow'}, 330000); const j=JSON.parse(await res.text());
+        if(!j.ok) throw new Error(/payload inválido/i.test(j.error||'')?'el servidor todavía es la versión anterior (falta "Nueva versión" del Apps Script)':j.error); nuevos+=j.nuevos||0; rep+=j.repetidos||0; inv+=j.invalidos||0; enviadas+=Math.min(T,x.datos.length-i); if(j.resumen) resumen=j.resumen; } }
+    const ps=(resumen&&resumen.por_situacion)||{}; const pe=(resumen&&resumen.activos_por_estancia)||{};
+    pon('✓ '+arch.length+(arch.length===1?' planilla':' planillas')+' ('+arch.map(x=>x.nombre.replace(/\.xlsx?$/i,'')).join(', ')+'): '+total+' filas · '+nuevos+' eventos nuevos'+(rep?' · '+rep+' ya estaban':'')+(inv?' · '+inv+' sin leer':'')+'. En la base: '+(resumen?resumen.animales:'?')+' animales — '+(ps.activo||0)+' activos ('+Object.keys(pe).sort((p,q)=>pe[q]-pe[p]).map(k=>k+' '+pe[k]).join(', ')+'), '+(ps.faenado||0)+' faenados, '+(ps.baja||0)+' dados de baja'+(ps.tercero?', '+ps.tercero+' en terceros':'')+'.','ok');
+    try{ Object.keys(BRINCOS).forEach(k=>delete BRINCOS[k]); }catch(e){} }
+  catch(e){ pon('No se pudo importar: '+(e.message||e),'bad'); } }
+$('animal-file').addEventListener('change',e=>{ const fs=Array.from(e.target.files||[]); e.target.value=''; if(fs.length) anImportar(fs); });
 
 /* guía de la estancia: el mapa de la estancia de la persona (la que tiene su ubicación, o la última que miró) */
 function cambiarEstanciaGuia(est){ if(!est) return; MAPA.est=est; MAPA.sel=null; MAPA.selPen=null; confCtrl(); $('mapa-estancia').value=est; try{ localStorage.setItem('manejo.guia.estancia',est); }catch(e){} MAPA.capa=mapaCapas()[0]; pintarBotonCapa(); const pols=geoPols(est).filter(p=>p.n!=='divisa'); if(pols.length) mapaFit(geoBB(pols)); mapaPedirDibujo(); cargarDatosPasto(est); }
@@ -4778,7 +5002,7 @@ $('ab-next').addEventListener('click',async()=>{
   if(step===2){ const e=validate2(); const sp=separarErrores(e);
     if(sp.bloq.length){ showErr('err2',e); return; }
     if(sp.falt.length){ const firma=sp.falt.join('|'); if(avisoFaltas!==firma){ avisoFaltas=firma; showErr('err2', sp.falt.concat(['<b>Si no puede completarlos ahora, toque “Continuar” otra vez y explique cada uno en la página siguiente (inconformidades).</b>'])); return; } }
-    $('err2').classList.add('hidden'); step = calcInconformidades().length ? 3 : 4; renderStep(); enCola(()=>saveDraft(true)); return; }
+    $('err2').classList.add('hidden'); await senEsperar(12000); step = calcInconformidades().length ? 3 : 4; renderStep(); enCola(()=>saveDraft(true)); return; }
   if(step===3){ const e=validate3(); showErr('err3',e); if(e.length) return; step=4; renderStep(); enCola(()=>saveDraft(true)); return; }
   autoOff=true; await colaGuardado; // ningún autoguardado puede pisar el registro final
   const r=buildRecord(); const prev=await dbGet(r.id);

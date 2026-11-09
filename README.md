@@ -1,9 +1,24 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.8.0
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.9.1
 
 App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, salida a faena, informe Padroniza y escore de heces.
 
 Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.9.1
+
+- **Historial del SENACSA de todas las estancias** (planillas del 09/11/2026: Ypoti, Ypoti 2 / Oro Verde, Lusipar, Santa Clara, Santa Maria, Ybypora, Bella Vista y La Esperanza — 127.533 eventos de 42.939 animales). Cada planilla trae los animales cuyo último establecimiento es esa estancia, con toda su historia (dónde se identificaron y por dónde pasaron); un mismo animal no aparece en dos planillas.
+- **Importación de varias planillas a la vez, o directamente el .zip** que manda el SENACSA (Informes › Buscar un animal › Importar). Se manda en tandas de 4.000 filas (unas 32 tandas para todo; el último paso arma el resumen de cada animal).
+- Nuevo tipo de evento del SENACSA **Reidentificación** (botón aplicado de nuevo; 20 animales en Bella Vista): cuenta como ubicación y aparece en la historia del animal.
+- Servidor más liviano con 43 mil animales: la lista de brincos y la búsqueda leen solo las columnas que usan, y el chequeo de un brinco lee solo su fila.
+
+## Novedades 4.9.0
+
+- **🔎 Buscar un animal** (Informes, para todos los usuarios): se escribe el brinco — los 15 dígitos, la serie y el número SIAP ("SIAP 00015 6338") o los últimos números (si hay varios, se elige de una lista) — y aparece toda la historia del animal: situación según el SENACSA (activo en tal estancia desde tal fecha, faenado en tal frigorífico, dado de baja, en un establecimiento de terceros), dónde se identificó y de quién era, cuándo y de quién se compró, el **mapa "Por dónde pasó"** (estancias de la Rural en su lugar; establecimientos de terceros en el centro del departamento, con línea de puntos, porque el SENACSA no da sus coordenadas; puestos de control de Pozo Colorado, Concepción y Villa Florida), los **pesajes** del app con la ganancia diaria entre uno y otro, y la **historia completa** mezclando los eventos del SENACSA y los registros del app (pesajes, mortalidad, medicamentos, movimientos), cada uno marcado con su fuente. Avisa si el app y el SENACSA no coinciden en la estancia. Sin señal se ven los últimos 30 animales buscados en ese teléfono.
+- **Importar la planilla del SENACSA** (solo administradores con todas las estancias, dentro de "Buscar un animal"): el .xls de historial de DIs que entrega el SENACSA, tal cual (el app lee el formato de Excel 97-2003). Se puede importar todas las veces que haga falta: lo que ya estaba no se repite. Primera planilla: Estancia Santa Maria (0101190045), 2217 eventos de 767 animales.
+- **Chequeo de los brincos con el SENACSA al cargar un registro**: si el animal, en la fecha del registro, estaba según el SENACSA en otra estancia o en un establecimiento de terceros, o ya había sido faenado o dado de baja, aparece en el campo del brinco ("⚠ Según el SENACSA el 09/11/2026 estaba en Santa Maria…") y como **inconformidad** que hay que justificar para guardar. Vale para mortalidad, pérdida de botón, medicamento, pesajes y salidas; en las entradas (que vienen de otra estancia) solo se controla faena y baja. Tolera 30 días por el atraso de las COTAs. Los animales que no están en el historial importado no se controlan.
+- **Ayuda de brincos**: los animales que el SENACSA ubica activos en una estancia se suman a la lista de brincos sugeridos de esa estancia.
+- **Servidor (.gs):** nuevo archivo `senacsa.gs` (pedidos `senacsa_importar`, `buscar_animal`, `animal_situacion`) y hojas `senacsa_eventos` y `senacsa_animales` (ver Base_de_datos_trazabilidad.md). Publicar en la misma implementación (Nueva versión).
 
 ## Novedades 4.8.0
 
