@@ -551,6 +551,35 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
 .hx-ley i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px;border:1px solid rgba(0,0,0,.2)}
 .hx-ley i.sug{border:2px dashed #D99A00;background:#fff}
 .hx-ley i.gps{background:#1E88E5;border-radius:50%;width:10px}
+.env-card{display:flex;flex-direction:column;gap:6px}
+.env-card.pausa{opacity:.62}
+.env-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.env-top b{font-size:16px;color:var(--ink);line-height:1.25}
+.env-l{font-size:13.5px;color:var(--ink-2);line-height:1.35}
+.env-l.chico{font-size:12.5px;color:var(--ink-3)}
+.env-l.err{color:var(--bad)}
+.env-acc{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px}
+.env-acc .btn{width:100%;min-width:0;margin:0}
+.env-top .badge{white-space:nowrap;flex:none}
+.env-grupo{font-family:var(--font-display);font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:6px 2px -4px}
+.env-opc{display:flex;flex-direction:column;gap:6px}
+.env-opc label{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line-strong);border-radius:10px;padding:9px 11px;cursor:pointer;background:var(--surface)}
+.env-opc label:has(input:checked){border-color:var(--brand);background:color-mix(in srgb,var(--brand) 8%,var(--surface))}
+.env-opc input{width:20px;height:20px;margin-top:2px;flex:none}
+.env-opc b{display:block;font-size:15px;color:var(--ink)}
+.env-opc small{display:block;font-size:12.5px;color:var(--ink-3);line-height:1.3;margin-top:2px}
+.env-chips{display:flex;flex-wrap:wrap;gap:6px}
+.env-chips label{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line-strong);border-radius:999px;padding:6px 11px;font-size:14px;color:var(--ink-2);cursor:pointer;background:var(--surface)}
+.env-chips label:has(input:checked){border-color:var(--brand);background:var(--brand);color:var(--brand-ink)}
+.env-chips label{position:relative}
+.env-chips input{position:absolute;left:8px;top:50%;width:1px;height:1px;opacity:0;pointer-events:none}
+.env-est{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.env-dest{display:flex;flex-direction:column;gap:4px}
+.env-dest label{display:flex;gap:10px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--line);font-size:15px;color:var(--ink)}
+.env-dest label small{color:var(--ink-3);font-size:12.5px;margin-left:auto;white-space:nowrap}
+.env-dest input{width:20px;height:20px;flex:none}
+.env-sel{display:flex;gap:8px;flex-wrap:wrap}
+.env-sel select{flex:1 1 120px;min-width:0}
 </style>
 
 <div class="app">
@@ -616,6 +645,7 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
       <button class="btn primary big" id="btn-new">＋ Nuevo registro</button>
       <button class="btn big" id="btn-informes" style="border-color:var(--brand);color:var(--brand)">📑 Generar informes</button>
       <button class="btn big" id="btn-solicitud" style="border-color:var(--solicitud_transferencia);color:var(--solicitud_transferencia)">📨 Solicitud de transferencia</button>
+      <button class="btn big hidden" id="btn-envios" type="button">📬 Envíos automáticos</button>
       <div id="pend-msg" class="msg warn hidden"></div>
       <div class="section-title"><span class="dot"></span><h3>Registros</h3></div>
       <div class="sync-bar"><span id="sync-estado">—</span><button class="btn" type="button" id="btn-sync">⟳ Actualizar</button></div>
@@ -632,6 +662,26 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
       <div class="stack" id="home-tools" style="gap:8px">
         <button class="btn ghost hidden" id="btn-nube">☁ Recuperar registros de la nube</button>
       </div>
+    </div>
+  </section>
+
+  <!-- ENVÍOS AUTOMÁTICOS (solo administración) -->
+  <section class="screen" id="scr-envios">
+    <div class="stack">
+      <div class="seg" role="tablist"><button type="button" class="on" data-env-tab="prog">📬 Envíos</button><button type="button" data-env-tab="cont">👥 Contactos</button><button type="button" data-env-tab="hist">🕓 Historial</button></div>
+      <div id="env-msg" class="msg hidden"></div>
+      <div id="env-pan-prog" class="stack">
+        <span class="hint">Cada envío dice qué informe va, de qué estancias, cada cuánto y para quién. El servidor los arma y los manda solo (WhatsApp con el PDF adjunto y/o correo). «Aviso de cada novedad» sale en el momento, con cada registro guardado.</span>
+        <button class="btn primary" type="button" id="env-nuevo">＋ Nuevo envío</button>
+        <div id="env-lista" class="stack"></div>
+      </div>
+      <div id="env-pan-cont" class="stack hidden">
+        <span class="hint">Las personas que pueden recibir avisos e informes. El WhatsApp con el código del país (595 Paraguay, 55 Brasil); el idioma es el del mensaje de WhatsApp.</span>
+        <button class="btn primary" type="button" id="env-c-nuevo">＋ Nuevo contacto</button>
+        <div id="env-c-lista" class="stack"></div>
+      </div>
+      <div id="env-pan-hist" class="stack hidden"><span class="hint">Los últimos informes que salieron (los avisos de cada registro no aparecen acá).</span><div id="env-h-lista" class="stack"></div></div>
+      <div class="row"><button class="btn ghost" type="button" id="env-volver" style="flex:1">← Volver</button><button class="btn ghost" type="button" id="env-recargar" style="flex:1">⟳ Actualizar</button></div>
     </div>
   </section>
 
@@ -1279,6 +1329,50 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
     <div class="row"><button class="btn ghost" id="mort-cancel">Cancelar</button><button class="btn primary" id="mort-ok">Continuar</button></div>
   </div>
 </div>
+<div id="envp-modal" class="modal hidden">
+  <div class="card stack" style="max-width:560px;width:100%;max-height:94vh;overflow:auto">
+    <h2 id="envp-titulo" style="margin:0">Nuevo envío</h2>
+    <label class="f"><span>Nombre del envío</span><input type="text" id="envp-nombre" placeholder="Ej.: Mortandad semanal para la dirección (opcional)"></label>
+    <div class="f" style="display:flex;flex-direction:column;gap:6px"><span class="env-grupo" style="margin:0">Informe</span><div class="env-opc" id="envp-informe"></div></div>
+    <div class="stack" style="gap:6px"><span class="env-grupo" style="margin:0">Estancias</span>
+      <div class="seg" id="envp-est-modo"><button type="button" class="on" data-v="todas">Todas</button><button type="button" data-v="elegir">Elegir estancias</button></div>
+      <div class="env-chips env-est hidden" id="envp-est"></div>
+      <div class="seg hidden" id="envp-agrupar"><button type="button" class="on" data-v="una">Un PDF con todas<small>con el detalle por estancia</small></button><button type="button" data-v="separado">Un PDF por estancia<small>uno para cada estancia con datos</small></button></div>
+    </div>
+    <div class="stack hidden" id="envp-eventos-box" style="gap:6px"><span class="env-grupo" style="margin:0">Qué novedades avisar</span>
+      <div class="env-chips" id="envp-eventos"><label><input type="checkbox" value="registro">📝 Registros guardados</label><label><input type="checkbox" value="informe">📑 Informes PDF del app</label><label><input type="checkbox" value="senacsa">⬆ Importación del SENACSA</label></div></div>
+    <div class="stack" id="envp-cuando-box" style="gap:6px"><span class="env-grupo" style="margin:0">Cada cuánto</span>
+      <div class="env-sel"><select id="envp-frec"><option value="diaria">Diaria</option><option value="semanal">Semanal</option><option value="quincenal">Quincenal (1 y 16)</option><option value="mensual">Mensual</option></select>
+        <select id="envp-dia"></select><select id="envp-hora"></select></div>
+      <label class="f" id="envp-periodo-box"><span>Período que cubre</span><select id="envp-periodo"></select></label>
+      <span class="hint" id="envp-cuando-hint"></span>
+    </div>
+    <div class="stack" style="gap:6px"><span class="env-grupo" style="margin:0">Para quién</span><div class="env-dest" id="envp-dest"></div>
+      <span class="hint">¿Falta alguien? Agréguelo en la pestaña 👥 Contactos.</span></div>
+    <div class="stack" style="gap:6px"><span class="env-grupo" style="margin:0">Por dónde</span>
+      <div class="env-chips" id="envp-canales"><label><input type="checkbox" value="whatsapp" checked>📱 WhatsApp</label><label><input type="checkbox" value="correo">✉️ Correo</label></div></div>
+    <label class="chk"><input type="checkbox" id="envp-activo" checked> <span>Activo (desmarque para dejarlo en pausa)</span></label>
+    <div id="envp-msg" class="msg hidden"></div>
+    <div class="row"><button class="btn primary" type="button" id="envp-guardar" style="flex:2">Guardar</button><button class="btn ghost" type="button" id="envp-cancelar" style="flex:1">Cancelar</button></div>
+    <button class="btn ghost hidden" type="button" id="envp-borrar" style="color:var(--bad)">Borrar este envío</button>
+  </div>
+</div>
+
+<div id="envc-modal" class="modal hidden">
+  <div class="card stack" style="max-width:460px;width:100%;max-height:94vh;overflow:auto">
+    <h2 id="envc-titulo" style="margin:0">Nuevo contacto</h2>
+    <label class="f"><span>Nombre</span><input type="text" id="envc-nombre" autocomplete="off" placeholder="Nombre y apellido"></label>
+    <label class="f"><span>Cargo</span><input type="text" id="envc-cargo" autocomplete="off" placeholder="Ej.: Director, gerente de Lusipar"></label>
+    <label class="f"><span>WhatsApp</span><input type="tel" id="envc-wa" inputmode="tel" autocomplete="off" placeholder="+595 981 123456"><span class="hint">Con el código del país: 595 Paraguay, 55 Brasil (+ DDD). Un número de Paraguay que empieza con 09… también sirve.</span></label>
+    <label class="f"><span>Correo</span><input type="email" id="envc-correo" inputmode="email" autocapitalize="off" autocomplete="off" placeholder="nombre@empresa.com"></label>
+    <label class="f"><span>Idioma del WhatsApp</span><select id="envc-idioma"><option value="es">Español</option><option value="pt_BR">Português</option></select></label>
+    <label class="chk"><input type="checkbox" id="envc-activo" checked> <span>Activo (si lo desmarca, no recibe nada hasta volver a marcarlo)</span></label>
+    <div id="envc-msg" class="msg hidden"></div>
+    <div class="row"><button class="btn primary" type="button" id="envc-guardar" style="flex:2">Guardar</button><button class="btn ghost" type="button" id="envc-cancelar" style="flex:1">Cancelar</button></div>
+    <button class="btn ghost hidden" type="button" id="envc-borrar" style="color:var(--bad)">Borrar este contacto</button>
+  </div>
+</div>
+
 <div id="animal-modal" class="modal hidden">
   <div class="card stack" style="max-width:560px;width:100%;max-height:94vh;overflow:auto">
     <div class="row" style="justify-content:space-between;align-items:center;flex-wrap:nowrap"><h2 style="margin:0">🔎 Buscar un animal</h2><button class="btn ghost" type="button" id="animal-cerrar" style="flex:0 0 auto;width:auto">✕ Cerrar</button></div>
@@ -2476,7 +2570,7 @@ async function makeSanitarioPdf(w, S, extra){ extra=extra||{};
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '4.9.1';
+const APP_VERSION = '4.11.0';
 const ESQUEMA = 'manejo-ypoti/3.7';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
@@ -2560,7 +2654,7 @@ function logEntry(w, accion, detalle){ w.historial=w.historial||[]; w.historial.
 /* ---------- ui helpers ---------- */
 let toastT;
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2800); }
-function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id)); window.scrollTo(0,0); $('actionbar').style.display = (id==='scr-form')?'block':'none'; $('hdr-title').textContent = id==='scr-config' ? 'Configuración' : id==='scr-done' ? (doneW&&doneW.registro&&esSolicitud(doneW.registro.tipo_evento)?'Solicitud de transferencia':'Registro guardado') : (id==='scr-form'&&document.body.classList.contains('modo-solicitud'))?'Solicitud de transferencia':'Registro de manejo'; $('btn-config').textContent = id==='scr-home' ? '⚙' : '⌂'; $('btn-config').style.display = (id==='scr-login'||id==='scr-crear') ? 'none' : ''; if((id==='scr-home'||id==='scr-login') && actPendiente) setTimeout(aplicarActualizacion, 600); }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id)); window.scrollTo(0,0); $('actionbar').style.display = (id==='scr-form')?'block':'none'; $('hdr-title').textContent = id==='scr-config' ? 'Configuración' : id==='scr-envios' ? 'Envíos automáticos' : id==='scr-done' ? (doneW&&doneW.registro&&esSolicitud(doneW.registro.tipo_evento)?'Solicitud de transferencia':'Registro guardado') : (id==='scr-form'&&document.body.classList.contains('modo-solicitud'))?'Solicitud de transferencia':'Registro de manejo'; $('btn-config').textContent = id==='scr-home' ? '⚙' : '⌂'; $('btn-config').style.display = (id==='scr-login'||id==='scr-crear') ? 'none' : ''; if((id==='scr-home'||id==='scr-login') && actPendiente) setTimeout(aplicarActualizacion, 600); }
 function fillSelect(sel, opts, placeholder){ sel.innerHTML=''; if(placeholder){ const o=document.createElement('option'); o.value=''; o.textContent=placeholder; sel.appendChild(o);} opts.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); }); }
 function setSeg(seg, v){ seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.v===v)); seg.dataset.value=v||''; }
 function updateNet(){ const p=$('netpill'); const on=navigator.onLine; p.textContent = on?'Con conexión':'Sin conexión'; p.classList.toggle('online',on); p.classList.toggle('offline',!on); }
@@ -4602,7 +4696,24 @@ $('btn-edit-rec').addEventListener('click',()=>openEdit(doneW));
 $('btn-delete-rec').addEventListener('click',async()=>{ if(doneW.estado!=='enviado' && !$('btn-delete-rec').classList.contains('danger')){ toast('Este registro todavía no fue guardado en la base de datos. Toque de nuevo para borrarlo igual.'); $('btn-delete-rec').textContent='Borrar igual'; $('btn-delete-rec').classList.add('danger'); return; } await dbDel(doneW.id); borrarNube(doneW.id); marcarNoBajar(doneW.id); $('btn-delete-rec').textContent='Borrar'; $('btn-delete-rec').classList.remove('danger'); toast('Registro borrado'); renderHome(); show('scr-home'); });
 
 /* ---------- inicio ---------- */
-async function renderHome(){
+/* ---------- WhatsApp: cada informe en PDF generado en este teléfono va al servidor, que avisa por WhatsApp (con el PDF) ---------- */
+let WA_DESDE=0; try{ WA_DESDE=Number(localStorage.getItem('manejo.wa_desde'))||0; if(!WA_DESDE){ WA_DESDE=Date.now(); localStorage.setItem('manejo.wa_desde', String(WA_DESDE)); } }catch(e){ WA_DESDE=Date.now(); }
+let waEnviando=false, waTimer=0;
+function waTituloInforme(w){ const per=(w.desde&&w.hasta)?fmtDate(w.desde)+' a '+fmtDate(w.hasta):''; const c=w.clase||'trazabilidad';
+  if(c==='mortandad') return {titulo:'Informe de mortandad'+(w.mes?' de '+MORT_MESES[Number(w.mes.slice(5))-1]+' de '+w.mes.slice(0,4):''), detalle:(w.cantidad!=null?w.cantidad+' muertes':'PDF')+(w.con_ia?' · con la conclusión de la IA':'')};
+  if(c==='sanitario') return {titulo:'Informe sanitario '+per, detalle:(w.cantidad!=null?w.cantidad+' muertes · '+(w.cantidad_med||0)+' medicaciones':'PDF y Excel FOCO')};
+  if(c==='ia') return {titulo:(w.modo==='pregunta'?'Respuesta de la IA ':'Informe de la IA ')+per, detalle:w.pregunta?'pregunta: '+String(w.pregunta).slice(0,200):'informe escrito por la IA con los registros del período'};
+  if(c==='guia') return {titulo:'Guía de la estancia (pastura)', detalle:w.datos_hasta?'ControlPasto hasta '+fmtDate(w.datos_hasta):'mapa de pastos y lotación'};
+  if(c==='conf') return {titulo:'Guía del confinamiento', detalle:w.foto?'foto del Bovino.OS de '+fmtDT(new Date(String(w.foto).length<=19?w.foto+'-03:00':w.foto).toISOString()):'corrales y lotes del Bovino.OS'};
+  return {titulo:'Informe de trazabilidad '+per, detalle:(w.cantidad!=null?w.cantidad+' registros':'PDF')+' · con el CSV de brincos en el app'}; }
+async function avisarInformes(){ if(waEnviando || !USR || !navigator.onLine || !cfg.endpoint) return; waEnviando=true;
+  try{ const ws=(await dbAll()).filter(w=>w.tipo==='informe' && w.estado==='listo' && w.pdf && !w.wa && w.generado_en && Date.parse(w.generado_en)>=WA_DESDE && (w.wa_intentos||0)<5);
+    for(const w of ws){ try{ const t=waTituloInforme(w); const bytes=new Uint8Array(await w.pdf.arrayBuffer());
+        const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'aviso_informe', usuario:USR.codigo, id:w.id+':'+w.generado_en, clase:w.clase||'trazabilidad', estancia:w.estancia||'', titulo:t.titulo, detalle:t.detalle, nombre:w.nombre||'informe.pdf', pdf_base64:b64(bytes)}), redirect:'follow'}, 180000);
+        const j=JSON.parse(await res.text()); const w2=await dbGet(w.id); if(!w2) continue; if(j.ok) w2.wa=new Date().toISOString(); else w2.wa_intentos=(w2.wa_intentos||0)+1; await dbPut(w2); }
+      catch(e){ try{ const w2=await dbGet(w.id); if(w2){ w2.wa_intentos=(w2.wa_intentos||0)+1; await dbPut(w2); } }catch(x){} } } }
+  finally{ waEnviando=false; } }
+async function renderHome(){ clearTimeout(waTimer); waTimer=setTimeout(()=>avisarInformes().catch(()=>{}), 1500);
   if(!USR) return; pintarSync();
   let all=[]; try{ all=await dbAll(); }catch(e){}
   all=all.filter(visibleParaUsr); all.sort((a,b)=>(b.actualizado_en||b.creado_en).localeCompare(a.actualizado_en||a.creado_en));
@@ -5034,7 +5145,7 @@ async function hashCodigo(c){ try{ if(!(window.crypto&&crypto.subtle)) return nu
 function usrsGuardados(){ try{ return JSON.parse(localStorage.getItem(USRS_KEY)||'{}')||{}; }catch(e){ return {}; } }
 async function recordarUsuario(codigo, u){ const h=await hashCodigo(codigo); const m=usrsGuardados(); Object.keys(m).forEach(k=>{ if(m[k].usuario&&m[k].usuario.id===u.id) delete m[k]; }); if(h) m[h]={usuario:{id:u.id, nombre:u.nombre, estancias:u.estancias, rol:u.rol}, t:Date.now()}; try{ localStorage.setItem(USRS_KEY, JSON.stringify(m)); localStorage.setItem('manejo.ultimo_usuario', u.nombre); }catch(e){} }
 function guardarSesion(){ try{ if(USR) sessionStorage.setItem(SES_KEY, JSON.stringify({codigo:USR.codigo, usuario:{id:USR.id, nombre:USR.nombre, estancias:USR.estancias, rol:USR.rol}, t:Date.now()})); }catch(e){} }
-function pintarUsuario(){ if(!USR) return; $('usr-nombre').textContent=USR.nombre; $('usr-detalle').textContent='· '+(USR.rol==='administrador'?'administrador · ':'')+usrTxtEstancias(); $('c-usuario').textContent=USR.nombre+' · '+(USR.rol==='administrador'?'administrador':'usuario')+' · '+usrTxtEstancias(); }
+function pintarUsuario(){ if(!USR) return; try{ $('btn-envios').classList.toggle('hidden', !(USR.rol==='administrador' && usrTodas())); }catch(e){} $('usr-nombre').textContent=USR.nombre; $('usr-detalle').textContent='· '+(USR.rol==='administrador'?'administrador · ':'')+usrTxtEstancias(); $('c-usuario').textContent=USR.nombre+' · '+(USR.rol==='administrador'?'administrador':'usuario')+' · '+usrTxtEstancias(); }
 function iniciarSesion(codigo, u, sinSenal){ USR={id:u.id, nombre:u.nombre, estancias:u.estancias||[], rol:u.rol||'normal', codigo:String(codigo)}; guardarSesion(); pintarUsuario(); renderHome(); show('scr-home'); if(!sinSenal) toast('Hola, '+String(u.nombre||'').split(' ')[0]); sincronizar(); }
 function actualizarUsuario(u){ if(!USR || !u || u.id!==USR.id) return; const antes=JSON.stringify([USR.nombre,USR.estancias,USR.rol]); USR.nombre=u.nombre; USR.estancias=u.estancias||[]; USR.rol=u.rol||'normal'; if(antes!==JSON.stringify([USR.nombre,USR.estancias,USR.rol])){ guardarSesion(); recordarUsuario(USR.codigo, USR); pintarUsuario(); } }
 function cerrarSesion(aviso){ USR=null; try{ sessionStorage.removeItem(SES_KEY); }catch(e){} loginV=''; loginPintar(); loginAviso(aviso||''); show('scr-login'); }
@@ -5143,6 +5254,146 @@ try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persis
 setInterval(()=>{ if(USR && navigator.onLine) sincronizar(); }, 60*1000);
 setTimeout(()=>buscarActualizacion(true), 4000);
 { let v=null; try{ v=sessionStorage.getItem('manejo.actualizado'); sessionStorage.removeItem('manejo.actualizado'); }catch(e){} if(v) setTimeout(()=>toast('App actualizado'+(v!=='nueva'?' a la versión '+APP_VERSION:'')), 800); }
+/* ---------- 📬 Envíos automáticos (v4.11.0) — solo administradores con todas las estancias ----------
+   Contactos, avisos de cada novedad e informes programados. Todo vive en el servidor (hojas envios_*); esta pantalla solo lo edita:
+   {tipo:'envios_estado'|'envios_guardar'|'envios_ejecutar', usuario: código personal}. Sin señal no se puede administrar. */
+let ENV_EST = null, ENV_TAB = 'prog', ENV_EDIT = null, ENV_CEDIT = null;
+const ENV_SEMANA = ['', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+const ENV_PER = { auto: 'Automático', mes_actual: 'Acumulado del mes (del 1º hasta ayer)', ano_actual: 'Acumulado del año (del 1º de enero hasta ayer)', ultimos_30: 'Últimos 30 días' };
+const ENV_AUTO = { diaria: 'el día anterior', semanal: 'los 7 días anteriores', quincenal: 'la quincena anterior', mensual: 'el mes anterior' };
+function envH(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function envEsAdmin(){ return !!(USR && USR.rol==='administrador' && usrTodas()); }
+function envMsg(id, txt, cls){ const el=$(id); if(!txt){ el.classList.add('hidden'); return; } el.className='msg '+(cls||''); el.innerHTML=txt; }
+async function envPedir(body, ms){
+  if(!navigator.onLine) throw new Error('sin señal: los envíos automáticos se administran con internet');
+  const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify(Object.assign({usuario:USR.codigo}, body)), redirect:'follow'}, ms||120000);
+  let j; try{ j=JSON.parse(await res.text()); }catch(e){ throw new Error('respuesta inválida del servidor'); }
+  if(!j.ok && !j.salida) throw new Error(j.error||'error del servidor'); return j; }
+function envInf(id){ return ((ENV_EST&&ENV_EST.catalogo)||[]).find(x=>x.id===id) || {nombre:id, icono:'📄'}; }
+function envContacto(id){ return ((ENV_EST&&ENV_EST.contactos)||[]).find(c=>c.id===id); }
+function envFechaHora(iso){ if(!iso) return ''; const t=String(iso); if(/^\d{4}-\d{2}-\d{2}T\d{2}$/.test(t)) return t.slice(8,10)+'/'+t.slice(5,7)+' '+t.slice(11,13)+' h';
+  try{ const d=new Date(t); return d.toLocaleDateString('es-PY',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('es-PY',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return t; } }
+function envProxTxt(p){ if(!p.proximo) return ''; const d=new Date(p.proximo.slice(0,10)+'T12:00:00Z'); return ENV_SEMANA[d.getUTCDay()||7].slice(0,3)+' '+envFechaHora(p.proximo); }
+function envPerTxt(p){ const inf=envInf(p.informe); if(inf.inmediato) return ''; if(!inf.periodo) return 'foto del día del envío'; return p.periodo==='auto'||!p.periodo ? ENV_AUTO[p.frecuencia]||'' : (ENV_PER[p.periodo]||p.periodo).replace(/ \(.*\)$/,'').toLowerCase(); }
+
+async function abrirEnvios(){ if(!envEsAdmin()){ toast('Solo para administradores con todas las estancias.'); return; } show('scr-envios'); envTab(ENV_TAB); if(!ENV_EST) $('env-lista').innerHTML='<div class="hint">Cargando…</div>'; await envCargar(); }
+async function envCargar(){ envMsg('env-msg','');
+  try{ ENV_EST=await envPedir({tipo:'envios_estado'}); envPintar(); }
+  catch(e){ envMsg('env-msg','No se pudo leer la configuración: '+envH(e.message), 'bad'); } }
+function envTab(t){ ENV_TAB=t; document.querySelectorAll('[data-env-tab]').forEach(b=>b.classList.toggle('on', b.dataset.envTab===t)); ['prog','cont','hist'].forEach(k=>$('env-pan-'+k).classList.toggle('hidden', k!==t)); }
+function envPintar(){ const E=ENV_EST; if(!E) return;
+  const av=[]; if(!E.whatsapp.token) av.push('📱 Falta el <b>WHATSAPP_TOKEN</b> en las Propiedades del script: por ahora solo salen los correos.'); else if(E.whatsapp.apagado) av.push('📱 El WhatsApp está en pausa (WHATSAPP_APAGADO = si).');
+  if(E.disparadores && E.disparadores.programados===false && E.programados.some(p=>!envInf(p.informe).inmediato && p.activo)) av.push('🕓 Falta el disparador de los envíos programados: en el Apps Script ejecute <b>instalarEnviosProgramados</b>.');
+  if(E.correo_cupo!=null && E.correo_cupo<20) av.push('✉️ Quedan '+E.correo_cupo+' correos del cupo diario de Google.');
+  if(av.length) envMsg('env-msg', av.join('<br>'), 'warn');
+  // envíos
+  const inm=E.programados.filter(p=>envInf(p.informe).inmediato), prog=E.programados.filter(p=>!envInf(p.informe).inmediato);
+  const card=p=>{ const inf=envInf(p.informe); const dest=p.contactos.map(id=>{ const c=envContacto(id); if(!c) return ''; return envH(c.nombre)+' '+(p.canales.includes('whatsapp')&&c.whatsapp?'📱':'')+(p.canales.includes('correo')&&c.correo?'✉️':'')+(c.activo?'':' (inactivo)'); }).filter(Boolean);
+    const est=p.estancias.includes('*')?'todas las estancias':p.estancias.join(', '); const ag=p.agrupar==='separado'?' · un PDF por estancia':'';
+    const err=/ERROR/.test(p.ultimo_resultado||'');
+    return '<div class="card env-card'+(p.activo?'':' pausa')+'" data-env-id="'+p.id+'"><div class="env-top"><b>'+envH(inf.icono+' '+(p.nombre||inf.nombre))+'</b><span class="badge">'+(p.activo?'activo':'en pausa')+'</span></div>'+
+      '<div class="env-l">'+envH(inf.nombre)+' · '+envH(est)+ag+(inf.inmediato?' · '+(p.eventos||[]).map(e=>({registro:'registros',informe:'informes PDF',senacsa:'SENACSA'})[e]||e).join(', '):'')+'</div>'+
+      '<div class="env-l">🕓 '+envH(p.frecuencia_txt)+(envPerTxt(p)?' · '+envH(envPerTxt(p)):'')+(p.proximo?' · próximo: '+envH(envProxTxt(p)):'')+'</div>'+
+      '<div class="env-l">👥 '+(dest.join(' · ')||'<span style="color:var(--bad)">sin destinatarios</span>')+'</div>'+
+      (p.ultimo_envio?'<div class="env-l chico'+(err?' err':'')+'">Último: '+envH(envFechaHora(p.ultimo_envio))+' · '+envH(String(p.ultimo_resultado||'').slice(0,160))+'</div>':'')+
+      '<div class="env-acc"><button class="btn small" type="button" data-env-acc="editar">✎ Editar</button>'+(inf.inmediato?'':'<button class="btn small" type="button" data-env-acc="vista">👁 Vista previa</button><button class="btn small" type="button" data-env-acc="enviar">➤ Enviar ahora</button>')+
+      '<button class="btn small ghost" type="button" data-env-acc="pausa">'+(p.activo?'⏸ Pausar':'▶ Activar')+'</button></div></div>'; };
+  $('env-lista').innerHTML=(inm.length?'<div class="env-grupo">En el momento</div>'+inm.map(card).join(''):'')+'<div class="env-grupo">Programados</div>'+(prog.length?prog.map(card).join(''):'<div class="hint">Todavía no hay informes programados. Toque ＋ Nuevo envío.</div>');
+  // contactos
+  const usos=id=>E.programados.filter(p=>p.contactos.includes(id)).length;
+  $('env-c-lista').innerHTML=E.contactos.length?E.contactos.map(c=>'<div class="card env-card'+(c.activo?'':' pausa')+'" data-env-c="'+c.id+'"><div class="env-top"><b>'+envH(c.nombre)+'</b><span class="badge">'+(c.idioma==='pt_BR'?'PT':'ES')+(c.activo?'':' · inactivo')+'</span></div>'+
+    (c.cargo?'<div class="env-l">'+envH(c.cargo)+'</div>':'')+'<div class="env-l">'+(c.whatsapp?'📱 +'+envH(c.whatsapp):'📱 —')+' · '+(c.correo?'✉️ '+envH(c.correo):'✉️ —')+'</div>'+
+    '<div class="env-l chico">'+usos(c.id)+' envío(s)</div><div class="env-acc"><button class="btn small" type="button" data-env-cacc="editar">✎ Editar</button></div></div>').join(''):'<div class="hint">Sin contactos.</div>';
+  // historial
+  $('env-h-lista').innerHTML=(E.historial||[]).length?E.historial.map(h=>{ const inf=envInf(h.informe); const c=h.cola; const wa=c?(c.estado==='enviado'?'📱 entregado a '+c.ok:c.estado==='vencido'?'📱 venció sin salir':'📱 '+c.estado+(c.ok?' ('+c.ok+' ya salieron)':'')):'';
+    return '<div class="card env-card"><div class="env-top"><b>'+envH(inf.icono+' '+(h.envio||inf.nombre))+'</b><span class="badge">'+envH(envFechaHora(h.fecha))+'</span></div>'+
+      '<div class="env-l">'+envH(h.estancias==='*'?'todas las estancias':h.estancias)+' · '+envH(h.desde===h.hasta?h.desde.split('-').reverse().join('/'):h.desde.split('-').reverse().join('/')+' a '+h.hasta.split('-').reverse().join('/'))+'</div>'+
+      '<div class="env-l">👥 '+envH(h.destinatarios)+'</div><div class="env-l chico'+(/ERROR/.test(h.resultado)?' err':'')+'">'+envH(h.resultado)+(wa?' · '+envH(wa):'')+(c&&c.err&&c.err.length?'<br>'+envH(c.err.join(' · ')):'')+(h.por&&h.por!=='automático'?' · a mano ('+envH(h.por)+')':'')+'</div>'+
+      (h.url?'<div class="env-acc"><a class="btn small" href="'+envH(h.url)+'" target="_blank" rel="noopener">📄 Abrir el PDF en el Drive</a></div>':'')+'</div>'; }).join(''):'<div class="hint">Todavía no salió ningún informe programado.</div>';
+}
+
+// ---------- editor de un envío
+function envSegVal(id){ const b=$(id).querySelector('button.on'); return b?b.dataset.v:''; }
+function envSegSet(id, v){ $(id).querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.v===v)); }
+function envAbrirEditor(p){ if(!ENV_EST) return; ENV_EDIT=p||null; const E=ENV_EST; envMsg('envp-msg','');
+  $('envp-titulo').textContent=p?'Editar envío':'Nuevo envío'; $('envp-nombre').value=p?p.nombre:''; $('envp-borrar').classList.toggle('hidden', !p);
+  $('envp-informe').innerHTML=E.catalogo.map(c=>'<label><input type="radio" name="envp-inf" value="'+c.id+'"'+((p?p.informe:'mortandad')===c.id?' checked':'')+'><span><b>'+envH(c.icono+' '+c.nombre)+'</b><small>'+envH(c.desc)+'</small></span></label>').join('');
+  const ests=p?p.estancias:['*']; envSegSet('envp-est-modo', ests.includes('*')?'todas':'elegir');
+  $('envp-est').innerHTML=E.estancias.map(e=>'<label><input type="checkbox" value="'+envH(e)+'"'+(ests.includes(e)?' checked':'')+'>'+envH(e)+'</label>').join('');
+  envSegSet('envp-agrupar', p&&p.agrupar==='separado'?'separado':'una');
+  $('envp-eventos').querySelectorAll('input').forEach(i=>{ i.checked=p?(p.eventos||[]).includes(i.value):true; });
+  $('envp-frec').value=p&&p.frecuencia&&p.frecuencia!=='inmediato'?p.frecuencia:'semanal';
+  $('envp-hora').innerHTML=Array.from({length:24},(_,h)=>'<option value="'+h+'">'+('0'+h).slice(-2)+':00</option>').join(''); $('envp-hora').value=String(p&&p.hora!==''&&p.hora!=null?p.hora:7);
+  envDias(p?p.dia:''); envPeriodos(p?p.periodo:'auto');
+  $('envp-dest').innerHTML=E.contactos.map(c=>'<label><input type="checkbox" value="'+c.id+'"'+(p&&p.contactos.includes(c.id)?' checked':'')+'><span>'+envH(c.nombre)+(c.cargo?' <span style="color:var(--ink-3);font-size:13px">· '+envH(c.cargo)+'</span>':'')+'</span><small>'+(c.whatsapp?'📱':'')+(c.correo?' ✉️':'')+(c.activo?'':' inactivo')+'</small></label>').join('')||'<div class="hint">Primero agregue contactos.</div>';
+  $('envp-canales').querySelectorAll('input').forEach(i=>{ i.checked=p?p.canales.includes(i.value):i.value==='whatsapp'; });
+  $('envp-activo').checked=p?p.activo:true; envEditorVista(); $('envp-modal').classList.remove('hidden'); $('envp-modal').querySelector('.card').scrollTop=0; }
+function envInfSel(){ const r=document.querySelector('input[name="envp-inf"]:checked'); return r?r.value:''; }
+function envDias(v){ const f=$('envp-frec').value; const s=$('envp-dia');
+  if(f==='semanal'){ s.innerHTML=ENV_SEMANA.slice(1).map((d,i)=>'<option value="'+(i+1)+'">los '+d+'</option>').join(''); s.value=String(v||1); s.classList.remove('hidden'); }
+  else if(f==='mensual'){ s.innerHTML=Array.from({length:28},(_,i)=>'<option value="'+(i+1)+'">el día '+(i+1)+'</option>').join('')+'<option value="ultimo">el último día</option>'; s.value=String(v||1); s.classList.remove('hidden'); }
+  else { s.innerHTML=''; s.classList.add('hidden'); } }
+function envPeriodos(v){ const f=$('envp-frec').value; $('envp-periodo').innerHTML=Object.keys(ENV_PER).map(k=>'<option value="'+k+'">'+(k==='auto'?'Automático: '+(ENV_AUTO[f]||''):ENV_PER[k])+'</option>').join(''); $('envp-periodo').value=v&&ENV_PER[v]?v:'auto'; }
+function envEditorVista(){ const inf=envInf(envInfSel()); const todas=envSegVal('envp-est-modo')==='todas'; const n=$('envp-est').querySelectorAll('input:checked').length;
+  $('envp-est').classList.toggle('hidden', todas); $('envp-agrupar').classList.toggle('hidden', !!inf.inmediato || !(todas || n>1));
+  $('envp-eventos-box').classList.toggle('hidden', !inf.inmediato); $('envp-cuando-box').classList.toggle('hidden', !!inf.inmediato); $('envp-periodo-box').classList.toggle('hidden', !inf.periodo);
+  const f=$('envp-frec').value, d=$('envp-dia').value, h=('0'+$('envp-hora').value).slice(-2)+' h';
+  const cuando=f==='diaria'?'todos los días a las '+h:f==='semanal'?'todos los '+ENV_SEMANA[Number(d)||1]+' a las '+h:f==='quincenal'?'los días 1 y 16 a las '+h:(d==='ultimo'?'el último día de cada mes':'el día '+d+' de cada mes')+' a las '+h;
+  const per=!inf.periodo?'Es una foto del momento del envío.':($('envp-periodo').value==='auto'?'Cubre '+(ENV_AUTO[f]||'')+(f==='semanal'?' (hasta ayer)':'')+'.':'Cubre: '+ENV_PER[$('envp-periodo').value].toLowerCase()+'.');
+  $('envp-cuando-hint').textContent='Sale '+cuando+' (hora de Paraguay; puede demorar hasta 15 minutos). '+per+(inf.ypoti?' Solo tiene datos de la Ypoti.':''); }
+async function envGuardar(){ const inf=envInfSel(); if(!inf){ envMsg('envp-msg','Elija el informe.','bad'); return; }
+  const todas=envSegVal('envp-est-modo')==='todas'; const ests=todas?['*']:[...$('envp-est').querySelectorAll('input:checked')].map(i=>i.value);
+  const item={ id:ENV_EDIT?ENV_EDIT.id:undefined, nombre:$('envp-nombre').value.trim(), informe:inf, estancias:ests, agrupar:envSegVal('envp-agrupar'), eventos:[...$('envp-eventos').querySelectorAll('input:checked')].map(i=>i.value),
+    frecuencia:$('envp-frec').value, dia:$('envp-dia').value, hora:Number($('envp-hora').value), periodo:$('envp-periodo').value,
+    contactos:[...$('envp-dest').querySelectorAll('input:checked')].map(i=>i.value), canales:[...$('envp-canales').querySelectorAll('input:checked')].map(i=>i.value), activo:$('envp-activo').checked };
+  if(!ests.length){ envMsg('envp-msg','Elija al menos una estancia.','bad'); return; } if(!item.contactos.length){ envMsg('envp-msg','Elija al menos un destinatario.','bad'); return; } if(!item.canales.length){ envMsg('envp-msg','Elija WhatsApp, correo o los dos.','bad'); return; }
+  const sinCanal=item.contactos.map(envContacto).filter(c=>c && !item.canales.some(k=>k==='whatsapp'?c.whatsapp:c.correo));
+  $('envp-guardar').disabled=true; envMsg('envp-msg','Guardando…');
+  try{ const j=await envPedir({tipo:'envios_guardar', que:'programado', item}); ENV_EST=j; envPintar(); $('envp-modal').classList.add('hidden'); toast(j.mensaje||'Guardado'); if(sinCanal.length) toast(sinCanal.map(c=>c.nombre).join(', ')+': sin '+item.canales.map(k=>k==='whatsapp'?'WhatsApp':'correo').join(' ni ')+' — no le va a llegar.'); }
+  catch(e){ envMsg('envp-msg', envH(e.message), 'bad'); } finally{ $('envp-guardar').disabled=false; } }
+async function envBorrar(){ if(!ENV_EDIT || !confirm('¿Borrar el envío «'+ENV_EDIT.nombre+'»?')) return;
+  try{ ENV_EST=await envPedir({tipo:'envios_guardar', que:'programado', item:{id:ENV_EDIT.id}, borrar:true}); envPintar(); $('envp-modal').classList.add('hidden'); toast('Envío borrado'); }catch(e){ envMsg('envp-msg', envH(e.message), 'bad'); } }
+
+// ---------- acciones de la lista
+async function envAccion(id, acc, btn){ const p=ENV_EST.programados.find(x=>x.id===id); if(!p) return;
+  if(acc==='editar'){ envAbrirEditor(p); return; }
+  if(acc==='pausa'){ btn.disabled=true; try{ ENV_EST=await envPedir({tipo:'envios_guardar', que:'programado', item:{id}, solo_activo:!p.activo}); envPintar(); toast(ENV_EST.mensaje||'Listo'); }catch(e){ toast(e.message); } finally{ btn.disabled=false; } return; }
+  if(acc==='enviar'){ const n=p.contactos.map(envContacto).filter(Boolean).map(c=>c.nombre); if(!confirm('¿Mandar ahora «'+p.nombre+'» a '+n.join(', ')+'?')) return; }
+  const txt=btn.textContent; btn.disabled=true; btn.textContent=acc==='vista'?'Armando el PDF…':'Mandando…';
+  try{ const j=await envPedir({tipo:'envios_ejecutar', id, modo:acc}, 330000);
+    if(acc==='vista'){ const s=(j.salida||[]).filter(x=>x.pdf_base64); if(!s.length){ toast(j.mensaje||(j.salida&&j.salida[0]&&j.salida[0].error)||'No hay datos para ese informe.'); return; }
+      for(const x of s.slice(0,3)){ const b=atob(x.pdf_base64); const u=new Uint8Array(b.length); for(let i=0;i<b.length;i++) u[i]=b.charCodeAt(i); await saveFile(new File([u], x.nombre, {type:'application/pdf'})); }
+      if(s.length>3) toast('Son '+s.length+' PDF (uno por estancia): se abrieron los 3 primeros.'); }
+    else { if(j.estado){ ENV_EST=j.estado; envPintar(); } const s=j.salida||[]; toast(j.ok?(j.vacio?'No había datos para mandar.':'Listo: '+s.map(x=>x.resultado||x.error).join(' | ')):'Problema: '+(j.error||'')); } }
+  catch(e){ toast(e.message); } finally{ btn.disabled=false; btn.textContent=txt; } }
+
+// ---------- contactos
+function envAbrirContacto(c){ ENV_CEDIT=c||null; envMsg('envc-msg',''); $('envc-titulo').textContent=c?'Editar contacto':'Nuevo contacto'; $('envc-borrar').classList.toggle('hidden', !c);
+  $('envc-nombre').value=c?c.nombre:''; $('envc-cargo').value=c?c.cargo:''; $('envc-wa').value=c&&c.whatsapp?'+'+c.whatsapp:''; $('envc-correo').value=c?c.correo:''; $('envc-idioma').value=c?c.idioma:'es'; $('envc-activo').checked=c?c.activo:true;
+  $('envc-modal').classList.remove('hidden'); }
+async function envGuardarContacto(){ const item={ id:ENV_CEDIT?ENV_CEDIT.id:undefined, nombre:$('envc-nombre').value.trim(), cargo:$('envc-cargo').value.trim(), whatsapp:$('envc-wa').value.trim(), correo:$('envc-correo').value.trim(), idioma:$('envc-idioma').value, activo:$('envc-activo').checked };
+  if(item.nombre.length<2){ envMsg('envc-msg','Escriba el nombre.','bad'); return; } if(!item.whatsapp && !item.correo){ envMsg('envc-msg','Ponga al menos un WhatsApp o un correo.','bad'); return; }
+  $('envc-guardar').disabled=true; envMsg('envc-msg','Guardando…');
+  try{ ENV_EST=await envPedir({tipo:'envios_guardar', que:'contacto', item}); envPintar(); $('envc-modal').classList.add('hidden'); toast(ENV_EST.mensaje||'Guardado'); }
+  catch(e){ envMsg('envc-msg', envH(e.message), 'bad'); } finally{ $('envc-guardar').disabled=false; } }
+async function envBorrarContacto(){ if(!ENV_CEDIT) return; const n=ENV_EST.programados.filter(p=>p.contactos.includes(ENV_CEDIT.id)).length;
+  if(!confirm('¿Borrar a '+ENV_CEDIT.nombre+'?'+(n?' Se lo saca de '+n+' envío(s).':''))) return;
+  try{ ENV_EST=await envPedir({tipo:'envios_guardar', que:'contacto', item:{id:ENV_CEDIT.id}, borrar:true}); envPintar(); $('envc-modal').classList.add('hidden'); toast('Contacto borrado'); }catch(e){ envMsg('envc-msg', envH(e.message), 'bad'); } }
+
+// ---------- eventos
+(function(){ const on=(id,ev,fn)=>{ const el=$(id); if(el) el.addEventListener(ev,fn); };
+  on('btn-envios','click',abrirEnvios); on('env-volver','click',()=>{ show('scr-home'); }); on('env-recargar','click',envCargar);
+  document.querySelectorAll('[data-env-tab]').forEach(b=>b.addEventListener('click',()=>envTab(b.dataset.envTab)));
+  on('env-nuevo','click',()=>envAbrirEditor(null)); on('env-c-nuevo','click',()=>envAbrirContacto(null));
+  on('env-lista','click',e=>{ const b=e.target.closest('[data-env-acc]'); if(!b) return; const c=b.closest('[data-env-id]'); envAccion(c.dataset.envId, b.dataset.envAcc, b); });
+  on('env-c-lista','click',e=>{ const b=e.target.closest('[data-env-cacc]'); if(!b) return; const c=b.closest('[data-env-c]'); envAbrirContacto(envContacto(c.dataset.envC)); });
+  ['envp-est-modo','envp-agrupar'].forEach(id=>on(id,'click',e=>{ const b=e.target.closest('button'); if(!b) return; envSegSet(id, b.dataset.v); envEditorVista(); }));
+  on('envp-informe','change',envEditorVista); on('envp-est','change',envEditorVista); on('envp-dia','change',envEditorVista); on('envp-hora','change',envEditorVista); on('envp-periodo','change',envEditorVista);
+  on('envp-frec','change',()=>{ envDias(''); envPeriodos($('envp-periodo').value); envEditorVista(); });
+  on('envp-guardar','click',envGuardar); on('envp-cancelar','click',()=>$('envp-modal').classList.add('hidden')); on('envp-borrar','click',envBorrar);
+  on('envc-guardar','click',envGuardarContacto); on('envc-cancelar','click',()=>$('envc-modal').classList.add('hidden')); on('envc-borrar','click',envBorrarContacto);
+  try{ if(typeof USR!=='undefined' && USR) $('btn-envios').classList.toggle('hidden', !envEsAdmin()); }catch(e){}
+})();
 })();
 </script>
 </body>

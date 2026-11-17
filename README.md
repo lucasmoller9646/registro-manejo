@@ -1,9 +1,52 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.9.1
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.11.0
 
 App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, salida a faena, informe Padroniza y escore de heces.
 
 Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.11.0
+
+- **📬 Envíos automáticos** (nuevo botón en el inicio, solo para administradores con todas las estancias). Tres pestañas:
+  - **Contactos**: nombre, cargo, WhatsApp (con el código del país; un 09… de Paraguay se convierte solo en 5959…), correo, idioma del WhatsApp (español o portugués) y activo/inactivo.
+  - **Envíos**: cada envío dice qué informe va, de qué estancias, cada cuánto, a qué hora, para quién y por dónde (WhatsApp, correo o los dos). Se puede editar, pausar, ver la vista previa en PDF y mandar en el momento.
+  - **Historial**: los informes que salieron, con el período, los destinatarios, el resultado del WhatsApp y el enlace al PDF en el Drive.
+- **Informes que el servidor arma y manda solo** (PDF + correo con el informe en el cuerpo):
+  - Informe de mortandad: muertes por estancia y por causa, % sobre el rodeo del ControlPasto contra la meta (0,10 % al mes, proporcional al período), potreros con casos repetidos y cada ocurrencia con enlace al PDF, al mapa y a las fotos.
+  - Resumen de manejo: registros por estancia y tipo, entradas y salidas (cabezas, peso, origen y destino), pesajes, inconformidades y borradores abiertos.
+  - Informe sanitario: aplicaciones y animales tratados por enfermedad y medicamento; morbilidad y mortalidad por estancia contra la meta.
+  - Stock y lotación: cabezas, lotes y UA/ha por estancia (hoy y media de 12 meses), movimientos del mes y del mes anterior, mortalidad de 12 meses y activos en el SENACSA.
+  - Confinamiento (Ypoti): cabezas por dueño y por fase, faenas de los próximos 15 días, lotes con la fecha de faena vencida y lotes con riesgo.
+  - Pendientes e inconformidades: borradores sin terminar, registros que siguen solo en el teléfono e inconformidades del período.
+  - Análisis de la IA: informe gerencial de todas las estancias elegidas (un solo pedido a la IA).
+- **Alcance**: todas las estancias o las que se elijan; con varias, un solo PDF (con el detalle por estancia) o un PDF por estancia (en "todas", solo las que tienen datos).
+- **Frecuencia**: diaria, semanal (día de la semana), quincenal (días 1 y 16) o mensual (día 1 a 28 o el último), a la hora elegida (hora de Paraguay). **Período**: automático (el día anterior, los 7 días anteriores, la quincena o el mes anterior), acumulado del mes, acumulado del año o últimos 30 días. Stock y confinamiento son una foto del día.
+- **Aviso de cada novedad** (en el momento) reemplaza a la lista fija de la 4.10: cada envío de este tipo dice qué estancias, qué novedades (registros guardados, informes PDF del app, importación del SENACSA), quién y por dónde. La primera vez se carga solo con la lista que había (Lucas, Santiago, Ronei y Rodrigo todo; Paulinho solo la Ypoti), así que nada cambia hasta que se edite.
+- **Servidor**: nuevo `envios.gs`; hojas `envios_contactos`, `envios_programados` y `envios_historial`. El disparador `procesarEnviosProgramados` (cada 15 minutos) se instala solo al guardar el primer envío; si no se puede, ejecutar `instalarEnviosProgramados`. La cola de WhatsApp ahora lleva los destinatarios de cada aviso (columnas `para` y `correos`) y también manda los correos. El disparador de cada minuto ya no abre la planilla cuando no hay nada nuevo (ahorra la cuota diaria de disparadores).
+
+## Novedades 4.10.0
+
+- **Avisos por WhatsApp** desde el número institucional de la Ypoti (+595 976 218401). Avisa de tres cosas:
+  - cada registro guardado en la base, nuevo o editado, con el PDF del registro adjunto (los borradores no avisan);
+  - cada informe en PDF que se genera en un teléfono, con el PDF adjunto: trazabilidad, mortandad, sanitario, guía de la estancia, guía del confinamiento e informe de la IA;
+  - cada importación del historial del SENACSA, con el resumen.
+- **Quién recibe**:
+  - Lucas, Santiago, Ronei y Rodrigo reciben todo.
+  - Paulinho recibe solo lo de la Ypoti (registros e informes de la Ypoti y la guía del confinamiento).
+  - Lucas y Ronei lo reciben en portugués; Santiago y Rodrigo, en español.
+  - La lista se cambia sin tocar el código: propiedad `WHATSAPP_DESTINOS` del Apps Script.
+- **Cómo sale**:
+  - El app nunca espera al WhatsApp: el aviso entra en la hoja `whatsapp_cola`.
+  - Un disparador de cada minuto lo manda con los modelos aprobados `manejo_aviso` (texto) y `manejo_aviso_pdf` (con el documento).
+  - Reintenta solo los errores pasajeros, durante 48 horas como máximo, y nunca manda dos veces a la misma persona.
+  - El teléfono manda solo los informes generados desde que tiene esta versión. Sin señal, los manda cuando vuelve la conexión.
+- **Servidor (.gs)**, nuevo archivo `whatsapp.gs`. Una sola vez, en el editor:
+  1. Propiedad del script `WHATSAPP_TOKEN` (la pega Lucas).
+  2. Ejecutar `crearModelosWhatsApp`.
+  3. Esperar con `estadoModelosWhatsApp` a que los modelos queden APPROVED.
+  4. Ejecutar `probarWhatsApp` (manda solo a Lucas).
+  5. Ejecutar `instalarAvisosWhatsApp` (crea el disparador).
+  - Para pausar los envíos: `WHATSAPP_APAGADO = si`.
 
 ## Novedades 4.9.1
 
