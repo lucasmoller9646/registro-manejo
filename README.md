@@ -1,9 +1,22 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.13.2
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.13.4
 
 App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, salida a faena, informe Padroniza y escore de heces.
 
 Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.13.4
+
+- **Envíos automáticos:** la pantalla ya no se traba con «undefined is not an object (evaluating 'E.whatsapp.token')». Si el servidor responde sin el estado del WhatsApp o sin la lista de envíos, el app lo dice con claridad (y muestra qué llegó), en vez de cortar.
+- El servidor informa su versión en `ping` y en el estado de los envíos (`servidor: v4.13.4`).
+- **Informe automático de mortandad completo** (también el de todas las estancias): proyección de 12 meses en los indicadores (con el color de la meta), gráfico de la mortandad mes a mes del ControlPasto con los colores de la meta, gráfico de estacionalidad, muertes por raza, animales muertos que habían recibido medicación y **mapa satelital por estancia** con cada muerte numerada como en la lista (columna «Mapa»): rojo evitable, naranja inevitable, violeta evitable con 60 días o menos desde la llegada. El mapa usa el servicio Maps de Apps Script: la primera vez puede pedir autorización (ejecutar cualquier función a mano en el editor).
+- **Archivos de báscula:** las líneas de título antes de los encabezados (ej.: «PESAJE DE LLEGADA - CAMION 1») ya no hacen perder la columna del peso; y si el peso promedio no tiene sentido (más de 1.500 kg o menos de 15 kg) el app avisa (báscula que guardó el peso sin la coma).
+
+## Novedades 4.13.3
+
+- **Máquinas del diesel con buscador.** La máquina ya no se elige en una lista cerrada: se escribe parte del nombre, el número interno o la norma de reparto (por ejemplo «hilux 2023», «6135», «pala», «6.10») y la lista se va filtrando; se toca la máquina para elegirla. Vienen en el app las **182 máquinas de Logística** (normas de reparto del SAP, lista del 19/11/2026), así funciona sin señal. Arriba salen las del SAP de esa estancia y las que tienen la estancia en el nombre (YPOTI, LUSIPAR, STA CLARA…). Si no está, la última opción es **➕ Otra máquina: «lo escrito»**.
+- En ⚙ Parámetros › Máquinas hay una opción **Todas las estancias** para sumar máquinas que valen en todas (hoja `maquinas`, estancia `*`).
+- Se corrigió el selector «Carga a máquina / Entrada al tanque», que se veía aplastado arriba del formulario.
 
 ## Novedades 4.13.2
 
