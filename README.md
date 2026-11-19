@@ -1,9 +1,53 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.11.0
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.13.2
 
 App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, salida a faena, informe Padroniza y escore de heces.
 
 Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.13.2
+
+- **Diesel: entrada al tanque.** El módulo ⛽ Diesel tiene ahora dos opciones arriba: **Carga a máquina** (como antes: máquina y fotos del reloj) y **Entrada al tanque** (cuando llega el camión cisterna). En la entrada se saca la foto de la **nota de remisión o de la factura**; con señal, la IA lee el tipo de documento, el número, el proveedor, la fecha y los litros, y los deja escritos para revisar. Sin señal se escriben a mano. Obligatorios: foto, tipo, número y litros (hasta 60.000 L). En la hoja `diesel`: columnas `movimiento`, `documento_*`, `proveedor`, `tanque`, `url_foto_documento`; si el mismo documento del mismo proveedor ya estaba cargado, `documento_repetido` dice cuál.
+- **Meta de mortandad: 1,10 % a 1,30 % al año.** En el informe de mortandad (PDF del app y envío automático) y en el informe sanitario: **rojo** arriba de 1,30 %, **verde** debajo de 1,10 %, **ámbar** dentro de la meta. La proyección de 12 meses y los últimos 12 meses del ControlPasto van en color; la meta del período es proporcional a los días (0,09 % a 0,11 % por mes); el gráfico mensual tiene las dos líneas de la meta.
+
+## Novedades 4.13.1 (solo el servidor .gs)
+
+Pedido del app de compras (19/11/2026), para que el cierre de la compra tenga la quiebre aunque el gado se pese otro día:
+
+- **Peso de llegada desde un pesaje posterior.** Cuando la entrada vinculada a una orden no tiene peso (solo bastón en la llegada), el servidor busca la primera pesada posterior de esos mismos IDE en un pesaje simple o de auditoría, hasta 15 días después de la llegada, y pone el peso medio en `llegadas`. Columnas nuevas en `llegadas` (y en `compras_vinculos`): `peso_llegada_fuente` (balanza_llegada o pesaje_posterior), `fecha_pesaje_llegada`, `registros_pesaje` (ids de los registros de pesaje usados, separados por coma) y `cabezas_pesadas`. Con peso posterior `quiebre_pct` queda vacío: la recuperación de peso la descuenta el app de compras con los pesos individuales de `ids_individuales`. Se recalcula hasta 30 días después de la llegada (por si el pesaje se carga tarde). En BD COMPRAS, W se llena con ese peso solo si está vacío.
+- **Raza vista en la llegada.** Columnas `raza` (Zebu, Híbrido o Mezclado) y `raza_fuente` en `llegadas`: la que elige el capataz en la entrada pasto (Cebú → Zebu, Híbrido, Mixto → Mezclado); en entrada RIP y descarga de camión, la del archivo de la báscula si trae raza (80 % o más de una clase; si no, Mezclado).
+- Las columnas que lee el app de compras no cambian de nombre.
+
+## Novedades 4.13.0
+
+- **Integración con el app de compras de ganado** (Orden de compra de ganado):
+  - al cargar una entrada (entrada pasto, entrada RIP, descarga de camión), la revisión muestra la orden de compra de ese camión: proveedor, intermediario, cabezas compradas contra contadas y peso de compra contra peso de llegada (quiebre). Se encuentra por el número de COTA o de guía; si no, como «probable» por destino, propietario de la COTA y fecha. Se puede elegir otra o marcar «No es esta compra»; el registro guarda la orden (datos.compra);
+  - cada 15 minutos el servidor lleva la llegada al app de compras: hoja `llegadas` en su base (cabezas, quiebre, muertes en los primeros 60 días) y, en COMPRAS DE DESMAMANTES › BD COMPRAS, la fecha de llegada (K) y el peso promedio de báscula (W), solo si están vacíos. Aquí queda la hoja `compras_vinculos`. Pausar: `COMPRAS_APAGADO = si`.
+- **Muertes en los primeros 60 días desde la llegada**: en el informe de mortandad el animal va circulado (en la lista y en el mapa) con el **proveedor** y el **intermediario**; el resumen las cuenta por proveedor y por intermediario y avisa cuando hay más de una del mismo. **No cuentan las inevitables** (rayo, víbora, enroscado en el alambrado…) ni abigeo / faena interna. Proveedor e intermediario: de la orden de compra vinculada; si no hay, del libro de animales, de la planilla de la balanza (columna comisionista) o del SENACSA (vendedor). El informe automático de mortandad trae las dos tablas.
+- `pedido_app_compras_llegadas.md`: qué escribe el app de manejo en la base del app de compras y qué conviene mostrar allá.
+
+## Novedades 4.12.1
+
+- Informe de mortandad: los gráficos de barras van en dos columnas (índice estacional | mortandad mensual; por causa | por raza), así el informe ocupa menos páginas.
+- El animal que murió después de recibir medicamento se destaca solo en «Ocurrencias» (fondo rojo, con fecha, producto, dosis, enfermedad, quién lo aplicó, días hasta la muerte y la foto del registro de medicamento); ya no hay sección aparte arriba.
+- El mapa de la estancia empieza en página nueva cuando no entra entero.
+
+## Novedades 4.12.0
+
+- **Usuario tratorista** (columna `rol` = `tratorista` en la hoja usuarios): en el inicio ve solo 🌾 Registro de trato, ⛽ Carga de diesel y 🗺 Lotes activos (la guía de la estancia con los lotes del ControlPasto). El servidor no le acepta otros registros. Los usuarios normales y los administradores tienen además los dos módulos entre los tipos de registro.
+- **🌾 Registro de trato**: el lote se elige en el mapa (o en la lista de lotes activos); con las cabezas y el peso medio del ControlPasto el app calcula los sacos: cabezas × peso medio × gramos por 100 kg de PV ÷ 100 000 ÷ kg por saco, redondeado hacia arriba (por defecto 100 g/100 kg y saco de 25 kg). Los sacos vienen ya cargados y se pueden cambiar con − / +. Toque ✓ Listo y sale solo a la base (hoja `tratos`, con su PDF).
+- **⛽ Carga de diesel**: máquina de la lista de la estancia (llega del SAP por el app de integración, o se agrega a mano) u "otra"; foto del reloj del surtidor antes y después; la IA lee los números y el app calcula los litros. Sin señal, se escriben los números a mano y sale después. Hoja `diesel`, con las dos fotos en Drive.
+- **⚙ Parámetros** (nueva pestaña de 📬 Envíos automáticos, solo administración): productos del trato (g por 100 kg de PV y kg por saco), máquinas por estancia y clasificación de las causas de muerte (evitable, inevitable, sin determinar, no es muerte).
+- **Informe de mortandad por intervalo de fechas** (atajos: mes pasado, este mes, 30 días, 90 días, este año). Nuevo:
+  - stock medio del período (ControlPasto, día a día), % de mortandad del período y proyección a 12 meses **con estacionalidad** (índice por mes del año calculado con el historial de muertes del ControlPasto de todas las estancias, ajustado a la estancia cuando tiene historia suficiente) y sin ella; referencia: real de los últimos 12 meses y meta de 1,20 % al año;
+  - gráficos: índice estacional, mortandad mensual de la estancia, evitables / inevitables (barra apilada), causas coloreadas por grupo y muertes por raza;
+  - **animales que murieron después de recibir medicamento**: sección propia (fecha, producto, dosis, enfermedad, quién, días hasta la muerte y la foto) y la ocurrencia destacada en rojo;
+  - abigeo y faena interna no cuentan como muerte en el %.
+- **Al cargar una mortalidad**, si el animal había sido medicado, el app lo avisa debajo del botón (con la foto del registro de medicamento), siempre que haya señal.
+- **Archivo de la balanza → IA (en el servidor)**: el archivo entero va con el registro; el servidor lo ordena después (disparador de 15 minutos): cada columna a un campo estándar (raza, sexo, categoría, proveedor, guías, potrero anterior, sanidad, precio…), valores de raza, sexo y categoría a una lista estándar, números, fechas e IDE normalizados. Resultado en la hoja `balanza_datos`; completa raza, sexo y categoría vacíos en `ids_individuales`. Las columnas y valores ya vistos quedan en `balanza_columnas` y `balanza_diccionario` (se pueden corregir a mano) y no se le vuelven a preguntar a la IA.
+- **Informe automático de mortandad**: también trae evitables / inevitables y la proyección anual.
+- **Avisos de cada novedad**: nueva opción "🚜 Trato y diesel" (apagada en los avisos que ya existían, para no mandar un WhatsApp por cada trato).
+- **App de integración**: `pedido_app_integracao_maquinas_sap.md` explica cómo mandar la lista de máquinas del SAP (`{tipo:'maquinas_base', token, maquinas}`).
 
 ## Novedades 4.11.0
 
