@@ -1,9 +1,37 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.13.4
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.15.0
 
 App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, salida a faena, informe Padroniza y escore de heces.
 
 Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.15.0
+
+- **Plan de suplementación** (🌾 en el inicio; lo ven el capataz y la administración, no el tratorista). Por estancia: los suplementos que hay, con su dosis (g por 100 kg de peso vivo por día) y los kg de la bolsa; y para cada lote del ControlPasto, el suplemento y cada cuántos días se carga el comedero. El lote se sigue por el ControlPasto: si cambia de pasto, el plan y el aviso dicen el pasto nuevo.
+- **Tratorista:** en el Registro de trato aparece «📋 Hoy toca» con los pastos del día (y los atrasados). Al tocar uno se completan el lote, las cabezas, el peso, el suplemento, la dosis y los días; el app calcula los sacos. Si pone más o menos, dice para cuántos días alcanza y cuándo vuelve a tocar. **Cada mañana** (06:00, se cambia en el plan) le llega un **WhatsApp** con todos los pastos que tocan ese día y un PDF con la lista.
+- **Informe «Consumo de suplemento»** (Generar informes): por lote (kg, bolsas, g por cabeza por día y g/100 kg reales al lado de lo planeado), por suplemento, por bolsa y cada trato. PDF y Excel.
+- **Pegar fotos:** en todos los lugares de foto se puede pegar una foto copiada: en la computadora con Ctrl+V (va al lugar de foto que se tocó último) y en el celular con «📋 Pegar foto copiada».
+- **Lectura de fotos por la IA:** la IA recibe la foto sin girar (antes las fotos apaisadas le llegaban de costado) y en mejor calidad; si el modelo rápido no lee, prueba con el más capaz. El botón: lee los dígitos aunque no se vea la palabra SIAP o falten los primeros, y el app completa el número con los brincos activos de la estancia. La chapa: busca la placa y no confunde el número pintado en el camión.
+- **Precinto solo en el traslado entre estancias de la empresa** (sale de una recría nuestra y entra en otra). Entradas y salidas preguntan de dónde vienen / a dónde van (se completa sola con la COTA); en compras, ventas y faena solo la chapa y, opcional, la foto del camión.
+- **Guías (COTA):** primero el QR; si no se lee, la IA saca los datos de esa misma foto de la COTA (sin pedir otra); si tampoco, a mano. La COTA resuelta queda como una tarjeta chica de una línea (✅ QR, 🤖 IA, ✍️ a mano): con 10 camiones y 10 guías no se confunden.
+- **Entrada pasto** sin lote ni pasto.
+- **Pérdida de botón:** se escribe el número del botón nuevo y el app sabe que es el mismo animal (el botón nuevo sigue con toda la historia; buscar el número viejo avisa por cuál se cambió). La foto es opcional.
+- **Informe de trazabilidad:** stock inicial y final del ControlPasto, con entradas, salidas y muertes del ControlPasto al lado de las de los registros del app, y lo que no cierra.
+- **Escore de heces también en la RIP:** dieta «RIP» con el piquete como en el Bovino.OS (ej.: PC01A).
+- La curva de consumo de la guía del confinamiento ya funciona con los datos del ypoti-integracao (paquete 2026-11-20a).
+
+## Novedades 4.14.0
+
+- **Diseño para computadora y tablet grande.** En pantallas de 900 px o más el app se arma solo en dos columnas: a la izquierda las acciones (Nuevo registro, Informes…), a la derecha la lista de registros. Las opciones de cada registro (Editar, PDF, Borrar…) aparecen al pasar el mouse, sin deslizar. Los formularios se centran y las fichas de registro se ven en 3 o 4 columnas. En los mapas (guía de la estancia, guía del confinamiento) el mapa ocupa la pantalla y la ficha va en una columna a la derecha. En ⚙ Configuración › **Pantalla** se elige Automático, Siempre como en el celular o Siempre como en la computadora.
+- **Buscar un animal** ya no se queda en «Buscando…»: el servidor lee solo la columna necesaria, el app muestra los segundos que lleva, corta a los 3 minutos con «↻ Intentar de nuevo» y dice cuánto tardó el servidor.
+- **Animal muerto en la base:** al escribir el brinco de un animal que figura muerto (en cualquier registro), aparece un aviso con la fecha y la causa, y se elige **Corregir el número**, **Seguir igual** (queda anotado en el registro) o **Cancelar el registro**.
+- **Última medicación:** en la aplicación de medicamento, al escribir el brinco se ve la última medicación de ese animal (cuándo, qué, cuánto y quién). En rojo si fue hace 7 días o menos.
+- **Stock de la farmacia:** al elegir el medicamento se ve cuánto hay en la farmacia de la estancia, para cuántos días alcanza, cuánto usa esta aplicación y cuánto queda, el lote que vence primero y si hay pedido en camino. Necesita la API del app de la farmacia (pedido en `pedido_api_farmacia.md`) y las propiedades del script `FARMACIA_API_URL` y `FARMACIA_API_TOKEN`. Sin ellas no se muestra nada.
+- **Informe de sanidad y mortandad:** el informe sanitario y el de mortandad son ahora uno solo, en el app (PDF con las dos partes y el Excel) y en los envíos automáticos.
+- **Informe de trazabilidad:** cada registro tiene un ícono con el enlace al PDF en el Drive.
+- **Guía del confinamiento:** la ficha de cada lote muestra la **curva de consumo** (en % del peso vivo o kg MS/cab), con las franjas de la dieta, el mínimo de 1,8 % PV en terminación (días debajo en rojo) y las curvas esperada y posterior, como en el ypoti-integracao. Llega cuando el app de integración mande los campos nuevos (`pedido_app_integracao_curva_consumo.md`). Además, el mapa se vuelve a encuadrar cuando llegan los datos.
+- **WhatsApp de cada usuario:** se pide al pedir el código y, para los usuarios que ya existen, la primera vez que abren el app (se cambia en ⚙ Configuración). Cada usuario puede programar **sus propios informes por WhatsApp** (📬 Mis informes por WhatsApp), solo de sus estancias.
+- **Envíos automáticos:** la pantalla muestra «Cargando los envíos programados…» con los segundos, y mientras tanto muestra lo último guardado.
 
 ## Novedades 4.13.4
 
