@@ -2873,7 +2873,7 @@ async function makeSanitarioPdf(w, S, extra){ extra=extra||{};
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '4.15.0';
+const APP_VERSION = '4.15.4';
 const ESQUEMA = 'manejo-ypoti/3.7';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
@@ -3118,6 +3118,10 @@ function refreshIds(){
 function cotaNro(s){ const p=window.CotaParser.parseCota(s); return p.nro_cota||null; }
 function cotaLimpia(x){ return String(x||'').replace(/^0+/,''); }
 /* ----- camiones (chapa + fotos del precinto) y COTAs: listas dinámicas ----- */
+/* v4.15.4: la misma chapa dos veces vale (el mismo camión hizo dos viajes): se avisa en el bloque, sin bloquear */
+function camionesViajes(){ const nch=x=>String(x||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,''); const bl=$('camiones-list').children;
+  camiones.forEach((c,i)=>{ const n=bl[i]&&bl[i].querySelector('.cam-viaje'); if(!n) return; const mi=nch(c.chapa); const antes=mi?camiones.slice(0,i).filter(x=>nch(x.chapa)===mi).length:0;
+    n.classList.toggle('hidden',!antes); n.textContent=antes?'🔁 Mismo camión que arriba: '+(antes+1)+'º viaje de la chapa '+String(c.chapa).trim().toUpperCase()+'.':''; }); }
 function renderCamiones(){
   const list=$('camiones-list'); list.innerHTML=''; const ext=sinPrecinto(); const sal=pideDestinoSalida(); $('wrap-proveniencia').style.display=(esEntradaCamion()||sal)?'':'none';
   { const sp=$('seg-proveniencia').querySelectorAll('button'); $('wrap-proveniencia').querySelector('span.req').textContent=sal?'Los animales van a':'Los animales vienen de';
@@ -3129,7 +3133,8 @@ function renderCamiones(){
       +'<div class="photo"><span style="font-weight:600;font-size:15px;color:var(--ink-2)"'+(ext?'':' class="req"')+'>'+(ext?'Fotos del camión (opcional) · hasta ':'Fotos del precinto (lacre) · hasta ')+MAX_PRECINTO+'</span><div class="thumbs" data-thumbs></div><div class="row" data-btns><button class="btn ia" type="button" data-cam>🤖 Leer con foto</button><button class="btn" type="button" data-gal>🖼 Galería</button></div><span class="hint" data-hint>Saque la foto del precinto: la IA lee el número y lo escribe abajo. Si el camión trae más de un precinto, una foto por cada uno.</span></div>'
       +(ext?'':'<label class="f"><span>Nº de precinto(s)</span><input type="text" class="upper" data-precinto placeholder="Se lee solo de la foto del precinto" autocomplete="off" autocapitalize="characters"></label>')+'<span class="ia-msg" data-ia></span>';
     b.querySelector('.head span').textContent = camiones.length>1 ? 'Camión '+(i+1) : 'Camión';
-    const inp=b.querySelector('[data-chapa]'); inp.value=c.chapa||''; inp.addEventListener('input',e=>{ const p=e.target.selectionStart; e.target.value=e.target.value.toUpperCase(); try{e.target.setSelectionRange(p,p);}catch(x){} camiones[i].chapa=e.target.value; dirty=true; });
+    { const n=document.createElement('span'); n.className='hint cam-viaje hidden'; n.style.color='var(--ok)'; b.querySelector('label.f').after(n); }
+    const inp=b.querySelector('[data-chapa]'); inp.value=c.chapa||''; inp.addEventListener('input',e=>{ const p=e.target.selectionStart; e.target.value=e.target.value.toUpperCase(); try{e.target.setSelectionRange(p,p);}catch(x){} camiones[i].chapa=e.target.value; dirty=true; }); inp.addEventListener('input',camionesViajes); /* actualiza el aviso de «mismo camión» sin redibujar (no mueve los botones) */
     const pr=b.querySelector('[data-precinto]'); if(pr){ pr.value=(c.nros_precinto||[]).join(', '); pr.addEventListener('input',e=>{ e.target.value=e.target.value.toUpperCase(); camiones[i].nros_precinto=e.target.value.split(/[,;\/]+/).map(x=>x.trim()).filter(Boolean); dirty=true; }); }
     const ia=b.querySelector('[data-ia]'); if(c._ia){ iaPintar(ia, c._ia.estado, c._ia.txt); if(c._ia.estado==='leyendo') iaPlaceholder(b.querySelector(c._ia.campo==='precinto'?'[data-precinto]':'[data-chapa]'), true); }
     b.querySelector('[data-chapa-foto]').addEventListener('click',()=>{ chapaIdx=i; $('file-ia-chapa').click(); });
@@ -3140,6 +3145,7 @@ function renderCamiones(){
     b.querySelector('[data-gal]').addEventListener('click',()=>{ precintoIdx=i; $('file-precinto').removeAttribute('capture'); $('file-precinto').setAttribute('multiple',''); $('file-precinto').click(); });
     const del=b.querySelector('[data-del]'); if(del) del.addEventListener('click',()=>{ camiones.splice(i,1); dirty=true; renderCamiones(); });
     list.appendChild(b); });
+  camionesViajes();
 }
 function renderCotas(){
   autoProveniencia(); const list=$('cotas-list'); list.innerHTML='';
@@ -3454,7 +3460,7 @@ function validate2(){
     if(esEntradaCamion() && !segVal('seg-proveniencia')) e.push('Indique de dónde vienen los animales (estancia de la empresa o proveedor externo).');
     if(pideDestinoSalida() && !segVal('seg-proveniencia')) e.push('Indique a dónde van los animales (estancia de la empresa o fuera de la empresa).');
     const ext=sinPrecinto(); camiones.forEach((c,i)=>{ const n=camiones.length>1?' del camión '+(i+1):' del camión'; if(!(c.chapa||'').trim()) e.push('Falta la chapa'+n+'.'); if(!ext && !fotosCamion(c).length) e.push('Falta la foto del precinto'+n+'.'); });
-    const chapas=camiones.map(c=>(c.chapa||'').trim().toUpperCase().replace(/\s+/g,' ')).filter(Boolean); if(new Set(chapas).size!==chapas.length) e.push('Hay dos camiones con la misma chapa.');
+    const chapas=camiones.map(c=>(c.chapa||'').trim().toUpperCase().replace(/\s+/g,' ')).filter(Boolean); /* v4.15.4: la misma chapa dos veces vale (el mismo camión hizo dos viajes) */
     cotas.forEach((c,i)=>{ const n=cotas.length>1?' de la COTA '+(i+1):' de la COTA'; const t=(c.texto||'').trim(); const cp=t?window.CotaParser.parseCota(t):null; const leido=!!(cp&&cp.parse_ok); const man=c.manual||{}; const manualOk=!!(man.guia&&man.cota);
       if(!leido){ if(!c.fallo) e.push('Falta leer el QR'+n+' (escanee, saque foto o suba una imagen del QR).'); else if(!man.guia) e.push('El QR'+n+' no se pudo leer: saque una foto de la guía (la IA completa los datos) o escriba el Nº de guía.'); else { if(!/^\d{5,20}$/.test(man.guia)) e.push('El Nº de guía'+n+' debe ser numérico.'); if(man.cota && !/^\d{8,20}$/.test(man.cota)) e.push('El Nº de COTA'+n+' debe ser numérico (8 a 20 dígitos).'); if(man.cantidad){ const qm=parseInt(man.cantidad,10); if(isNaN(qm)||qm<1) e.push('La cantidad de animales de la guía'+n+' debe ser un número mayor que cero.'); } } } });
     const nros=cotas.map(c=>cotaNro(c.texto)||(c.manual&&c.manual.cota)||null).filter(Boolean); if(new Set(nros).size!==nros.length) e.push('Hay dos COTAs con el mismo número.');
@@ -3835,7 +3841,7 @@ function compressImage(file, maxSide, quality, girar){ if(girar===undefined) gir
 /* v4.15: la IA recibe su propia copia de cada foto: sin girar (la foto guardada se pone vertical y el texto quedaba de costado),
    1600 px y mejor calidad. Se guarda en memoria, asociada a la foto guardada. */
 const IA_COPIA=new Map();
-async function fotoConIA(f, maxSide, quality){ const du=await compressImage(f,maxSide,quality); try{ const ia=await compressImage(f,1600,0.86,false); IA_COPIA.set(du, ia); if(IA_COPIA.size>40) IA_COPIA.delete(IA_COPIA.keys().next().value); }catch(e){} return du; }
+async function fotoConIA(f, maxSide, quality){ const du=await compressImage(f,maxSide,quality); try{ const ia=await compressImage(f,1600,0.8,false); IA_COPIA.set(du, ia); if(IA_COPIA.size>40) IA_COPIA.delete(IA_COPIA.keys().next().value); }catch(e){} return du; }
 /* v4.15: PEGAR FOTOS (copiar y pegar) en todos los lugares de foto, en la PC (Ctrl+V) y en el celular (botón «📋 Pegar»).
    No se repite la lógica de cada lugar: se «toca» el botón de Galería de ese lugar (que ya sabe a qué camión, guía o brinco
    corresponde) y el selector de archivos recibe la foto pegada en vez de abrirse. */
@@ -4966,13 +4972,23 @@ $('f-enfermedad-otra').addEventListener('input',()=>{ dirty=true; });
 /* ---------- lectura de fotos con IA (botón SIAP, chapa, precinto, guía). La clave de la API está solo en el servidor (Propiedades del script).
    Aviso estándar en todo el app: mientras lee, "🤖 La IA está leyendo … en la foto…" con una ruedita (y el campo lo dice); al terminar,
    "🤖 La IA leyó …: X. Revise: si está mal, corríjalo." — el campo queda siempre editable. ---------- */
+/* v4.15.4: antes, si la foto no llegaba al servidor (señal débil) o la respuesta no era la esperada, el app decía «la IA no pudo leer»
+   y escondía el problema. Ahora: hasta 3 intentos (el último con la foto chica, que pesa menos), y si igual falla dice por qué. */
 async function leerFotoIA(clase, dataUrl){ if(!USR || !navigator.onLine || !cfg.endpoint || !dataUrl) return null;
-  try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'leer_foto', usuario:USR.codigo, clase, imagen:IA_COPIA.get(dataUrl)||dataUrl}), redirect:'follow'}); const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){ return null; } if(!res.ok||!j.ok) return {error:j.error||('HTTP '+res.status)}; return j; }catch(e){ return null; } }
+  const grande=IA_COPIA.get(dataUrl); const pruebas=[grande||dataUrl, grande||dataUrl, dataUrl]; let fallo=null;
+  for(let k=0;k<pruebas.length;k++){ if(k && !navigator.onLine){ fallo='red'; break; }
+    try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'leer_foto', usuario:USR.codigo, clase, imagen:pruebas[k]}), redirect:'follow'}, 90000); const txt=await res.text(); let j=null; try{ j=JSON.parse(txt); }catch(e){}
+      if(!j){ fallo='respuesta'; continue; } if(!res.ok||!j.ok) return {error:j.error||('HTTP '+res.status)}; if(k) j.intentos=k+1; return j; }
+    catch(e){ fallo=/a tiempo/.test(String(e&&e.message))?'tiempo':'red'; }
+    await new Promise(r=>setTimeout(r, 1500)); }
+  return {fallo}; }
 const IA_QUE={boton:'el número del botón', chapa:'la chapa del camión', precinto:'el número del precinto', guia:'los datos de la guía'};
 function iaPintar(el, estado, txt){ if(!el) return; el.className='ia-msg'+(estado?' '+estado:''); el.textContent=''; if(!txt) return; if(estado==='leyendo'){ const s=document.createElement('span'); s.className='ia-spin'; el.appendChild(s); } el.appendChild(document.createTextNode(txt)); }
 const iaLeyendo=clase=>'🤖 La IA está leyendo '+IA_QUE[clase]+' en la foto… puede seguir completando lo demás.';
 const iaLeyo=(clase,valor)=>'🤖 La IA leyó '+IA_QUE[clase]+': '+valor+'. Revise: si está mal, corríjalo.';
-function iaNoDisp(r, clase){ return r&&r.error ? '🤖 La IA no está disponible ('+r.error+'): escríbalo a mano.' : (!navigator.onLine ? '🤖 Sin señal la IA no puede leer la foto: escríbalo a mano.' : '🤖 La IA no pudo leer '+IA_QUE[clase]+' en la foto: escríbalo a mano.'); }
+function iaNoDisp(r, clase){ if(r&&r.error) return '🤖 La IA no está disponible ('+r.error+'): escríbalo a mano.'; if(!navigator.onLine || (r&&r.fallo==='red')) return '🤖 La foto no llegó a la IA (señal débil o sin señal). Pruebe de nuevo con 🤖 Leer con foto donde haya mejor señal, o escríbalo a mano.';
+  if(r&&r.fallo==='tiempo') return '🤖 La IA tardó demasiado en responder. Pruebe de nuevo con 🤖 Leer con foto, o escríbalo a mano.'; if(r&&r.fallo==='respuesta') return '🤖 El servidor no respondió bien a la foto (probado 3 veces). Pruebe de nuevo en un rato, o escríbalo a mano.';
+  return '🤖 La IA no pudo leer '+IA_QUE[clase]+' en la foto: escríbalo a mano.'; }
 function iaPlaceholder(inp, on){ if(!inp) return; if(on){ if(inp.dataset.ph==null) inp.dataset.ph=inp.placeholder; inp.placeholder='🤖 La IA está leyendo la foto…'; inp.classList.add('ia-leyendo'); } else { if(inp.dataset.ph!=null){ inp.placeholder=inp.dataset.ph; delete inp.dataset.ph; } inp.classList.remove('ia-leyendo'); } }
 function fmtSiap(d){ d=String(d||''); return d.length===9 ? d.slice(0,5)+' '+d.slice(5) : d; }
 function ideDesdeSiap(res){ if(!res) return ''; if(String(res.ide15||'').length===15) return String(res.ide15); const d=String(res.digitos||''); const c=BRINCOS[estanciaValue()]; const lista=(c&&c.lista)||[];
@@ -4996,7 +5012,7 @@ function ponerBrinco(ide, idx){ const ya=medBrincos.map(medBrincoNorm); if(ya.in
 async function iaCamion(i, nuevas){ const c=camiones[i]; if(!c || !nuevas.length) return; const ext=sinPrecinto(); const clase=ext?'chapa':'precinto'; const campo=ext?'chapa':'precinto';
   if(!USR || !navigator.onLine){ c._ia={estado:'warn', txt:iaNoDisp(null,clase), campo}; renderCamiones(); return; }
   c._ia={estado:'leyendo', txt:iaLeyendo(clase), campo}; renderCamiones();
-  const leidos=[]; let err=null; for(const du of nuevas){ const r=await leerFotoIA(clase, du); if(r&&r.error) err=r; if(r&&r.texto) leidos.push(r.texto); if(ext && leidos.length) break; }
+  const leidos=[]; let err=null; for(const du of nuevas){ const r=await leerFotoIA(clase, du); if(r&&(r.error||r.fallo)) err=r; if(r&&r.texto) leidos.push(r.texto); if(ext && leidos.length) break; }
   if(camiones[i]!==c) return;
   if(!leidos.length){ c._ia={estado:'warn', txt:iaNoDisp(err, clase), campo}; renderCamiones(); return; }
   if(ext){ if(!(c.chapa||'').trim()){ c.chapa=leidos[0]; c._ia={estado:'ok', txt:iaLeyo('chapa', leidos[0]), campo}; } else { const igual=norm(leidos[0]).replace(/\s/g,'')===norm(c.chapa).replace(/\s/g,''); c._ia={estado:igual?'ok':'warn', txt:igual?'🤖 La IA leyó la chapa: '+leidos[0]+' — coincide con lo escrito ✓':'🤖 La IA leyó la chapa: '+leidos[0]+', distinto de lo escrito ('+c.chapa+'). Revise cuál es la correcta.', campo}; } }

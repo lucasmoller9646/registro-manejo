@@ -1,9 +1,24 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.15.0
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.15.4
 
 App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, salida a faena, informe Padroniza y escore de heces.
 
 Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.15.4
+
+- **El mismo camión dos veces:** se puede cargar la misma chapa en dos camiones del registro (el camión hizo dos viajes). Ya no bloquea con «Hay dos camiones con la misma chapa»; el segundo bloque dice «🔁 Mismo camión que arriba: 2º viaje de la chapa …».
+- **Lectura de fotos por la IA cuando falla la conexión:** antes, si la foto no llegaba al servidor (señal débil) o el servidor respondía otra cosa, el app decía «La IA no pudo leer la chapa» aunque la IA nunca la hubiera visto. Ahora prueba hasta 3 veces (la última con la foto más chica, que pesa menos) y, si igual falla, dice el motivo: «La foto no llegó a la IA (señal débil…)», «La IA tardó demasiado» o «El servidor no respondió bien». La copia para la IA pesa un poco menos.
+- Servidor: la API de la farmacia en Apps Script (POST con el token en el cuerpo; 4.15.3) y el aviso de cada registro a toda la estancia, con el autor y la lista de avisados (4.15.1 y 4.15.2).
+
+## Novedades 4.15.2 (solo el servidor .gs)
+
+- El aviso de cada registro le llega **también a quien lo cargó** (aunque sea de la administración), además de a todas las personas de la estancia.
+- El texto del aviso termina con **«Avisados (N): …»**, la lista de las personas a las que se mandó (si no entra entera, «y N más»; el resumen se acorta para que la lista siempre entre).
+
+## Novedades 4.15.1 (solo el servidor .gs)
+
+- **Aviso a toda la estancia:** cada registro que se manda a la base (nuevo o editado; los borradores no) llega por WhatsApp, con el resumen y el PDF del registro, a **todas las personas de esa estancia**: los usuarios aprobados que tienen la estancia en su lista y su WhatsApp registrado, tratoristas incluidos. No le llega a quien lo cargó. Los números de Brasil lo reciben en portugués. La administración (todas las estancias) sigue recibiendo lo que diga «Aviso de cada novedad» en Envíos automáticos. Para apagarlo: propiedad del script `AVISO_ESTANCIA` = `no`.
 
 ## Novedades 4.15.0
 
