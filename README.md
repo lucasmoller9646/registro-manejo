@@ -1,9 +1,35 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.15.4
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.15.8
 
 App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, salida a faena, informe Padroniza y escore de heces.
 
-Abrir en el celular: https://lucasmoller9646.github.io/registro-manejo/ y agregar a la pantalla de inicio.
+Abrir en el celular: https://ypoti.com/apps/manejo/ y agregar a la pantalla de inicio (la dirección vieja https://lucasmoller9646.github.io/registro-manejo/ sigue funcionando y avisa de la mudanza).
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.15.8
+
+- **Guía de la estancia con el stock real del ControlPasto:** las cabezas, lotes y potreros de hoy salen directo de la **carga instantánea** del ControlPasto (`ControlPastoService.LstFz_CargaInst`: estancia → pastos → piquetes → lotes), en vez de sumar los movimientos al último cierre (ese cálculo se desviaba cuando un movimiento faltaba o venía con otro lote, y era lo que la gente de la estancia veía mal). Lo mismo para el mapa de la estancia en el app (lotes por pasto al elegir lote y piquete) y para los lotes del plan de suplementación. Los movimientos del mes, la mortandad y la serie siguen saliendo del manejo.
+- Si el ControlPasto no responde o no trae una estancia, esa estancia sigue con el cálculo anterior y la guía lo dice («stock: último cierre + movimientos» y un aviso arriba). El encabezado de cada sección dice de dónde salió el stock y a qué hora se leyó.
+- **Trato según la lluvia:** el plan de suplementación tiene una sección nueva «3 · Lluvia». Con el pronóstico de los próximos 8 días en la estancia (Open-Meteo, en el centro del mapa de la estancia), si va a llover antes de los días del plan, el tratorista carga solo hasta el día de la lluvia (mínimo 1 día) y las bolsas se recalculan. Ej.: plan de 3 días y lluvia mañana → «para 1 día en vez de 3». Cuenta como lluvia un día con 5 mm o más y 60 % de probabilidad o más (la estancia lo cambia). Se ve en el plan (tira de 8 días con los días de lluvia en azul), en «📋 Hoy toca», en el formulario del trato, en el WhatsApp de la mañana y en el PDF del trato del día. Sin pronóstico, se carga para los días del plan.
+- Para uso de la empresa, Open-Meteo pide el plan pago (API Standard): con la Propiedad del script `OPENMETEO_API_KEY` el servidor usa `customer-api.open-meteo.com`; sin ella usa el servidor gratuito (solo para pruebas).
+- Servidor: la carga del día queda guardada 15 minutos. Para que la guía salga al instante, en el Apps Script ejecutar una vez **instalarCargaPasto** (la renueva cada 10 minutos). **verCargaInst** muestra cómo el servidor leyó la carga (cabezas por estancia y campos), para controlar contra la pantalla del ControlPasto.
+
+## Novedades 4.15.7 (solo el servidor .gs)
+
+- **Aviso de cada movimiento a toda la estancia, también a quien tiene TODAS:** cada registro mandado a la base avisa por WhatsApp a todas las personas de esa estancia y, desde ahora, también a los usuarios con TODAS las estancias y a los administradores (para el app son de todas las fazendas). El tratorista con TODAS sigue recibiendo solo lo suyo. Quien no cargó su WhatsApp en el app no recibe nada.
+- **Solicitud de transferencia por WhatsApp a quien aprueba:** además del correo, Ronei (CONFIG.APROBADOR) recibe un WhatsApp con el resumen (categoría, origen → destino, animales) y el enlace para aprobar o rechazar. El número sale de su contacto en Envíos automáticos (mismo correo) o de la Propiedad `APROBADOR_WHATSAPP`.
+
+## Novedades 4.15.6
+
+- **Dirección nueva: https://ypoti.com/apps/manejo/** (índice de los apps: https://ypoti.com/apps/). El servidor del sitio copia solo cada versión que se sube a GitHub en menos de un minuto. En la dirección vieja (GitHub) el inicio muestra «📍 El app se mudó a ypoti.com/apps/manejo» con el botón **Abrir la nueva dirección**; si en ese celular queda algo sin enviar, primero pide esperar el envío. En la dirección nueva hay que agregar el ícono de nuevo y entrar con el código.
+- **Varios apps en el mismo dominio:** al actualizarse, el app borra solo sus propias copias guardadas (antes borraba todas las del dominio, lo que habría vaciado la copia sin señal de Orden de compra y Maquinaria).
+- **Seguridad (servidor .gs):** las claves viejas de 4 números (por estancia, maestra y de aprobación) salieron del código, que es público en GitHub, y ya no se aceptan. Todos entran con su código personal de 6 números. La computadora de la oficina usa el `CONFINAMIENTO_TOKEN` (también para la base de pasto y la importación SENACSA) o un código de administrador. El enlace de aprobación de traslados pide la **Propiedad del script `CLAVE_APROBACION`** (valor nuevo) o el código personal de un administrador, con teclado de hasta 8 números. `CLAVE_MAESTRA` y `CLAVES_ESTANCIA` quedan como Propiedades opcionales. La firma de las aprobaciones usa un secreto propio (`FIRMA_SECRETO`, se crea solo).
+
+## Novedades 4.15.5
+
+- **Las versiones nuevas llegan rápido.** Con el app abierto, mira cada 2 minutos si se subió una versión nueva (antes, cada 15) y también cada vez que se vuelve al app, se recupera la señal o se vuelve a la pantalla. En el inicio, en la pantalla del código o en la configuración se actualiza sola en segundos y avisa «App actualizado a la versión …».
+- **En medio de un registro no se corta nada:** aparece arriba una barra verde «Versión nueva …: se instala al terminar este registro» con el botón **Actualizar ahora**, que guarda lo escrito como borrador y actualiza. Si no se toca, se instala sola al volver al inicio.
+- **Con señal débil:** si la página tarda más de 6 s se abre la copia guardada, pero la descarga de la versión nueva sigue de fondo y queda guardada para la próxima vez (antes se cortaba y el celular podía quedar días en la versión vieja).
+- **Sin bucles:** si al recargar el servidor todavía entrega la página vieja, el app espera (45 s, 2, 5 y 10 min) antes de volver a intentar.
 
 ## Novedades 4.15.4
 

@@ -302,6 +302,14 @@ html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjus
 #scanner .frame{position:absolute;left:50%;top:42%;width:min(70vw,300px);aspect-ratio:1;transform:translate(-50%,-50%);border:3px solid rgba(255,255,255,.85);border-radius:14px;box-shadow:0 0 0 2000px rgba(0,0,0,.35);pointer-events:none}
 .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:15px;font-weight:600;z-index:30;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
 .toast.show{opacity:1}
+.act-barra{position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));z-index:40;display:flex;gap:10px;align-items:center;background:#1f6f43;color:#fff;padding:9px 12px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.act-barra.hidden{display:none}
+.supl-pron{display:flex;gap:4px;overflow-x:auto;padding-bottom:2px}.supl-pron .d{flex:0 0 auto;min-width:54px;border:1px solid var(--line);border-radius:10px;padding:5px 6px;text-align:center;font-size:12px;line-height:1.25}.supl-pron .d.ll{border-color:#1F5FA8;background:rgba(31,95,168,.10)}.supl-pron .d b{display:block;font-size:13px}.lluvia-nota{color:#1F5FA8}
+.mudanza{border:2px solid var(--brand);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;font-size:15px}
+.mudanza.hidden{display:none}
+.mudanza b{color:var(--brand)}
+.act-barra span{flex:1}
+.act-barra button{background:#fff;color:#1f6f43;border:0;border-radius:999px;padding:7px 12px;font-weight:700;font-size:14px;white-space:nowrap}
 .sendgrid{display:grid;grid-template-columns:1fr;gap:10px}
 .sendgrid .btn{justify-content:flex-start;text-align:left}
 .sendgrid .btn .ico{font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.06em;padding:6px 8px;border-radius:6px;background:rgba(0,0,0,.08);min-width:56px;text-align:center}
@@ -730,6 +738,7 @@ html.pc #mapa-modal .bar.abajo > .row{position:sticky;bottom:-14px;background:#1
   <!-- HOME -->
   <section class="screen" id="scr-home">
     <div class="stack">
+      <div class="mudanza hidden" id="mudanza"><div id="mud-txt"></div><button class="btn primary" type="button" id="btn-mudanza">Abrir la nueva dirección</button></div>
       <div class="stack home-acciones">
       <div class="usr-chip" id="usr-chip"><span>👤 <b id="usr-nombre"></b> <span id="usr-detalle"></span></span><button class="btn small ghost" type="button" id="btn-salir">Salir</button></div>
       <button class="btn primary big" id="btn-new">＋ Nuevo registro</button>
@@ -1532,7 +1541,12 @@ html.pc #mapa-modal .bar.abajo > .row{position:sticky;bottom:-14px;background:#1
     <span class="hint" id="supl-lotes-hint">Elija el suplemento de cada lote y cada cuántos días se carga el comedero. Los lotes sin suplemento no entran en el plan.</span>
     <input type="search" id="supl-buscar" placeholder="Buscar lote, pasto o categoría" autocomplete="off">
     <div id="supl-lotes" class="stack supl-lotes" style="gap:8px"></div>
-    <span class="env-grupo">3 · Aviso por WhatsApp al tratorista</span>
+    <span class="env-grupo">3 · Lluvia</span>
+    <span class="hint">Con lluvia en el pronóstico se carga solo hasta el día de la lluvia (mínimo 1 día), para que el suplemento no se moje en el comedero. Pronóstico de los próximos 8 días en la estancia.</span>
+    <label class="f" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="supl-ll-activo" checked style="width:20px;height:20px"> <span style="text-transform:none;letter-spacing:0">Ajustar los días de carga por la lluvia</span></label>
+    <div class="row" style="align-items:flex-end"><label class="f" style="flex:1"><span>Lluvia desde (mm en el día)</span><input type="number" id="supl-ll-mm" inputmode="decimal" step="any" min="0.5" value="5"></label><label class="f" style="flex:1"><span>Con probabilidad desde (%)</span><input type="number" id="supl-ll-prob" inputmode="numeric" step="5" min="0" max="100" value="60"></label></div>
+    <div id="supl-pron" class="supl-pron"></div>
+    <span class="env-grupo">4 · Aviso por WhatsApp al tratorista</span>
     <div class="row" style="align-items:flex-end"><label class="f" style="flex:0 0 140px"><span>Hora del aviso</span><input type="time" id="supl-hora" value="06:00"></label><label class="f" style="flex:1;flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="supl-aviso" checked style="width:20px;height:20px"> <span style="text-transform:none;letter-spacing:0">Mandar cada día los pastos que tocan</span></label></div>
     <div id="supl-trat" class="hint"></div>
     <div id="supl-msg" class="msg hidden"></div>
@@ -1715,6 +1729,7 @@ html.pc #mapa-modal .bar.abajo > .row{position:sticky;bottom:-14px;background:#1
     <button class="btn ghost" id="imp-cancel">Cancelar</button>
   </div>
 </div>
+<div class="act-barra hidden" id="act-barra"><span id="act-txt">Hay una versión nueva del app.</span><button type="button" id="act-ya">Actualizar ahora</button></div>
 <div class="toast" id="toast"></div>
 <input type="file" id="file-import" accept=".json,application/json" class="hidden">
 <script>
@@ -2298,9 +2313,11 @@ async function makeGuiaPdf(w, data){
   nueva();
   const secs=data.secciones||[];
   if(data.sinc && !data.sinc.ok && data.sinc.error){ parrafo('Aviso: no se pudo leer el ControlPasto ahora ('+data.sinc.error+'). La guía usa los datos guardados en el servidor (movimientos hasta '+fechaTxt(d.manejo_ate)+').',7.6,ital,hex('#9A6B12'),6); }
+  if(d.carga && !d.carga.ok && d.carga.error && !/credenciales/.test(d.carga.error)){ parrafo('Aviso: no se pudo leer la carga instantánea del ControlPasto ('+d.carga.error+'). El stock de hoy se calculó con el último cierre y los movimientos.',7.6,ital,hex('#9A6B12'),6); }
   secs.forEach((sec,si)=>{ if(si>0) nueva(); const cor=hex(['#8FB996','#D9A441'].includes(sec.cor)?'#04522B':sec.cor); const i=sec.ind; const mr=guiaMes(i.mes);
     txt('Guía de la estancia - '+sec.fazenda,M,y-18,18,bold,cor); y-=24;
-    const fonte=['posición al '+fechaTxt(data.hoje), d.manejo_ate?'movimientos del ControlPasto hasta '+fechaTxt(d.manejo_ate):'', d.fech_ate?'último cierre de stock '+fechaTxt(d.fech_ate):'', 'área: '+(sec.area_fonte||'sin área')].filter(Boolean).join(' · ');
+    const cg=d.carga, enCarga=!!(cg&&cg.ok&&(cg.fazendas||[]).indexOf(sec.fazenda)>=0); /* v4.15.8: stock de hoy = carga instantánea del ControlPasto */
+    const fonte=['posición al '+fechaTxt(data.hoje), enCarga?'stock: carga instantánea del ControlPasto (leída '+fmtDT(cg.en)+')':'stock: último cierre + movimientos', d.manejo_ate?'movimientos del ControlPasto hasta '+fechaTxt(d.manejo_ate):'', d.fech_ate?'último cierre de stock '+fechaTxt(d.fech_ate):'', 'área: '+(sec.area_fonte||'sin área')].filter(Boolean).join(' · ');
     wrap(fonte,8,font,CW).forEach(l=>{ txt(l,M,y-8,8,font,grey); y-=10.5; }); y-=2; page.drawLine({start:{x:M,y},end:{x:M+CW,y},thickness:1.2,color:cor}); y-=7;
     tira([['Cabezas hoy',guiaNum(i.cab),i.lotes+' lotes · '+i.piquetes+' potreros ocupados'],['UA hoy',guiaNum(i.ua),'PV medio '+guiaNum(i.pv,0,' kg')+' · UA = PV ÷ 450 kg'],
       ['Área de pasto',i.area?guiaNum(i.area,0,' ha'):'-',i.area?guiaNum(i.cab_ha,2)+' cab/ha':'sin área informada (sin mapa)'],
@@ -2873,7 +2890,7 @@ async function makeSanitarioPdf(w, S, extra){ extra=extra||{};
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '4.15.4';
+const APP_VERSION = '4.15.8';
 const ESQUEMA = 'manejo-ypoti/3.7';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
@@ -2957,7 +2974,7 @@ function logEntry(w, accion, detalle){ w.historial=w.historial||[]; w.historial.
 /* ---------- ui helpers ---------- */
 let toastT;
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2800); }
-function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id)); window.scrollTo(0,0); $('actionbar').style.display = (id==='scr-form')?'block':'none'; $('hdr-title').textContent = id==='scr-config' ? 'Configuración' : id==='scr-envios' ? (USR&&USR.rol==='administrador'&&usrTodas()?'Envíos automáticos':'Mis informes por WhatsApp') : id==='scr-done' ? (doneW&&doneW.registro&&esSolicitud(doneW.registro.tipo_evento)?'Solicitud de transferencia':'Registro guardado') : (id==='scr-form'&&document.body.classList.contains('modo-solicitud'))?'Solicitud de transferencia':'Registro de manejo'; $('btn-config').textContent = id==='scr-home' ? '⚙' : '⌂'; $('btn-config').style.display = (id==='scr-login'||id==='scr-crear') ? 'none' : ''; if((id==='scr-home'||id==='scr-login') && actPendiente) setTimeout(aplicarActualizacion, 600); }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id)); window.scrollTo(0,0); $('actionbar').style.display = (id==='scr-form')?'block':'none'; $('hdr-title').textContent = id==='scr-config' ? 'Configuración' : id==='scr-envios' ? (USR&&USR.rol==='administrador'&&usrTodas()?'Envíos automáticos':'Mis informes por WhatsApp') : id==='scr-done' ? (doneW&&doneW.registro&&esSolicitud(doneW.registro.tipo_evento)?'Solicitud de transferencia':'Registro guardado') : (id==='scr-form'&&document.body.classList.contains('modo-solicitud'))?'Solicitud de transferencia':'Registro de manejo'; $('btn-config').textContent = id==='scr-home' ? '⚙' : '⌂'; $('btn-config').style.display = (id==='scr-login'||id==='scr-crear') ? 'none' : ''; if(actPendiente) setTimeout(aplicarActualizacion, 600); }
 function fillSelect(sel, opts, placeholder){ sel.innerHTML=''; if(placeholder){ const o=document.createElement('option'); o.value=''; o.textContent=placeholder; sel.appendChild(o);} opts.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); }); }
 function setSeg(seg, v){ seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.v===v)); seg.dataset.value=v||''; }
 function updateNet(){ const p=$('netpill'); const on=navigator.onLine; p.textContent = on?'Con conexión':'Sin conexión'; p.classList.toggle('online',on); p.classList.toggle('offline',!on); }
@@ -4347,7 +4364,7 @@ function mapaInfo(faltan){ const info=$('mapa-info'), msg=$('mapa-msg'); const d
   else { const rs=(dpc&&dpc.resumen)||[]; if(rs.length){ rs.forEach(r=>{ h+='<div><b>'+esc(r.fazenda)+'</b> · hoy '+fmtN(r.cab)+' cab en '+fmtN(r.lotes)+' lotes'+(r.lot_h!=null?' · '+fmtN(r.lot_h,2)+' UA/ha':'')+(r.lot_m!=null?' (media 12 m '+fmtN(r.lot_m,2)+')':'')+'</div>'; }); }
     h+='<div class="sub">Toque un pasto para ver sus lotes.'+(MAPA.lot?'':' Elija "Lotación hoy" o "Media 12 meses" para ver los colores.')+'</div>'; }
   if(MAPA.cargando) h+='<div class="sub">Consultando el ControlPasto…</div>'; else if(dpc && dpc.error) h+='<div class="sub">⚠ No se pudo actualizar el ControlPasto: '+esc(dpc.error)+(dpc.porPol?' (se muestran los datos guardados)':'')+'.</div>';
-  if(dpc && dpc.datos && dpc.datos.manejo_ate) h+='<div class="sub">Datos del ControlPasto hasta '+txtFecha(dpc.datos.manejo_ate)+(dpc.t?' · leídos '+fmtDT(new Date(dpc.t).toISOString()):'')+'</div>';
+  if(dpc && dpc.datos && dpc.datos.manejo_ate) h+='<div class="sub">'+(dpc.datos.carga&&dpc.datos.carga.ok&&(dpc.datos.carga.fazendas||[]).length?'Stock de hoy: carga instantánea del ControlPasto · ':'')+'Datos del ControlPasto hasta '+txtFecha(dpc.datos.manejo_ate)+(dpc.t?' · leídos '+fmtDT(new Date(dpc.t).toISOString()):'')+'</div>';
   info.innerHTML=h; msg.textContent=''; }
 function mapaTocar(x,y){ const ll=mapaLL(x,y);
   if(MAPA.modo==='conf'){ const pen=confPenEn(ll.lat, ll.lon); MAPA.selPen=pen?pen.nm:null; mapaPedirDibujo(); return; }
@@ -5197,9 +5214,19 @@ async function avisarInformes(){ if(waEnviando || !USR || !navigator.onLine || !
         const j=JSON.parse(await res.text()); const w2=await dbGet(w.id); if(!w2) continue; if(j.ok) w2.wa=new Date().toISOString(); else w2.wa_intentos=(w2.wa_intentos||0)+1; await dbPut(w2); }
       catch(e){ try{ const w2=await dbGet(w.id); if(w2){ w2.wa_intentos=(w2.wa_intentos||0)+1; await dbPut(w2); } }catch(x){} } } }
   finally{ waEnviando=false; } }
+/* v4.15.6: el app se mudó a ypoti.com/apps/manejo. En la dirección vieja (GitHub) avisa y lleva a la nueva, pero solo cuando no queda
+   nada sin enviar en este celular (lo guardado en un celular vive en cada dirección por separado; lo enviado está en el servidor). */
+const NUEVA_DIR='https://ypoti.com/apps/manejo/';
+function mudanzaPintar(regs){ const box=$('mudanza'); if(!box) return; if(!/github\.io$/i.test(location.hostname)){ box.classList.add('hidden'); return; }
+  const pend=regs.filter(w=>(w.estado!=='enviado' && w.estado!=='borrador') || (w.nube&&w.nube.pendiente) || (w.borrador_db&&w.borrador_db.pendiente)).length;
+  box.classList.remove('hidden'); $('btn-mudanza').classList.toggle('hidden', pend>0);
+  $('mud-txt').innerHTML = pend ? '📍 El app se muda a <b>ypoti.com/apps/manejo</b>. Antes de cambiar, deje que se envíe'+(pend===1?' el registro pendiente':'n los '+pend+' registros pendientes')+' (hace falta señal).'
+    : '📍 El app se mudó a <b>ypoti.com/apps/manejo</b>. Abra la nueva dirección, agréguela a la pantalla de inicio y entre con su código. Esta dirección deja de usarse.'; }
+$('btn-mudanza').addEventListener('click',()=>{ location.href=NUEVA_DIR; });
 async function renderHome(){ clearTimeout(waTimer); waTimer=setTimeout(()=>avisarInformes().catch(()=>{}), 1500);
   if(!USR) return; pintarSync();
   let all=[]; try{ all=await dbAll(); }catch(e){}
+  mudanzaPintar(all.filter(w=>w.tipo!=='informe'));
   all=all.filter(visibleParaUsr); all.sort((a,b)=>(b.actualizado_en||b.creado_en).localeCompare(a.actualizado_en||a.creado_en));
   const localIds=new Set(all.map(w=>w.id)); const soloNube=nubeSolo.filter(x=>!localIds.has(x.id) && usrPuede(x.estancia));
   const list=$('home-list'); list.innerHTML='';
@@ -5770,20 +5797,33 @@ function saveConfigFromForm(){ cfg.respondente=$('c-respondente').value.trim(); 
 $('btn-reset-server').addEventListener('click',()=>{ $('c-mail').value=DEFAULT_MAIL; $('c-endpoint').value=DEFAULT_ENDPOINT; saveConfigFromForm(); toast('Servidor y correo restablecidos'); });
 $('btn-test-endpoint').addEventListener('click',async()=>{ saveConfigFromForm(); const m=$('c-msg'); m.classList.remove('hidden'); m.className='msg'; m.textContent='Probando…'; try{ const res=await fetchSrv(cfg.endpoint,{method:'POST',body:JSON.stringify({tipo:'ping'}),redirect:'follow'}); const t=await res.text(); let j={}; try{j=JSON.parse(t);}catch(e){} if(res.ok && j.ok){ m.className='msg ok'; m.textContent='Conexión correcta'+(j.mensaje?': '+j.mensaje:'.'); syncPendientes(); } else throw new Error(j.error||('HTTP '+res.status)); }catch(e){ m.className='msg bad'; m.textContent='No responde: '+e.message; } });
 
-/* ---------- actualización automática: cada versión nueva subida a GitHub llega sola (sin desinstalar el app) ----------
-   El service worker pide la página siempre a la red; además el app mira cada tanto sw.js (1 KB) y, si trae otra versión, recarga
-   en un momento seguro: en el inicio o en la pantalla del código, nunca en medio de un formulario (lo escrito ya está guardado). */
+/* ---------- actualización automática: cada versión nueva subida llega sola y rápido (sin desinstalar el app) ----------
+   v4.15.5: con el app abierto mira sw.js (2 KB) cada 2 minutos y cada vez que se vuelve al app; si hay otra versión recarga en un
+   momento seguro (inicio, código, configuración), nunca en medio de un formulario: ahí muestra una barra «Actualizar ahora»
+   (guarda lo escrito y recarga). Si al recargar el servidor todavía entrega la versión vieja, espera y reintenta (sin bucles). */
 let swReg=null, actPendiente=null, ultimaBusqueda=0;
+const ACT_INT='manejo.act_intento';
+function actIntento(){ try{ return JSON.parse(sessionStorage.getItem(ACT_INT)||'null'); }catch(e){ return null; } }
+function actEsperar(v){ const it=actIntento(); if(!it || it.v!==v) return false; const espera=[45,120,300,600][Math.min(it.n||0,3)]*1000; return Date.now()-it.t < espera; }
 function momentoSeguro(){ if(formActivo()) return false; if($('mapa-modal').classList.contains('on') || $('scanner').classList.contains('on')) return false; if(document.querySelector('.modal:not(.hidden)')) return false; return $('scr-home').classList.contains('active') || $('scr-login').classList.contains('active') || $('scr-crear').classList.contains('active') || $('scr-config').classList.contains('active'); }
-function aplicarActualizacion(){ if(!actPendiente || !momentoSeguro()) return; try{ sessionStorage.setItem('manejo.actualizado', String(actPendiente)); }catch(e){} location.reload(); }
-async function buscarActualizacion(forzar){ if(!navigator.onLine || !/^https?:/.test(location.protocol)) return; if(!forzar && Date.now()-ultimaBusqueda<10*60*1000) return; ultimaBusqueda=Date.now();
+function actBarra(){ const b=$('act-barra'); if(!b) return; const ver=actPendiente && !momentoSeguro() && !actEsperar(actPendiente); b.classList.toggle('hidden', !ver); if(ver) $('act-txt').textContent='Versión nueva'+(actPendiente!=='nueva'?' '+actPendiente:'')+(formActivo()?': se instala al terminar este registro.':': se instala al volver al inicio.'); }
+function recargarAct(){ const it=actIntento(); const n=(it && it.v===actPendiente) ? (it.n||0)+1 : 0; try{ sessionStorage.setItem(ACT_INT, JSON.stringify({v:actPendiente, t:Date.now(), n})); sessionStorage.setItem('manejo.actualizado', String(actPendiente)); }catch(e){} location.reload(); }
+function aplicarActualizacion(){ if(!actPendiente){ actBarra(); return; } if(actEsperar(actPendiente) || !momentoSeguro()){ actBarra(); return; } recargarAct(); }
+async function buscarActualizacion(forzar){ if(!navigator.onLine || !/^https?:/.test(location.protocol)) return; if(!forzar && Date.now()-ultimaBusqueda<30*1000) return; ultimaBusqueda=Date.now();
   try{ if(swReg) swReg.update().catch(()=>{}); }catch(e){}
-  try{ const r=await fetch('sw.js?v='+Date.now(), {cache:'no-store'}); if(!r.ok) return; const t=await r.text(); const m=/APP_VERSION\s*=\s*'([^']+)'/.exec(t); if(m && m[1]!==APP_VERSION && m[1]!=='__VERSION__'){ actPendiente=m[1]; aplicarActualizacion(); } }catch(e){} }
+  try{ const r=await fetch('sw.js?v='+Date.now(), {cache:'no-store'}); if(!r.ok) return; const t=await r.text(); const m=/APP_VERSION\s*=\s*'([^']+)'/.exec(t); if(m && m[1]!==APP_VERSION && m[1]!=='__VERSION__'){ actPendiente=m[1]; aplicarActualizacion(); } else if(m && m[1]===APP_VERSION){ actPendiente=null; actBarra(); } }catch(e){} }
+$('act-ya').addEventListener('click',async()=>{ const b=$('act-ya'); b.disabled=true; b.textContent='Guardando…';
+  try{ if(formActivo()){ dirty=true; await autoGuardar(); } }catch(e){} try{ sessionStorage.removeItem(ACT_INT); }catch(e){} recargarAct(); });
 if('serviceWorker' in navigator && /^https?:/.test(location.protocol)){
   navigator.serviceWorker.register('sw.js', {updateViaCache:'none'}).then(r=>{ swReg=r; }).catch(()=>{});
-  let teniaControl=!!navigator.serviceWorker.controller; navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(!teniaControl){ teniaControl=true; return; } actPendiente=actPendiente||'nueva'; aplicarActualizacion(); }); }
-setInterval(()=>buscarActualizacion(false), 15*60*1000);
+  /* un service worker nuevo tomó el control: confirmar con sw.js si de verdad hay otra versión (evita recargar dos veces) */
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{ setTimeout(()=>buscarActualizacion(true), 500); }); }
+setInterval(()=>{ if(document.visibilityState==='visible') buscarActualizacion(true); else if(actPendiente) aplicarActualizacion(); }, 2*60*1000);
+setInterval(()=>{ if(actPendiente) aplicarActualizacion(); }, 20*1000);
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') buscarActualizacion(false); });
+window.addEventListener('focus',()=>buscarActualizacion(false));
+window.addEventListener('online',()=>buscarActualizacion(true));
+window.addEventListener('pageshow',e=>{ if(e.persisted) buscarActualizacion(true); });
 /* sin zoom de la página (pellizco o doble toque): solo el mapa se acerca y se aleja */
 document.addEventListener('gesturestart',e=>{ e.preventDefault(); }, {passive:false});
 document.addEventListener('gesturechange',e=>{ e.preventDefault(); }, {passive:false});
@@ -5794,8 +5834,8 @@ loadCfg(); saveCfg(); updateNet(); loginPintar();
 { let s=null; try{ s=JSON.parse(sessionStorage.getItem(SES_KEY)||'null'); }catch(e){} if(s && s.codigo && s.usuario){ USR=Object.assign({}, s.usuario, {codigo:String(s.codigo)}); pintarUsuario(); show('scr-home'); renderHome(); sincronizar(); } else show('scr-login'); }
 try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist().then(ok=>console.log('almacenamiento persistente:',ok)); }catch(e){}
 setInterval(()=>{ if(USR && navigator.onLine) sincronizar(); }, 60*1000);
-setTimeout(()=>buscarActualizacion(true), 4000);
-{ let v=null; try{ v=sessionStorage.getItem('manejo.actualizado'); sessionStorage.removeItem('manejo.actualizado'); }catch(e){} if(v) setTimeout(()=>toast('App actualizado'+(v!=='nueva'?' a la versión '+APP_VERSION:'')), 800); }
+setTimeout(()=>buscarActualizacion(true), 2500);
+{ let v=null; try{ v=sessionStorage.getItem('manejo.actualizado'); sessionStorage.removeItem('manejo.actualizado'); }catch(e){} if(v && (v===APP_VERSION || v==='nueva')){ try{ sessionStorage.removeItem(ACT_INT); }catch(e){} setTimeout(()=>toast('App actualizado a la versión '+APP_VERSION), 800); } }
 /* ---------- 📬 Envíos automáticos (v4.11.0) — solo administradores con todas las estancias ----------
    Contactos, avisos de cada novedad e informes programados. Todo vive en el servidor (hojas envios_*); esta pantalla solo lo edita:
    {tipo:'envios_estado'|'envios_guardar'|'envios_ejecutar', usuario: código personal}. Sin señal no se puede administrar. */
@@ -5992,7 +6032,7 @@ function trCalc(){ const cab=Number($('tr-cab').value), peso=Number(String($('tr
   el.className='msg ok op-calc'; el.innerHTML='Cargar <b>'+fmtN(sacos)+(sacos===1?' saco':' sacos')+'</b> de '+opH(p.nombre)+' ('+fmtN(p.kg_saco)+' kg)<br><small>'+fmtN(cab)+' cab × '+fmtN(peso)+' kg = '+fmtN(kgPV)+' kg de peso vivo × '+fmtN(p.g_100kg)+' g por 100 kg'+(dias>1?' × '+dias+' días':'')+' = '+fmtN(kg,1)+' kg = '+fmtN(exacto,2)+' sacos → '+sacos+'</small>';
   if(!TR.manual) $('tr-sacos').value=String(sacos); $('tr-sacos-hint').textContent=TR.manual&&Number($('tr-sacos').value)!==sacos?'Distinto de lo calculado ('+sacos+'): queda anotado así.':'Ya viene con lo calculado: cámbielo solo si puso otra cantidad.';
   { const a=trDiasAlcanza({kgPV, p}); if(a) $('tr-sacos-hint').textContent+=' Con '+fmtN(Number($('tr-sacos').value))+(Number($('tr-sacos').value)===1?' saco':' sacos')+' alcanza para '+fmtN(a.dias,1).replace('.',',')+' días'+(TRP.lote?': vuelve a tocar el '+spF(a.proximo)+'.':'.'); }
-  if(TRP.lote) el.innerHTML+='<br><small>📋 Plan: '+opH(TRP.lote.producto)+' cada '+TRP.lote.dias+(TRP.lote.dias===1?' día':' días')+(TRP.lote.g_100kg?' · '+fmtN(TRP.lote.g_100kg)+' g/100 kg':'')+'</small>';
+  if(TRP.lote) el.innerHTML+='<br><small>📋 Plan: '+opH(TRP.lote.producto)+' cada '+(TRP.lote.dias_plan||TRP.lote.dias)+((TRP.lote.dias_plan||TRP.lote.dias)===1?' día':' días')+(TRP.lote.lluvia?' · <span class="lluvia-nota">🌧 '+opH(TRP.lote.lluvia_txt||'')+'</span>':'')+(TRP.lote.g_100kg?' · '+fmtN(TRP.lote.g_100kg)+' g/100 kg':'')+'</small>';
   return { cab, peso, kgPV, kg, exacto, sacos, p, dias }; }
 function trSetLote(l){ TR.lote=l; const el=$('tr-lote'); $('tr-lista-box').classList.add('hidden'); if(!l){ TRP.lote=null; el.classList.add('hidden'); trCalc(); return; }
   const c=DATOS_PASTO[$('tr-estancia').value]||datosPastoGuardados($('tr-estancia').value); const fecha=c&&c.datos&&c.datos.manejo_ate?' · ControlPasto hasta '+txtFecha(c.datos.manejo_ate):'';
@@ -6218,6 +6258,7 @@ function spPintar(){ const E=SP.E; if(!E) return; const ed=!!E.puede_editar && !
     pb.appendChild(f); });
   const gs=$('supl-prod-glob'); gs.innerHTML='<option value="">— Suplemento de la lista general —</option>'+(E.productos_globales||[]).filter(g=>!spProd(g.id)).map(g=>'<option value="'+opH(g.id)+'">'+opH(g.nombre)+' · '+spN(g.g_100kg)+' g/100 kg · bolsa '+spN(g.kg_saco)+' kg</option>').join('')+'<option value="__nuevo">➕ Otro suplemento (nuevo)</option>';
   gs.disabled=$('supl-prod-add').disabled=!ed;
+  { const ll=SP.plan.lluvia||{}; $('supl-ll-activo').checked=ll.activo!==false; $('supl-ll-mm').value=ll.mm!=null?ll.mm:5; $('supl-ll-prob').value=ll.prob!=null?ll.prob:60; ['supl-ll-activo','supl-ll-mm','supl-ll-prob'].forEach(id=>{ $(id).disabled=!ed; }); spPintarPron(E); }
   $('supl-hora').value=SP.plan.hora_aviso||'06:00'; $('supl-aviso').checked=SP.plan.aviso!==false; $('supl-hora').disabled=$('supl-aviso').disabled=!ed;
   const tr=E.tratoristas||[]; $('supl-trat').innerHTML=tr.length?'Tratoristas de '+opH(E.estancia)+': '+tr.map(t=>opH(t.nombre)+(t.con_whatsapp?' ✓':' <span style="color:var(--bad)">(sin WhatsApp: pídale que lo registre en ⚙ Configuración)</span>')).join(', ')+'.':'<span style="color:var(--warn)">No hay ningún usuario tratorista de '+opH(E.estancia)+': el aviso no tiene a quién llegar.</span>';
   $('supl-guardar').classList.toggle('hidden', !ed); $('supl-lotes-hint').textContent=ed?'Elija el suplemento de cada lote y cada cuántos días se carga el comedero. Los lotes sin suplemento no entran en el plan.':'Solo lectura: el plan lo cambian el capataz o la administración.';
@@ -6247,6 +6288,7 @@ function spPintarLotes(){ const E=SP.E; if(!E) return; const ed=!!E.puede_editar
 async function spGuardar(){ const e=[]; const ps=spProductos(); ps.forEach(p=>{ if(!String(p.nombre||'').trim()) e.push('Hay un suplemento sin nombre.'); else if(!(p.g_100kg>0)) e.push('Ponga la dosis de '+p.nombre+'.'); else if(!(p.kg_saco>0)) e.push('Ponga los kg de la bolsa de '+p.nombre+'.'); });
   SP.plan.lotes.forEach(x=>{ if(!(Number(x.dias)>=1 && Number(x.dias)<=60)) e.push('Lote '+x.lote+': los días entre cargas van de 1 a 60.'); });
   if(e.length){ opMsg('supl-msg', [...new Set(e)].join(' '), 'bad'); return; }
+  SP.plan.lluvia=Object.assign({}, SP.plan.lluvia||{}, { activo:$('supl-ll-activo').checked, mm:Number(String($('supl-ll-mm').value).replace(',','.'))||5, prob:$('supl-ll-prob').value===''?60:Number($('supl-ll-prob').value) });
   SP.plan.hora_aviso=$('supl-hora').value||'06:00'; SP.plan.aviso=$('supl-aviso').checked; const b=$('supl-guardar'); b.disabled=true; opMsg('supl-msg','Guardando…');
   try{ const E=await envPedir({tipo:'supl_guardar', estancia:SP.est, plan:SP.plan}, 90000); SP.E=E; SP.plan=spCopia(E.plan); spGuardarLocal(SP.est, E); spPintar(); opMsg('supl-msg','✓ '+(E.mensaje||'Plan guardado.'),'ok'); toast('Plan de suplementación guardado'); }
   catch(err){ opMsg('supl-msg','No se pudo guardar: '+(err.message||err),'bad'); } finally{ b.disabled=false; } }
@@ -6263,10 +6305,19 @@ const TRP={ E:null, lote:null };
 function trPlanLote(lote){ if(!TRP.E||!lote) return null; const k=spKey(lote); return (TRP.E.lotes||[]).find(l=>spKey(l.lote)===k)||null; }
 function trPlanProductos(){ return ((TRP.E&&TRP.E.plan&&TRP.E.plan.productos)||[]).filter(p=>p.g_100kg>0&&p.kg_saco>0); }
 async function trCargarPlan(){ const est=$('tr-estancia').value; TRP.E=null; trPintarHoy(); if(!est) return; try{ const E=await spPedirEstado(est); if($('tr-estancia').value!==est) return; TRP.E=E; trProductos(); trPintarHoy(); }catch(e){ trPintarHoy(); } }
+/* v4.15.8: pronóstico de lluvia de la estancia (8 días): los días con lluvia (según mm y % del plan) en azul */
+function spPintarPron(E){ const box=$('supl-pron'); if(!box) return; const p=E&&E.pronostico; const ll=(E&&E.plan&&E.plan.lluvia)||{};
+  if(ll.activo===false){ box.innerHTML='<span class="hint">Sin ajuste por lluvia: se carga siempre para los días del plan.</span>'; return; }
+  if(!p){ box.innerHTML='<span class="hint">El pronóstico aparece cuando el plan tiene lotes.</span>'; return; }
+  if(!p.ok){ box.innerHTML='<span class="hint" style="color:var(--warn)">Sin pronóstico ahora ('+opH(p.error||'')+'): se carga para los días del plan.</span>'; return; }
+  const DS=['dom','lun','mar','mié','jue','vie','sáb']; const mm=Number(ll.mm)||5, pr=ll.prob!=null?Number(ll.prob):60;
+  box.innerHTML=(p.dias||[]).map(d=>{ const dt=new Date(d.d+'T12:00:00Z'); const llueve=d.mm!=null&&d.mm>=mm&&(d.prob==null||d.prob>=pr);
+    return '<div class="d'+(llueve?' ll':'')+'">'+DS[dt.getUTCDay()]+' '+d.d.slice(8,10)+'<b>'+(d.mm!=null?(d.mm>=1?Math.round(d.mm):d.mm>0?'<1':'0'):'–')+' mm</b>'+(d.prob!=null?Math.round(d.prob)+'%':'')+(llueve?'<br>🌧':'')+'</div>'; }).join('')
+    +'<div class="hint" style="flex:0 0 100%">'+opH(p.fuente||'Open-Meteo')+(p.coord&&p.coord.fuente?' · ubicación: '+opH(p.coord.fuente):'')+'</div>'; }
 function trPintarHoy(){ const box=$('tr-hoy'); const E=TRP.E; if(!E||!(E.lotes||[]).length){ box.classList.add('hidden'); box.innerHTML=''; return; }
   const tocan=E.lotes.filter(l=>l.estado==='hoy'||l.estado==='atrasado'); const prox=E.lotes.filter(l=>l.estado==='programado').slice(0,3);
   box.innerHTML='<span class="env-grupo" style="margin:0">📋 Hoy toca'+(tocan.length?' ('+tocan.length+')':'')+'</span>'+(tocan.length?'':'<div class="hint">Hoy no toca ningún pasto del plan.'+(prox.length?' Próximos: '+prox.map(l=>opH((l.piquete?'pasto '+l.piquete:'lote '+l.lote))+' el '+spF(l.proximo)).join(', ')+'.':'')+'</div>')+(E._guardado?'<div class="hint">Sin señal: plan guardado el '+opH(fmtDT(new Date(E._guardado).toISOString()))+'.</div>':'');
-  tocan.forEach(l=>{ const b=document.createElement('button'); b.type='button'; b.className='tr-hoy-item'+(l.estado==='atrasado'?' atrasado':''); b.innerHTML='<span><b>'+opH(l.piquete?'Pasto '+l.piquete:'Lote '+l.lote)+'</b><small>lote '+opH(l.lote)+' · '+opH(l.producto)+' para '+l.dias+(l.dias===1?' día':' días')+(l.estado==='atrasado'?' · atrasado '+l.atraso_dias+' d':'')+'</small></span><b class="n">'+spN(l.sacos)+(l.sacos===1?' saco':' sacos')+'</b>';
+  tocan.forEach(l=>{ const b=document.createElement('button'); b.type='button'; b.className='tr-hoy-item'+(l.estado==='atrasado'?' atrasado':''); b.innerHTML='<span><b>'+opH(l.piquete?'Pasto '+l.piquete:'Lote '+l.lote)+'</b><small>lote '+opH(l.lote)+' · '+opH(l.producto)+' para '+l.dias+(l.dias===1?' día':' días')+(l.estado==='atrasado'?' · atrasado '+l.atraso_dias+' d':'')+(l.lluvia?'<br><span class="lluvia-nota">🌧 '+opH(l.lluvia_txt||'')+'</span>':'')+'</small></span><b class="n">'+spN(l.sacos)+(l.sacos===1?' saco':' sacos')+'</b>';
     b.addEventListener('click',()=>{ trSetLote({lote:l.lote, piquete:l.piquete, cab:l.cab, pv:l.pv, categoria:l.categoria}); }); box.appendChild(b); });
   box.classList.remove('hidden'); }
 /* el plan del lote elegido pone el suplemento, la dosis del lote y los días */
