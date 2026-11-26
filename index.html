@@ -278,6 +278,14 @@ body.modo-solicitud #wrap-tipos{display:none}
 .hist-card{max-width:760px;width:100%;max-height:94vh;overflow:auto}#hist-cerrar{flex:0 0 auto;width:auto;min-width:44px}#hist-titulo{font-size:19px}
 .hist-ind{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px}.hist-ind div{border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:12px;color:var(--ink-2)}.hist-ind b{display:block;font-size:16px;color:var(--ink)}
 .hist-graf svg{width:100%;height:auto;display:block}
+#conf-det-modal .cd-card{background:#1b221d;color:#e8ece9;border-color:#333}#conf-det-modal .cd-card h2{color:#fff}#conf-det-modal .hint,#conf-det-modal .sub{color:#b9c2bc;font-size:12.5px}#conf-det-modal b{color:#fff}
+#conf-det-modal #cd-cerrar{flex:0 0 auto!important;width:auto;min-width:46px;background:#26302a;color:#fff;border:1px solid #4a5a4f}
+#conf-det-modal .cd-lote{border-top:1px solid #39443d;padding-top:8px;margin-top:8px;font-size:14px;line-height:1.45}#conf-det-modal .cd-lote:first-child{border-top:0;margin-top:0}
+#conf-det-modal .conf-lote b.l{color:#fff;font-size:16px}#conf-det-modal .conf-al{color:#F1D9A0}
+#conf-det-modal .conf-curva{margin-top:8px;background:#141a16;border:1px solid #333;border-radius:10px;padding:8px}#conf-det-modal .cv-top{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap}#conf-det-modal .cv-tg button{background:#26302a;color:#ccc;border:1px solid #3c4a40;border-radius:8px;padding:4px 10px;font-size:13px;margin-left:4px;cursor:pointer}#conf-det-modal .cv-tg button.on{background:#2E7D55;color:#fff;border-color:#2E7D55}#conf-det-modal .cv-svg{width:100%;height:auto;display:block;margin-top:4px}#conf-det-modal .cv-f{display:inline-block;width:9px;height:9px;border-radius:2px;margin:0 3px 0 2px;vertical-align:-1px}
+#conf-det-modal .cd-aviso{background:#3a2f17;border:1px solid #7a6127;color:#F6E3B4;border-radius:10px;padding:8px 10px;font-size:13.5px;margin-bottom:6px}
+#conf-det-modal .cd-tab{margin-top:6px}#conf-det-modal .cd-tab summary{cursor:pointer;color:#cfe8d6;font-size:13px}#conf-det-modal .cd-tab table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}#conf-det-modal .cd-tab td,#conf-det-modal .cd-tab th{padding:3px 4px;border-bottom:1px solid #2f3a33;text-align:left}#conf-det-modal .cd-tab .r{text-align:right}#conf-det-modal .cd-tab tr.bajo td{color:#F28B7B}
+#mapa-modal .mapa-info #btn-conf-det{margin:6px 0 2px}
 .hist-movs{display:flex;flex-direction:column;gap:4px}.hist-movs .m{display:grid;grid-template-columns:74px 1fr auto;gap:6px;align-items:center;border-bottom:1px solid var(--line);padding:4px 0;font-size:13px}
 .hist-movs .m .q{font-weight:700;white-space:nowrap}.hist-movs .m.entra .q{color:#04522B}.hist-movs .m.sale .q{color:#701E0C}.hist-movs .m small{display:block;color:var(--ink-2)}
 #mapa-modal .mapa-leyenda{position:absolute;left:8px;right:64px;bottom:16px;background:rgba(17,17,17,.88);color:#fff;border-radius:10px;padding:8px 10px;font-size:12px;line-height:1.5;pointer-events:none}
@@ -1464,6 +1472,13 @@ html.pc #mapa-modal .bar.abajo > .row{position:sticky;bottom:-14px;background:#1
     <button class="op-informe" type="button" id="inf-op-ia"><b>🤖 Pedir informe a la IA</b><small>La IA lee los registros del período y escribe un informe con lo que pasó y qué conviene revisar.</small></button>
     <button class="op-informe" type="button" id="inf-op-pregunta"><b>💬 Preguntar a la IA</b><small>Escriba una pregunta sobre los registros de la estancia; la respuesta en texto o en PDF.</small></button>
     <div class="row"><button class="btn ghost" id="ia-menu-cerrar" type="button">Cerrar</button></div>
+  </div>
+</div>
+<div id="conf-det-modal" class="modal hidden">
+  <div class="card stack hist-card cd-card">
+    <div class="row" style="align-items:center"><h2 style="flex:1;margin:0" id="cd-titulo">🐂 Corral</h2><button class="btn small ghost" type="button" id="cd-cerrar" aria-label="Cerrar">✕</button></div>
+    <div class="hint" id="cd-sub"></div>
+    <div id="cd-cuerpo"></div>
   </div>
 </div>
 <div id="hist-modal" class="modal hidden">
@@ -2926,7 +2941,7 @@ async function makeSanitarioPdf(w, S, extra){ extra=extra||{};
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '4.15.9';
+const APP_VERSION = '4.15.10';
 const ESQUEMA = 'manejo-ypoti/3.7';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
@@ -4348,11 +4363,11 @@ function mapaDraw(){ const cv=$('mapa-canvas'); if(!$('mapa-modal').classList.co
   const vLL0=mapaLL(0,H), vLL1=mapaLL(W,0); const enVista=p=>!(p.bb[2]<vLL0.lon||p.bb[0]>vLL1.lon||p.bb[3]<vLL0.lat||p.bb[1]>vLL1.lat);
   const cs=geoCapas(MAPA.est); const lista=MAPA.modo==='conf'?[]:geoTodos().filter(enVista).sort((a,b)=>(ORDEN_NIVEL[a.n]||0)-(ORDEN_NIVEL[b.n]||0));
   const lotModo=MAPA.lot; const dpc=DATOS_PASTO[MAPA.est];
-  const conNdvi = MAPA.modo==='guia' && lotModo==='ndvi' && ndviDibujar(g, ox, oy, s, lista.filter(p=>cs.includes(p.c) && p.n==='piquete')); /* v4.15.9 */
+  const conNdvi = MAPA.modo==='guia' && lotModo==='ndvi' && ndviDibujar(g, ox, oy, s); /* v4.15.10: estancia entera + 2 km */
   lista.forEach(p=>{ const mia=cs.includes(p.c); trazar(g,p,ox,oy,s);
     if(p.n==='contorno'){ g.lineWidth=2.5; g.strokeStyle=sat?'rgba(255,214,0,.95)':'#2b3a26'; g.setLineDash([]); g.stroke(); return; }
     if(p.n==='divisa'){ g.lineWidth=0.8; g.strokeStyle=sat?'rgba(255,255,255,.6)':'rgba(70,95,60,.7)'; g.stroke(); return; }
-    let fill=null; if(conNdvi && mia && p.n==='piquete'){ g.lineWidth=1.1; g.strokeStyle=sat?'rgba(255,255,255,.85)':'rgba(30,40,30,.75)'; g.stroke(); return; }
+    let fill=null; if(conNdvi){ g.lineWidth=mia?1.1:0.7; g.strokeStyle=mia?'rgba(255,255,255,.9)':'rgba(255,255,255,.55)'; g.stroke(); return; }
     if(mia && lotModo && lotModo!=='ndvi' && dpc && dpc.porPol){ const d=dpc.porPol[p.i]; fill = d ? lotColor(lotModo==='hoy'?d.lot_h:d.lot_m) : null; if(fill){ g.globalAlpha=sat?0.55:0.62; g.fillStyle=fill; g.fill('evenodd'); g.globalAlpha=1; } }
     if(!fill && !sat){ g.fillStyle=mia?'#CADDB8':'#D6DECF'; g.fill('evenodd'); }
     g.lineWidth=mia?1.3:0.8; g.strokeStyle=sat?'rgba(255,255,255,.85)':'#56744A'; g.stroke(); });
@@ -4402,7 +4417,7 @@ function mapaInfo(faltan){ const info=$('mapa-info'), msg=$('mapa-msg'); const d
     { const nd=ndviDePasto(MAPA.est,p); if(nd) h+='<div>🛰 NDVI <b style="color:'+ndviCss(nd[1])+'">'+fmtN(nd[1],2)+'</b> <span class="sub">('+fmtDate(nd[0])+(nd[2]!=null?' · del '+fmtN(nd[2],2)+' al '+fmtN(nd[3],2):'')+')</span></div>'; }
     h+='<button class="btn small btn-hist" type="button" id="btn-hist-pasto">📈 Historial del pasto (lotación y manejos)</button>'; }
   else { const rs=(dpc&&dpc.resumen)||[]; if(rs.length){ rs.forEach(r=>{ h+='<div><b>'+esc(r.fazenda)+'</b> · hoy '+fmtN(r.cab)+' cab en '+fmtN(r.lotes)+' lotes'+(r.lot_h!=null?' · '+fmtN(r.lot_h,2)+' UA/ha':'')+(r.lot_m!=null?' (media 12 m '+fmtN(r.lot_m,2)+')':'')+'</div>'; }); }
-    h+='<div class="sub">Toque un pasto para ver sus lotes y su historial.'+(MAPA.lot?'':' Elija "Lotación hoy", "Media 12 m" o "NDVI" para ver los colores.')+'</div>'; h+=guiaPronHtml(dpc&&dpc.pron); }
+    h+='<div class="sub">Toque un pasto para ver sus lotes y su historial.'+(MAPA.lot?'':' Elija "Lotación hoy", "Media 12 m" o "NDVI" para ver los colores.')+'</div>'; if(MAPA.lot==='ndvi') h+=ndviEstanciaHtml(MAPA.est); h+=guiaPronHtml(dpc&&dpc.pron); }
   if(!MAPA.cargando && dpc && dpc.error) h+='<div class="sub">⚠ No se pudo actualizar el ControlPasto: '+esc(dpc.error)+(dpc.porPol?' (se muestran los datos guardados)':'')+'.</div>';
   if(dpc && dpc.datos && dpc.datos.manejo_ate) h+='<div class="sub">'+(dpc.datos.carga&&dpc.datos.carga.ok&&(dpc.datos.carga.fazendas||[]).length?'Stock de hoy: carga instantánea del ControlPasto · ':'')+'Datos del ControlPasto hasta '+txtFecha(dpc.datos.manejo_ate)+(dpc.t?' · leídos '+fmtDT(new Date(dpc.t).toISOString()):'')+'</div>';
   info.innerHTML=h; msg.textContent=''; const bh=$('btn-hist-pasto'); if(bh) bh.addEventListener('click',()=>abrirHistorial(MAPA.sel)); guiaActPintar(); }
@@ -4534,7 +4549,8 @@ function confDibujar(g, ox, oy, s, sat){ if(!confTiene(MAPA.est)) return; const 
     if(Math.min(ancho,alto)>=22){ const oscuro=fill && /^#(1F1F1F|04522B|03391E|2E7D55|2E8A5A|3B6EA8|B4532A|C98A2B|5EAE7D)$/i.test(fill); const cab=ls.reduce((a,l)=>a+(l.cab||0),0);
       g.font='700 '+(Math.min(ancho,alto)>=40?12:10)+'px system-ui,sans-serif'; g.fillStyle=oscuro?'#fff':'#14240f'; g.fillText(pen.nm, cx, cab&&Math.min(ancho,alto)>=34?cy-6:cy);
       if(cab && Math.min(ancho,alto)>=34){ g.font='600 10px system-ui,sans-serif'; g.fillText(cab+' cab', cx, cy+7); } } }); }
-function confFicha(l){ const esc=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;'); const f=(v,d)=>v==null||v===''?'—':fmtN(v,d);
+function confFicha(l){ return confFichaH(l, true); }
+function confFichaH(l, conCurva){ const esc=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;'); const f=(v,d)=>v==null||v===''?'—':fmtN(v,d);
   const tipo=(CF_TIPO[l.tipo]||[null,l.tipo||''])[1], fase=(CF_FASE[l.fase]||[null,l.fase||''])[1];
   let h='<div class="conf-lote"><b class="l">'+esc(l.lote||l.nome||'Lote')+'</b> · <b>'+fmtN(l.cab||0)+' cab</b>'+(l.ent?' <span class="sub">('+fmtN(l.ent)+' entraron'+(l.mor?', '+fmtN(l.mor)+' murieron':'')+')</span>':'');
   h+='<div>'+esc(l.dono||l.cli||'')+(tipo?' · '+esc(tipo):'')+(l.cat&&l.cat!==l.dono?' · '+esc(l.cat):'')+(l.gen?' · '+esc(l.gen):'')+'</div>';
@@ -4548,12 +4564,12 @@ function confFicha(l){ const esc=t=>String(t==null?'':t).replace(/&/g,'&amp;').r
   if(l.cocho4) h+='<div class="sub">Lectura de comedero (4 días): '+esc(l.cocho4)+'</div>';
   if(l.risco>0 && (l.motivos||[]).length) h+='<div class="conf-al">⚠ '+(l.motivos||[]).map(esc).join(' · ')+'</div>';
   if(l.seq) h+='<div class="sub">Secuestro de terneros</div>';
-  if(Array.isArray(l.c_pv)||Array.isArray(l.c_ms)){ const id='cv'+String(l.id||l.lote||'').replace(/[^A-Za-z0-9]/g,''); const pv=Array.isArray(l.c_pv)&&l.c_pv.some(x=>x!=null); h+='<div class="conf-curva" data-cv="'+id+'"><div class="cv-top"><b>📈 Curva de consumo</b><span class="cv-tg">'+(pv?'<button type="button" class="on" data-cv-ver="pv">% peso vivo</button>':'')+(Array.isArray(l.c_ms)?'<button type="button"'+(pv?'':' class="on"')+' data-cv-ver="ms">kg MS/cab</button>':'')+'</span></div>'+(pv?'<div data-cv-panel="pv">'+confCurvaSvg(l,'pv')+'</div>':'')+(Array.isArray(l.c_ms)?'<div data-cv-panel="ms"'+(pv?' class="hidden"':'')+'>'+confCurvaSvg(l,'ms')+'</div>':'')+'</div>'; }
+  if(conCurva && (Array.isArray(l.c_pv)||Array.isArray(l.c_ms))){ const id='cv'+String(l.id||l.lote||'').replace(/[^A-Za-z0-9]/g,''); const pv=Array.isArray(l.c_pv)&&l.c_pv.some(x=>x!=null); h+='<div class="conf-curva" data-cv="'+id+'"><div class="cv-top"><b>📈 Curva de consumo</b><span class="cv-tg">'+(pv?'<button type="button" class="on" data-cv-ver="pv">% peso vivo</button>':'')+(Array.isArray(l.c_ms)?'<button type="button"'+(pv?'':' class="on"')+' data-cv-ver="ms">kg MS/cab</button>':'')+'</span></div>'+(pv?'<div data-cv-panel="pv">'+confCurvaSvg(l,'pv')+'</div>':'')+(Array.isArray(l.c_ms)?'<div data-cv-panel="ms"'+(pv?' class="hidden"':'')+'>'+confCurvaSvg(l,'ms')+'</div>':'')+'</div>'; }
   return h+'</div>'; }
 /* v4.14.0: curva de consumo del lote (como en el ypoti-integracao): consumo diario en % del peso vivo o kg MS/cab, franjas de la dieta
    (adaptación, crecimiento, terminación), mínimo de 1,8 % PV en la terminación (días debajo en rojo), curva esperada (prior) y posterior */
 const CV_FASE={A:['#E3B866','adaptación'],C:['#7FB38E','crecimiento'],T:['#D98B6E','terminación'],O:['#9AA39C','otra']};
-function confCurvaSvg(l, campo){ const W=340, H=178, L=34, R=8, T=10, B=40; const d0=String(l.c_d0||l.d_ent||'').slice(0,10); const n0=Math.max((l.c_pv||[]).length,(l.c_ms||[]).length);
+function confCurvaSvg(l, campo, alto){ const W=340, H=alto||178, L=34, R=8, T=10, B=40; const d0=String(l.c_d0||l.d_ent||'').slice(0,10); const n0=Math.max((l.c_pv||[]).length,(l.c_ms||[]).length);
   const minPv=l.c_min!=null?Number(l.c_min):1.8; const pv=l.c_pv||[], ms=l.c_ms||[]; const peso0=i=>(pv[i]!=null&&ms[i]!=null&&pv[i]>0)?ms[i]/(pv[i]/100):null; const peso=i=>{ for(let k=0;k<n0;k++){ const a=peso0(i-k); if(a!=null) return a; const b=peso0(i+k); if(b!=null) return b; } return null; }; /* día sin dato: el peso del día más cercano (no el de la salida) */
   const ys=campo==='pv'?pv.slice(0,n0):ms.slice(0,n0); const conv=(v,i)=>{ if(v==null) return null; if(campo==='pv') return v; const p=peso(Math.min(i,n0-1))||peso(n0-1); return p?v/100*p:null; };
   const sinCola=a=>{ let k=a.length; while(k>0 && a[k-1]==null) k--; return a.slice(0,k); }; /* el ypoti-integracao completa con null cuando el lote es más largo que el estudio */
@@ -4605,11 +4621,12 @@ function confInfo(info, msg){ const esc=t=>String(t==null?'':t).replace(/&/g,'&a
   let h='';
   if(MAPA.selPen){ const ls=CONF_IX.baia[MAPA.selPen]||[]; const cab=ls.reduce((a,l)=>a+(l.cab||0),0);
     h+='<div><b>Corral '+hxBaiaTxt(MAPA.selPen)+'</b>'+(ls.length?' · '+fmtN(cab)+' cab'+(ls.length>1?' en '+ls.length+' lotes':''):'')+'</div>';
+    if(hay && ls.length) h+='<button class="btn small btn-hist" type="button" id="btn-conf-det">📈 Detalle del corral (curva de consumo)</button>'; /* v4.15.10 */
     if(hay) h+= ls.length ? ls.slice().sort((a,b)=>(b.cab||0)-(a.cab||0)).map(confFicha).join('') : '<div class="sub">Corral vacío en el Bovino.OS.</div>'; }
   else { if(hay){ h+=confResumen(); const m=confMirar(); if(m.ls.length) h+='<div class="conf-al">Para mirar '+m.nivel+': '+m.ls.slice().sort((a,b)=>(b.risco||0)-(a.risco||0)).slice(0,8).map(l=>hxBaiaTxt(hxNorm(l.baia)||l.baia)+' ('+esc(l.lote)+')').join(' · ')+(m.ls.length>8?' …':'')+'</div>'; }
     h+='<div class="sub">Toque un corral para ver sus lotes.'+(MAPA.conf?'':' Elija arriba cómo pintar los corrales.')+'</div>'; }
   if(MAPA.gps){ const pen=confPenEn(MAPA.gps.lat, MAPA.gps.lon); if(pen) h+='<div>📍 Usted está en el corral <b>'+hxBaiaTxt(pen.nm)+'</b></div>'; }
-  info.innerHTML=h+confInfoBase(); msg.textContent=''; }
+  info.innerHTML=h+confInfoBase(); msg.textContent=''; const bd=$('btn-conf-det'); if(bd) bd.addEventListener('click',()=>abrirConfDetalle(MAPA.selPen)); }
 function abrirGuiaConf(){ if(!usrEstancias().includes(CONF_EST)){ toast('La guía del confinamiento es solo para usuarios de la Ypoti.'); return; } if(!MAPA.conf) MAPA.conf='fase'; mapaAbrir({modo:'conf', est:CONF_EST}); }
 
 async function confPdf(){ const ahora=new Date().toISOString(); const w={ id:uuid(), tipo:'informe', clase:'conf', estado:'generando', estancia:CONF_EST, criterio:MAPA.conf||'fase', creado_en:ahora, actualizado_en:ahora, pdf:null, nombre:'guia_confinamiento_'+todayISO()+'.pdf', error:null };
@@ -6463,26 +6480,37 @@ async function ndviCargar(est, forzar){ if(!est) return null; const k='manejo.nd
       const r=await fetch(NDVI_BASE+idx[slug].arquivo,{cache:'no-store'}); if(!r.ok) throw new Error('HTTP '+r.status); const D=await r.json();
       const ps=(D.passagens||[]).filter(p=>p.img); const p=ps[ps.length-1]; if(!p) throw new Error('todavía sin imágenes NDVI de '+est);
       const serie={}; Object.keys(D.serie||{}).forEach(key=>{ const s=D.serie[key]||[]; serie[key]=s.slice(-6); });
-      meta={t:Date.now(), slug, fecha:p.data, sat:p.sat||'S2', limpo:p.limpo, img:NDVI_BASE+p.img, bbox:D.bbox, atualizado:D.atualizado, serie};
+      const E=D.entorno&&D.entorno.img&&D.entorno.bbox?{img:NDVI_BASE+D.entorno.img, bbox:D.entorno.bbox, fecha:D.entorno.data, m:D.entorno.buffer_m||2000}:null; /* v4.15.10: estancia + 2 km */
+      meta={t:Date.now(), slug, fecha:p.data, sat:p.sat||'S2', limpo:p.limpo, img:NDVI_BASE+p.img, bbox:D.bbox, atualizado:D.atualizado, serie, entorno:E};
       if(!guiaLSput(k, meta)){ meta.serie={}; guiaLSput(k, meta); } }
     if(!meta) throw new Error('sin datos NDVI guardados (hace falta señal una vez)');
     const cv=(cur&&cur.cv&&cur.img===meta.img)?cur.cv:await ndviImagen(meta.img);
-    NDVI[est]=Object.assign({}, meta, {cv, error:null});
+    let cvE=null; if(meta.entorno){ try{ cvE=(cur&&cur.cvE&&cur.entorno&&cur.entorno.img===meta.entorno.img)?cur.cvE:await ndviImagen(meta.entorno.img); }catch(e){ cvE=null; } }
+    NDVI[est]=Object.assign({}, meta, {cv, cvE, error:null});
   }catch(e){ NDVI[est]=Object.assign({}, cur||{}, meta||{}, {error:String(e.message||e)}); }
   finally{ NDVI_CARGANDO=Math.max(0,NDVI_CARGANDO-1); guiaActPintar(); if(typeof mapaPedirDibujo==='function') mapaPedirDibujo(); }
   return NDVI[est]; }
-/* pinta la imagen NDVI recortada a los pastos de la estancia */
-function ndviDibujar(g, ox, oy, s, pols){ const N=NDVI[MAPA.est]; if(!N || !N.cv || !N.bbox) return false; const [w,so,e,n]=N.bbox;
-  const x0=(lon2x(w,0)-ox)*s, x1=(lon2x(e,0)-ox)*s, y0=(lat2y(n,0)-oy)*s, y1=(lat2y(so,0)-oy)*s;
-  g.save(); g.beginPath(); pols.forEach(p=>{ p.w.forEach(r=>{ r.forEach((c,i)=>{ const x=(c[0]-ox)*s, y=(c[1]-oy)*s; if(i) g.lineTo(x,y); else g.moveTo(x,y); }); g.closePath(); }); }); g.clip('evenodd');
-  g.imageSmoothingEnabled=false; g.drawImage(N.cv, x0, y0, x1-x0, y1-y0); g.restore(); return true; }
+/* v4.15.10: pinta la estancia entera (sin recortar a los pastos) y, si el repositorio ya lo generó, el entorno de 2 km alrededor */
+function ndviPintarCv(g, ox, oy, s, cv, bb){ const [w,so,e,n]=bb; const x0=(lon2x(w,0)-ox)*s, x1=(lon2x(e,0)-ox)*s, y0=(lat2y(n,0)-oy)*s, y1=(lat2y(so,0)-oy)*s; g.drawImage(cv, x0, y0, x1-x0, y1-y0); }
+function ndviDibujar(g, ox, oy, s){ const N=NDVI[MAPA.est]; if(!N || !N.cv || !N.bbox) return false;
+  g.save(); g.imageSmoothingEnabled=false;
+  if(N.cvE && N.entorno && N.entorno.bbox) ndviPintarCv(g, ox, oy, s, N.cvE, N.entorno.bbox);
+  ndviPintarCv(g, ox, oy, s, N.cv, N.bbox); g.restore(); return true; }
+/* NDVI medio de los pastos en la última imagen (para la estancia como un todo) */
+function ndviEstancia(est){ const N=NDVI[est]; if(!N || !N.serie) return null; const vs=[];
+  Object.keys(N.serie).forEach(k=>{ const s=N.serie[k]||[]; const r=s.filter(x=>!N.fecha||x[0]<=N.fecha).pop(); if(r && (!N.fecha || r[0]===N.fecha)) vs.push(r[1]); });
+  if(!vs.length) return null; vs.sort((a,b)=>a-b); const m=vs.reduce((a,b)=>a+b,0)/vs.length;
+  return {media:m, n:vs.length, min:vs[0], max:vs[vs.length-1], bajos:vs.filter(v=>v<0.45).length, fecha:N.fecha}; }
+function ndviEstanciaHtml(est){ const x=ndviEstancia(est); if(!x) return '';
+  return '<div>🛰 NDVI de la estancia <b style="color:'+ndviCss(x.media)+'">'+fmtN(x.media,2)+'</b> <span class="sub">(media de '+x.n+' pastos · '+fmtDate(x.fecha)+' · del '+fmtN(x.min,2)+' al '+fmtN(x.max,2)+(x.bajos?' · '+x.bajos+' con menos de 0,45':'')+')</span></div>'; }
 function ndviDePasto(est, p){ const N=NDVI[est]; if(!N || !N.serie || !p || !p.nm) return null; const n=ndviNorm(p.nm); let best=null;
   Object.keys(N.serie).forEach(key=>{ const nm=key.split('|').slice(1).join('|'); if(ndviNorm(nm)!==n) return; const s=N.serie[key]; const r=s.filter(x=>!N.fecha||x[0]<=N.fecha).pop()||s[s.length-1]; if(r && (!best || r[0]>best[0])) best=r; });
   return best; }
 function ndviLeyenda(){ const N=NDVI[MAPA.est]; const bar='<span style="display:inline-block;width:150px;height:9px;border-radius:3px;vertical-align:-1px;background:linear-gradient(90deg,'+NDVI_PAL.map((c,i)=>'rgb('+c.join(',')+') '+(i/NDVI_PAL.length*100).toFixed(1)+'%,rgb('+c.join(',')+') '+((i+1)/NDVI_PAL.length*100).toFixed(1)+'%').join(',')+')"></span>';
   if(!N) return '<b>NDVI</b> <span style="opacity:.75">buscando la última imagen…</span>';
   if(N.error && !N.cv) return '<b>NDVI</b> <span style="opacity:.75">'+String(N.error).replace(/</g,'&lt;')+'</span>';
-  return '<b>NDVI</b> '+fmtDate(N.fecha)+(N.sat&&N.sat!=='S2'?' (Landsat, 30 m)':' (Sentinel-2, 10 m)')+'<br><span style="opacity:.8">−0,2</span> '+bar+' <span style="opacity:.8">0,95</span> <span style="opacity:.75">· verde = más pasto</span>'; }
+  const ent=N.cvE&&N.entorno?'<br><span style="opacity:.8">Estancia entera'+' + '+fmtN((N.entorno.m||2000)/1000,0)+' km alrededor'+(N.entorno.fecha&&N.entorno.fecha!==N.fecha?' (alrededor: '+fmtDate(N.entorno.fecha)+')':'')+'</span>':'<br><span style="opacity:.8">Estancia entera</span>';
+  return '<b>NDVI</b> '+fmtDate(N.fecha)+(N.sat&&N.sat!=='S2'?' (Landsat, 30 m)':' (Sentinel-2, 10 m)')+ent+'<br><span style="opacity:.8">−0,2</span> '+bar+' <span style="opacity:.8">0,95</span> <span style="opacity:.75">· verde = más pasto</span>'; }
 /* aviso discreto de actualización en la barra de la guía */
 function guiaActPintar(){ const a=$('mapa-act'), b=$('mapa-act-conf'); if(a) a.classList.toggle('hidden', !(MAPA.modo==='guia' && (MAPA.cargando || NDVI_CARGANDO))); if(b) b.classList.toggle('hidden', !(MAPA.modo==='conf' && MAPA.confCargando)); }
 /* lluvia de los próximos 8 días en la estancia */
@@ -6542,6 +6570,29 @@ function histSvg(c){ const S=c.semanas||[]; if(!S.length) return '<div class="hi
 $('hist-cerrar').addEventListener('click',()=>$('hist-modal').classList.add('hidden'));
 $('mapa-recargar-conf').addEventListener('click',()=>{ if(!navigator.onLine){ toast('Sin señal: se ven los datos guardados.'); return; } cargarConf(true); });
 $('mapa-recargar').addEventListener('click',()=>{ if(!navigator.onLine){ toast('Sin señal: se ven los datos guardados.'); return; } if(MAPA.modo==='conf'){ cargarConf(true); return; } const est=MAPA.est; cargarDatosPasto(est,true); if(MAPA.lot==='ndvi' || NDVI[est]) ndviCargar(est,true); toast('Actualizando '+est+'…'); });
+
+/* ---------- v4.15.10: detalle del corral del confinamiento (como el historial del pasto): ficha completa de cada lote,
+   curva de consumo grande (% PV / kg MS, esperada «prior» y «posterior») y los últimos días de consumo ---------- */
+function confDetTabla(l){ const pv=l.c_pv||[], ms=l.c_ms||[], pri=l.c_prior||[], post=l.c_post||[]; const n=Math.max(pv.length, ms.length); const d0=String(l.c_d0||l.d_ent||'').slice(0,10); if(!n) return '';
+  const fase=String(l.c_fase||''); const fecha=k=>{ if(!d0) return 'día '+(k+1); const t=new Date(d0+'T12:00:00'); t.setDate(t.getDate()+k); return pad(t.getDate())+'/'+pad(t.getMonth()+1); };
+  const filas=[]; for(let k=n-1;k>=0 && filas.length<14;k--){ if(pv[k]==null && ms[k]==null) continue; const bajo=fase[k]==='T' && pv[k]!=null && pv[k]<(l.c_min!=null?Number(l.c_min):1.8);
+    filas.push('<tr'+(bajo?' class="bajo"':'')+'><td>'+fecha(k)+'</td><td class="r">'+(ms[k]!=null?fmtN(ms[k],1):'—')+'</td><td class="r">'+(pv[k]!=null?fmtN(pv[k],2):'—')+'</td><td class="r">'+(pri[k]!=null?fmtN(pri[k],2):'—')+'</td><td class="r">'+(post[k]!=null?fmtN(post[k],2):'—')+'</td><td>'+((CV_FASE[fase[k]]||[null,''])[1])+'</td></tr>'); }
+  if(!filas.length) return '';
+  return '<details class="cd-tab"><summary>Consumo día por día (últimos '+filas.length+')</summary><table><thead><tr><th>Día</th><th class="r">kg MS/cab</th><th class="r">% PV</th><th class="r">esperado</th><th class="r">posterior</th><th>dieta</th></tr></thead><tbody>'+filas.join('')+'</tbody></table></details>'; }
+function confDetCurva(l){ const tienePv=Array.isArray(l.c_pv)&&l.c_pv.some(x=>x!=null), tieneMs=Array.isArray(l.c_ms)&&l.c_ms.some(x=>x!=null); if(!tienePv && !tieneMs) return null;
+  const id='cd'+String(l.id||l.lote||'').replace(/[^A-Za-z0-9]/g,'');
+  return '<div class="conf-curva" data-cv="'+id+'"><div class="cv-top"><b>📈 Curva de consumo</b><span class="cv-tg">'+(tienePv?'<button type="button" class="on" data-cv-ver="pv">% peso vivo</button>':'')+(tieneMs?'<button type="button"'+(tienePv?'':' class="on"')+' data-cv-ver="ms">kg MS/cab</button>':'')+'</span></div>'
+    +(tienePv?'<div data-cv-panel="pv">'+confCurvaSvg(l,'pv',230)+'</div>':'')+(tieneMs?'<div data-cv-panel="ms"'+(tienePv?' class="hidden"':'')+'>'+confCurvaSvg(l,'ms',230)+'</div>':'')+'</div>'+confDetTabla(l); }
+function abrirConfDetalle(pen){ if(!pen) return; const b=DATOS_CONF&&DATOS_CONF.base; const ls=((CONF_IX&&CONF_IX.baia&&CONF_IX.baia[pen])||[]).slice().sort((a,b)=>(b.cab||0)-(a.cab||0));
+  const cab=ls.reduce((a,l)=>a+(l.cab||0),0);
+  $('cd-titulo').textContent='🐂 Corral '+hxBaiaTxt(pen);
+  $('cd-sub').innerHTML=(ls.length?fmtN(cab)+' cab'+(ls.length>1?' en '+ls.length+' lotes':''):'Corral vacío')+(b?' · Bovino.OS, posición del '+txtFecha(b.data_ref)+(b.gerado_em?' (foto de las '+String(b.gerado_em).slice(11,16)+')':''):'');
+  let h='', sinCurva=0;
+  ls.forEach(l=>{ const cv=confDetCurva(l); if(!cv) sinCurva++; h+='<div class="cd-lote">'+confFichaH(l,false)+(cv||'<div class="sub cd-sin">Sin la curva de consumo de este lote en la foto del Bovino.OS.</div>')+'</div>'; });
+  if(ls.length && sinCurva===ls.length) h='<div class="cd-aviso">⚠ La foto del confinamiento que llega al app todavía no trae las curvas de consumo. Las arma el <b>app de integración de la oficina</b> (ypoti-integracao), que tiene que estar en la versión con «curva no app». Al actualizarlo, las curvas aparecen con la foto siguiente (cada pocos minutos).</div>'+h;
+  if(!ls.length) h='<div class="sub">No hay lotes en este corral según el Bovino.OS.</div>';
+  $('cd-cuerpo').innerHTML=h; $('conf-det-modal').classList.remove('hidden'); $('conf-det-modal').querySelector('.card').scrollTop=0; }
+$('cd-cerrar').addEventListener('click',()=>$('conf-det-modal').classList.add('hidden'));
 })();
 </script>
 </body>

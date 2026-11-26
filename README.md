@@ -1,9 +1,16 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.15.9
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.15.10
 
 App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, salida a faena, informe Padroniza y escore de heces.
 
 Abrir en el celular: https://ypoti.com/apps/manejo/ y agregar a la pantalla de inicio (la dirección vieja https://lucasmoller9646.github.io/registro-manejo/ sigue funcionando y avisa de la mudanza).
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.15.10
+
+- **Detalle del corral (Guía del confinamiento):** al tocar un corral aparece **«📈 Detalle del corral (curva de consumo)»**. Abre una pantalla propia, como el historial del pasto, con la ficha completa de cada lote del corral, la **curva de consumo grande** (% del peso vivo o kg MS/cab, con la curva esperada «prior», la «posterior», las franjas de la dieta y el mínimo de 1,8 % PV en la terminación) y el **consumo día por día** de los últimos 14 días (los días debajo del mínimo en rojo).
+- **Si la foto no trae las curvas**, el detalle lo dice claramente: las curvas las arma el app de integración de la oficina (ypoti-integracao) y tiene que estar en la versión con «curva no app». Al actualizarlo, aparecen con la foto siguiente.
+- **NDVI de la estancia entera + 2 km alrededor:** en la Guía de la estancia → NDVI, la imagen ya no se recorta a los pastos: se ve toda la estancia (caminos, montes, aguadas) y, cuando el repositorio ndvi-fazendas lo genera, una franja de **2 km alrededor** (Sentinel-2, 20 m). Sin pasto elegido, la ficha muestra el **NDVI medio de la estancia** (media de los pastos en la última imagen, mínimo y máximo, y cuántos pastos están debajo de 0,45).
+- El entorno de 2 km lo genera el repositorio **ndvi-fazendas** (archivo `ndvi/run.py` nuevo): una imagen por estancia, solo de la última pasada limpia del Sentinel-2, sin tocar la serie de 10 m, las obras ni la página del NDVI.
 
 ## Novedades 4.15.9
 
