@@ -267,6 +267,19 @@ body.modo-solicitud #wrap-tipos{display:none}
 #mapa-modal .seg.mapa-lot{background:#222;border-color:#444}
 #mapa-modal .seg.mapa-lot button{color:#ddd;font-size:13.5px;padding:8px 6px}
 #mapa-modal .seg.mapa-lot button.on{background:var(--brand);color:#fff}
+#mapa-modal .mapa-act{flex:0 0 auto;color:#cfe8d6;font-size:12.5px;white-space:nowrap;opacity:.9;animation:mact 1.4s ease-in-out infinite}
+#mapa-modal .mapa-act.hidden{display:none}
+@keyframes mact{50%{opacity:.45}}
+#mapa-modal #mapa-recargar,#mapa-modal #mapa-recargar-conf{padding:6px 12px;min-height:0}
+#mapa-modal .mapa-guia-ctrl{gap:8px}#mapa-modal .mapa-guia-ctrl select{flex:1;min-width:0}
+.mapa-info .pron{display:flex;gap:3px;overflow-x:auto;margin:4px 0 2px}.mapa-info .pron .d{flex:0 0 auto;min-width:40px;border-radius:8px;padding:3px 4px;text-align:center;font-size:11px;line-height:1.2;background:rgba(127,127,127,.12)}
+.mapa-info .pron .d.ll{background:rgba(31,95,168,.22);box-shadow:inset 0 0 0 1px #3B6EA8}.mapa-info .pron .d b{display:block;font-size:12px}
+.mapa-info .btn-hist{margin-top:6px;width:100%}
+.hist-card{max-width:760px;width:100%;max-height:94vh;overflow:auto}#hist-cerrar{flex:0 0 auto;width:auto;min-width:44px}#hist-titulo{font-size:19px}
+.hist-ind{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px}.hist-ind div{border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:12px;color:var(--ink-2)}.hist-ind b{display:block;font-size:16px;color:var(--ink)}
+.hist-graf svg{width:100%;height:auto;display:block}
+.hist-movs{display:flex;flex-direction:column;gap:4px}.hist-movs .m{display:grid;grid-template-columns:74px 1fr auto;gap:6px;align-items:center;border-bottom:1px solid var(--line);padding:4px 0;font-size:13px}
+.hist-movs .m .q{font-weight:700;white-space:nowrap}.hist-movs .m.entra .q{color:#04522B}.hist-movs .m.sale .q{color:#701E0C}.hist-movs .m small{display:block;color:var(--ink-2)}
 #mapa-modal .mapa-leyenda{position:absolute;left:8px;right:64px;bottom:16px;background:rgba(17,17,17,.88);color:#fff;border-radius:10px;padding:8px 10px;font-size:12px;line-height:1.5;pointer-events:none}
 #mapa-modal .mapa-leyenda i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(255,255,255,.4)}
 #mapa-modal .mapa-info{font-size:14px;line-height:1.45;color:#eee}
@@ -603,7 +616,8 @@ input.ia-leyendo::placeholder{color:var(--brand);font-weight:600}
 .par-causa{display:grid;grid-template-columns:1fr 150px;gap:6px;align-items:center;font-size:14px;padding:3px 0;border-bottom:1px solid var(--line)}
 .par-causa select{font-size:13px;padding:4px}
 html.rol-tratorista #btn-new, html.rol-tratorista #btn-solicitud, html.rol-tratorista #btn-envios, html.rol-tratorista #btn-supl{display:none !important}
-html.rol-tratorista #informes-modal .op-informe:not(#inf-op-pastura){display:none !important}
+html.rol-tratorista #btn-informes, html.rol-tratorista #btn-ia, html.rol-tratorista #btn-conf{display:none !important}
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.home-grid .btn.big{margin:0;min-height:64px;font-size:16px;padding:10px 8px}.home-grid .btn.hidden{display:none}
 html:not(.rol-tratorista) #btn-trato, html:not(.rol-tratorista) #btn-diesel{display:none !important}
 .btn-pegar{flex:0 0 auto !important;width:auto !important;padding-inline:12px !important}
 @media (min-width:521px){ .row:has(> .btn-pegar){flex-wrap:nowrap} }
@@ -742,7 +756,12 @@ html.pc #mapa-modal .bar.abajo > .row{position:sticky;bottom:-14px;background:#1
       <div class="stack home-acciones">
       <div class="usr-chip" id="usr-chip"><span>👤 <b id="usr-nombre"></b> <span id="usr-detalle"></span></span><button class="btn small ghost" type="button" id="btn-salir">Salir</button></div>
       <button class="btn primary big" id="btn-new">＋ Nuevo registro</button>
-      <button class="btn big" id="btn-informes" style="border-color:var(--brand);color:var(--brand)">📑 Generar informes</button>
+      <div class="home-grid" id="home-grid">
+        <button class="btn big" id="btn-guia" type="button" style="border-color:var(--brand);color:var(--brand)">🗺 Guía de la estancia</button>
+        <button class="btn big hidden" id="btn-conf" type="button" style="border-color:var(--brand);color:var(--brand)">🐂 Guía del confinamiento</button>
+        <button class="btn big" id="btn-informes" type="button" style="border-color:var(--brand);color:var(--brand)">📑 Generar informes</button>
+        <button class="btn big" id="btn-ia" type="button" style="border-color:#5B3FA0;color:#5B3FA0">🤖 IA</button>
+      </div>
       <button class="btn big" id="btn-solicitud" style="border-color:var(--solicitud_transferencia);color:var(--solicitud_transferencia)">📨 Solicitud de transferencia</button>
       <button class="btn big" id="btn-supl" type="button" style="border-color:#8A6414;color:#8A6414">🌾 Plan de suplementación</button>
       <button class="btn big hidden" id="btn-envios" type="button">📬 Mis informes por WhatsApp</button>
@@ -1384,9 +1403,9 @@ html.pc #mapa-modal .bar.abajo > .row{position:sticky;bottom:-14px;background:#1
 <div id="mapa-modal">
   <div class="bar top">
     <div class="row"><span class="titulo" id="mapa-titulo">📍 ¿Dónde está el animal?</span><button class="btn" type="button" id="mapa-capa">🛰 Satélite</button></div>
-    <div class="row mapa-guia-ctrl hidden" id="mapa-guia-ctrl"><select id="mapa-estancia" aria-label="Estancia"></select></div>
-    <div class="row mapa-conf hidden" id="mapa-conf-row"><button class="btn" type="button" id="mapa-conf-ir">⤢ Todo</button><select id="mapa-conf" aria-label="Pintar los corrales por"></select></div>
-    <div class="seg mapa-lot hidden" id="mapa-lotacion"><button type="button" data-v="">Sin colores</button><button type="button" data-v="hoy">Lotación hoy</button><button type="button" data-v="media">Media 12 meses</button></div>
+    <div class="row mapa-guia-ctrl hidden" id="mapa-guia-ctrl"><select id="mapa-estancia" aria-label="Estancia"></select><span class="mapa-act hidden" id="mapa-act">⟳ actualizando…</span><button class="btn" type="button" id="mapa-recargar" title="Actualizar ahora" aria-label="Actualizar ahora">⟳</button></div>
+    <div class="row mapa-conf hidden" id="mapa-conf-row"><button class="btn" type="button" id="mapa-conf-ir">⤢ Todo</button><select id="mapa-conf" aria-label="Pintar los corrales por"></select><span class="mapa-act hidden" id="mapa-act-conf">⟳ actualizando…</span><button class="btn" type="button" id="mapa-recargar-conf" title="Actualizar ahora" aria-label="Actualizar ahora">⟳</button></div>
+    <div class="seg mapa-lot hidden" id="mapa-lotacion"><button type="button" data-v="">Sin colores</button><button type="button" data-v="hoy">Lotación hoy</button><button type="button" data-v="media">Media 12 m</button><button type="button" data-v="ndvi">NDVI</button></div>
   </div>
   <div class="lienzo">
     <canvas id="mapa-canvas"></canvas>
@@ -1433,11 +1452,28 @@ html.pc #mapa-modal .bar.abajo > .row{position:sticky;bottom:-14px;background:#1
     <button class="op-informe" type="button" id="inf-op-mort"><b>✝️🩺 Informe de sanidad y mortandad</b><small>Un solo PDF: mortandad (mapa, causas evitables e inevitables, proyección a 12 meses, raza, medicados, primeros 60 días) y sanidad (morbilidad y mortalidad por mes, enfermedades y medicamentos). Con el Excel FOCO.</small></button>
     <button class="op-informe hidden" type="button" id="inf-op-sanit"><b>🩺 Informe sanitario (morbilidad y mortalidad)</b><small>Como las planillas de FOCO: % de mortalidad y de morbilidad por mes contra la meta, causas, medicamentos, controle de mortes y ronda sanitaria. PDF y Excel.</small></button>
     <button class="op-informe" type="button" id="inf-op-supl"><b>🌾 Consumo de suplemento</b><small>Cuánto consumió la estancia por suplemento, por bolsa y por lote (kg, bolsas, g por cabeza por día y % del peso vivo), con lo planeado al lado. PDF y Excel.</small></button>
-    <button class="op-informe" type="button" id="inf-op-pastura"><b>🗺 Informe de pastura (guía de la estancia)</b><small>Mapa de pastos con la lotación del ControlPasto, hoy y media de 12 meses.</small></button>
-    <button class="op-informe hidden" type="button" id="inf-op-conf"><b>🐂 Guía del confinamiento</b><small>Solo Ypoti. Mapa de los corrales pintado por dueño, fase de la dieta, faena prevista o señales del Consultor; ficha de cada lote y PDF. Datos del Bovino.OS (una foto por hora).</small></button>
+    
+    
+    
+    <div class="row"><button class="btn ghost" id="informes-cancel">Cerrar</button></div>
+  </div>
+</div>
+<div id="ia-menu" class="modal hidden">
+  <div class="card stack" style="max-width:460px;width:100%;max-height:92vh;overflow:auto">
+    <h2>🤖 IA</h2>
     <button class="op-informe" type="button" id="inf-op-ia"><b>🤖 Pedir informe a la IA</b><small>La IA lee los registros del período y escribe un informe con lo que pasó y qué conviene revisar.</small></button>
     <button class="op-informe" type="button" id="inf-op-pregunta"><b>💬 Preguntar a la IA</b><small>Escriba una pregunta sobre los registros de la estancia; la respuesta en texto o en PDF.</small></button>
-    <div class="row"><button class="btn ghost" id="informes-cancel">Cerrar</button></div>
+    <div class="row"><button class="btn ghost" id="ia-menu-cerrar" type="button">Cerrar</button></div>
+  </div>
+</div>
+<div id="hist-modal" class="modal hidden">
+  <div class="card stack hist-card">
+    <div class="row" style="align-items:center"><h2 style="flex:1;margin:0" id="hist-titulo">📈 Historial del pasto</h2><button class="btn small ghost" type="button" id="hist-cerrar" aria-label="Cerrar">✕</button></div>
+    <div class="hint" id="hist-sub"></div>
+    <div id="hist-ind" class="hist-ind"></div>
+    <div id="hist-graf" class="hist-graf"></div>
+    <div class="section-title" style="margin-top:4px"><span class="dot"></span><h3>Manejos del pasto</h3></div>
+    <div id="hist-movs" class="hist-movs"></div>
   </div>
 </div>
 <div id="sanit-modal" class="modal hidden">
@@ -2890,7 +2926,7 @@ async function makeSanitarioPdf(w, S, extra){ extra=extra||{};
 <script>
 (function(){
 'use strict';
-const APP_VERSION = '4.15.8';
+const APP_VERSION = '4.15.9';
 const ESQUEMA = 'manejo-ypoti/3.7';
 const ESTANCIAS = ['Ypoti','Ybypora','Cafetalera','La Esperanza','Santa Clara','Lusipar','Oro Verde','Santa Maria','Cielo Azul','Bella Vista','Cerro Memby'];
 const OTRA = 'Otra…';
@@ -4263,7 +4299,7 @@ async function cargarDatosPasto(est, forzar){ if(!est) return null; let c=DATOS_
   if((viejo||forzar) && navigator.onLine && cfg.endpoint && USR){ MAPA.cargando=true; mapaPedirDibujo();
     try{ const lista=geoPols(est).filter(p=>p.n!=='divisa'); const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'mapa_pasto', usuario:USR.codigo, estancia:est, mapas:lista.map(p=>({c:p.c, r:(GEO.capas[p.c]||{}).r||p.c, n:p.n, nm:p.nm, a:p.a, fz:(GEO.capas[p.c]||{}).fz||[], f:p.f||null}))}), redirect:'follow'});
       const txt=await res.text(); let j={}; try{ j=JSON.parse(txt); }catch(e){}
-      if(res.ok && j.ok){ const porPol={}; (j.pols||[]).forEach(x=>{ const p=lista[x.i]; if(p) porPol[p.i]=x; }); c={t:Date.now(), porPol, resumen:j.resumen||[], sin_pol:j.sin_pol||[], datos:j.datos||{}, meses:j.meses_media||0, hoje:j.hoje||null, fazendas:j.fazendas||[]}; try{ localStorage.setItem('manejo.mapa_pasto.'+est, JSON.stringify(c)); }catch(e){} }
+      if(res.ok && j.ok){ const porPol={}; (j.pols||[]).forEach(x=>{ const p=lista[x.i]; if(p) porPol[p.i]=x; }); c={t:Date.now(), porPol, resumen:j.resumen||[], sin_pol:j.sin_pol||[], datos:j.datos||{}, meses:j.meses_media||0, hoje:j.hoje||null, fazendas:j.fazendas||[], pron:j.pronostico||null}; try{ localStorage.setItem('manejo.mapa_pasto.'+est, JSON.stringify(c)); }catch(e){} }
       else c=Object.assign({}, c||{}, {error:msgDatosError(j.error||('HTTP '+res.status))}); }
     catch(e){ c=Object.assign({}, c||{}, {error:'sin conexión con el servidor'}); }
     MAPA.cargando=false; }
@@ -4312,10 +4348,12 @@ function mapaDraw(){ const cv=$('mapa-canvas'); if(!$('mapa-modal').classList.co
   const vLL0=mapaLL(0,H), vLL1=mapaLL(W,0); const enVista=p=>!(p.bb[2]<vLL0.lon||p.bb[0]>vLL1.lon||p.bb[3]<vLL0.lat||p.bb[1]>vLL1.lat);
   const cs=geoCapas(MAPA.est); const lista=MAPA.modo==='conf'?[]:geoTodos().filter(enVista).sort((a,b)=>(ORDEN_NIVEL[a.n]||0)-(ORDEN_NIVEL[b.n]||0));
   const lotModo=MAPA.lot; const dpc=DATOS_PASTO[MAPA.est];
+  const conNdvi = MAPA.modo==='guia' && lotModo==='ndvi' && ndviDibujar(g, ox, oy, s, lista.filter(p=>cs.includes(p.c) && p.n==='piquete')); /* v4.15.9 */
   lista.forEach(p=>{ const mia=cs.includes(p.c); trazar(g,p,ox,oy,s);
     if(p.n==='contorno'){ g.lineWidth=2.5; g.strokeStyle=sat?'rgba(255,214,0,.95)':'#2b3a26'; g.setLineDash([]); g.stroke(); return; }
     if(p.n==='divisa'){ g.lineWidth=0.8; g.strokeStyle=sat?'rgba(255,255,255,.6)':'rgba(70,95,60,.7)'; g.stroke(); return; }
-    let fill=null; if(mia && lotModo && dpc && dpc.porPol){ const d=dpc.porPol[p.i]; fill = d ? lotColor(lotModo==='hoy'?d.lot_h:d.lot_m) : null; if(fill){ g.globalAlpha=sat?0.55:0.62; g.fillStyle=fill; g.fill('evenodd'); g.globalAlpha=1; } }
+    let fill=null; if(conNdvi && mia && p.n==='piquete'){ g.lineWidth=1.1; g.strokeStyle=sat?'rgba(255,255,255,.85)':'rgba(30,40,30,.75)'; g.stroke(); return; }
+    if(mia && lotModo && lotModo!=='ndvi' && dpc && dpc.porPol){ const d=dpc.porPol[p.i]; fill = d ? lotColor(lotModo==='hoy'?d.lot_h:d.lot_m) : null; if(fill){ g.globalAlpha=sat?0.55:0.62; g.fillStyle=fill; g.fill('evenodd'); g.globalAlpha=1; } }
     if(!fill && !sat){ g.fillStyle=mia?'#CADDB8':'#D6DECF'; g.fill('evenodd'); }
     g.lineWidth=mia?1.3:0.8; g.strokeStyle=sat?'rgba(255,255,255,.85)':'#56744A'; g.stroke(); });
   if(MAPA.modo==='conf') confDibujar(g, ox, oy, s, sat);
@@ -4325,7 +4363,7 @@ function mapaDraw(){ const cv=$('mapa-canvas'); if(!$('mapa-modal').classList.co
   g.textAlign='center'; g.textBaseline='middle';
   lista.forEach(p=>{ if(p.n!=='piquete' && p.n!=='fazenda') return; if(!p.nm) return; const px=(p.bb[2]-p.bb[0]), py=(p.bb[3]-p.bb[1]); const anchoPx=px*111320*Math.cos(MAPA.lat*Math.PI/180)/((156543.03*Math.cos(MAPA.lat*Math.PI/180))/Math.pow(2,z)); if(anchoPx<34 && p.n==='piquete') return;
     const x=(lon2x(p.cen[0],0)-ox)*s, y=(lat2y(p.cen[1],0)-oy)*s; if(x<-40||x>W+40||y<-20||y>H+20) return;
-    const mia=cs.includes(p.c); const d=mia&&lotModo?datosDe(p):null; const v=d?(lotModo==='hoy'?d.lot_h:d.lot_m):null; const linea2=(d && v!=null)?fmtN(v,2):'';
+    const mia=cs.includes(p.c); const d=mia&&lotModo&&lotModo!=='ndvi'?datosDe(p):null; const v=d?(lotModo==='hoy'?d.lot_h:d.lot_m):null; const nd=mia&&lotModo==='ndvi'?ndviDePasto(MAPA.est,p):null; const linea2=(d && v!=null)?fmtN(v,2):(nd?fmtN(nd[1],2):'');
     g.font='700 '+(p.n==='fazenda'?14:12)+'px system-ui,sans-serif'; g.lineWidth=3; g.strokeStyle=sat?'rgba(0,0,0,.75)':'rgba(255,255,255,.9)'; g.fillStyle=sat?'#fff':'#1f2d1a';
     const y1=linea2?y-7:y; g.strokeText(p.nm,x,y1); g.fillText(p.nm,x,y1); if(linea2){ g.font='600 11px system-ui,sans-serif'; g.strokeText(linea2,x,y+7); g.fillText(linea2,x,y+7); } });
   // ubicación de la persona
@@ -4351,21 +4389,23 @@ function mapaInfo(faltan){ const info=$('mapa-info'), msg=$('mapa-msg'); const d
     else { h+='<div class="sub">Lote'+(ls.length>1?'s':'')+' del ControlPasto en este pasto'+(ls.length>1?' — elija uno':'')+':</div><div class="lotes">'+ls.map((l,i)=>'<button type="button" data-l="'+i+'"'+(MAPA.lotSel===i?' class="on"':'')+'>'+esc(l.lote)+' · '+fmtN(l.cab)+' cab</button>').join('')+'<button type="button" data-l="-1"'+(MAPA.lotSel===-1?' class="on"':'')+'>Ningún lote (solo el piquete)</button></div>'; }
     if(dpc && dpc.datos && dpc.datos.manejo_ate) h+='<div class="sub">ControlPasto hasta '+txtFecha(dpc.datos.manejo_ate)+(dpc.t?' · leído '+fmtDT(new Date(dpc.t).toISOString()):'')+'</div>';
     info.innerHTML=h; info.querySelectorAll('[data-l]').forEach(b=>b.addEventListener('click',()=>{ MAPA.lotSel=Number(b.dataset.l); mapaInfo(); })); msg.textContent=''; return; }
-  if(MAPA.modo==='conf'){ confInfo(info, msg); return; }
+  if(MAPA.modo==='conf'){ confInfo(info, msg); guiaActPintar(); return; }
   // guía
-  info.classList.remove('hidden'); const ley=$('mapa-leyenda'); if(MAPA.lot){ ley.innerHTML='<b>'+(MAPA.lot==='hoy'?'Lotación hoy':'Media de 12 meses')+'</b> <span style="opacity:.75">UA/ha (UA = 450 kg)</span><br>'+LOT_CORTOS.map((t,k)=>'<span style="white-space:nowrap;margin-right:8px"><i style="background:'+LOT_COLORES[k][0]+'"></i>'+t+'</span>').join(' '); ley.classList.remove('hidden'); } else ley.classList.add('hidden');
+  info.classList.remove('hidden'); const ley=$('mapa-leyenda'); if(MAPA.lot==='ndvi'){ ley.innerHTML=ndviLeyenda(); ley.classList.remove('hidden'); } else if(MAPA.lot){ ley.innerHTML='<b>'+(MAPA.lot==='hoy'?'Lotación hoy':'Media de 12 meses')+'</b> <span style="opacity:.75">UA/ha (UA = 450 kg)</span><br>'+LOT_CORTOS.map((t,k)=>'<span style="white-space:nowrap;margin-right:8px"><i style="background:'+LOT_COLORES[k][0]+'"></i>'+t+'</span>').join(' '); ley.classList.remove('hidden'); } else ley.classList.add('hidden');
   let h=''; const gpsP=MAPA.gps?pastoEn(MAPA.est, MAPA.gps.lat, MAPA.gps.lon):null;
   if(!geoTiene(MAPA.est)) h+='<div class="sub">Todavía no hay mapa de los pastos de '+esc(MAPA.est)+': se ve el satélite.</div>';
   if(gpsP) h+='<div>📍 Usted está en el pasto <b>'+esc(gpsP.nm||MAPA.est)+'</b></div>'; else if(MAPA.gps && geoTiene(MAPA.est)) h+='<div class="sub">📍 Usted está fuera de los pastos del mapa de '+esc(MAPA.est)+'.</div>';
   const p=MAPA.sel;
   if(p){ const d=datosDe(p); h+='<div><b>Pasto '+esc(p.nm||'(sin nombre)')+'</b> · '+fmtN(p.a,1)+' ha</div>';
     if(d){ h+='<div>Hoy: <b>'+fmtN(d.cab)+' cab</b> · '+fmtN(d.lot_h,2)+' UA/ha'+(d.lot_m!=null?' · media 12 meses '+fmtN(d.lot_m,2)+' UA/ha':'')+'</div>'; const ls=d.lotes||[]; h+= ls.length ? '<div class="sub">'+ls.map(l=>esc(l.lote)+' — '+fmtN(l.cab)+' cab'+(l.pv?' · '+fmtN(l.pv)+' kg':'')+(l.piquete&&normPiq(l.piquete)!==normPiq(p.nm)?' · piquete '+esc(l.piquete):'')).join('<br>')+'</div>' : '<div class="sub">Sin animales hoy (descansando).</div>'; }
-    else if(dpc && dpc.porPol) h+='<div class="sub">Este pasto no figura en el ControlPasto.</div>'; }
+    else if(dpc && dpc.porPol) h+='<div class="sub">Este pasto no figura en el ControlPasto.</div>';
+    { const nd=ndviDePasto(MAPA.est,p); if(nd) h+='<div>🛰 NDVI <b style="color:'+ndviCss(nd[1])+'">'+fmtN(nd[1],2)+'</b> <span class="sub">('+fmtDate(nd[0])+(nd[2]!=null?' · del '+fmtN(nd[2],2)+' al '+fmtN(nd[3],2):'')+')</span></div>'; }
+    h+='<button class="btn small btn-hist" type="button" id="btn-hist-pasto">📈 Historial del pasto (lotación y manejos)</button>'; }
   else { const rs=(dpc&&dpc.resumen)||[]; if(rs.length){ rs.forEach(r=>{ h+='<div><b>'+esc(r.fazenda)+'</b> · hoy '+fmtN(r.cab)+' cab en '+fmtN(r.lotes)+' lotes'+(r.lot_h!=null?' · '+fmtN(r.lot_h,2)+' UA/ha':'')+(r.lot_m!=null?' (media 12 m '+fmtN(r.lot_m,2)+')':'')+'</div>'; }); }
-    h+='<div class="sub">Toque un pasto para ver sus lotes.'+(MAPA.lot?'':' Elija "Lotación hoy" o "Media 12 meses" para ver los colores.')+'</div>'; }
-  if(MAPA.cargando) h+='<div class="sub">Consultando el ControlPasto…</div>'; else if(dpc && dpc.error) h+='<div class="sub">⚠ No se pudo actualizar el ControlPasto: '+esc(dpc.error)+(dpc.porPol?' (se muestran los datos guardados)':'')+'.</div>';
+    h+='<div class="sub">Toque un pasto para ver sus lotes y su historial.'+(MAPA.lot?'':' Elija "Lotación hoy", "Media 12 m" o "NDVI" para ver los colores.')+'</div>'; h+=guiaPronHtml(dpc&&dpc.pron); }
+  if(!MAPA.cargando && dpc && dpc.error) h+='<div class="sub">⚠ No se pudo actualizar el ControlPasto: '+esc(dpc.error)+(dpc.porPol?' (se muestran los datos guardados)':'')+'.</div>';
   if(dpc && dpc.datos && dpc.datos.manejo_ate) h+='<div class="sub">'+(dpc.datos.carga&&dpc.datos.carga.ok&&(dpc.datos.carga.fazendas||[]).length?'Stock de hoy: carga instantánea del ControlPasto · ':'')+'Datos del ControlPasto hasta '+txtFecha(dpc.datos.manejo_ate)+(dpc.t?' · leídos '+fmtDT(new Date(dpc.t).toISOString()):'')+'</div>';
-  info.innerHTML=h; msg.textContent=''; }
+  info.innerHTML=h; msg.textContent=''; const bh=$('btn-hist-pasto'); if(bh) bh.addEventListener('click',()=>abrirHistorial(MAPA.sel)); guiaActPintar(); }
 function mapaTocar(x,y){ const ll=mapaLL(x,y);
   if(MAPA.modo==='conf'){ const pen=confPenEn(ll.lat, ll.lon); MAPA.selPen=pen?pen.nm:null; mapaPedirDibujo(); return; }
   if(MAPA.modo==='guia'){ MAPA.sel=pastoEn(MAPA.est, ll.lat, ll.lon); mapaPedirDibujo(); return; }
@@ -4412,7 +4452,7 @@ function openMapa(inicial, cb){ mapaAbrir({modo:'ubic', est:estanciaValue(), ini
     if(MAPA.modo==='piquete'){ const p=pastoBajoPin(); if(!p){ toast('Ponga el pin sobre un pasto.'); return; } const ls=lotesDe(p); const lote=(MAPA.lotSel!=null && MAPA.lotSel>=0) ? ls[MAPA.lotSel]||null : null; closeMapa(); if(cb) cb({pasto:p, lote, lotes:ls, datos:DATOS_PASTO[MAPA.est]||null}); return; }
     const r=ajustarPY(MAPA.lat,MAPA.lon); if(r.fuera){ MAPA.lat=r.lat; MAPA.lon=r.lon; MAPA.aviso=Date.now(); mapaPedirDibujo(); setTimeout(mapaPedirDibujo,4100); return; }
     const p=pastoBajoPin(); const u={lat:+MAPA.lat.toFixed(6), lon:+MAPA.lon.toFixed(6), precision_m:null, fuente:'mapa', tomada_en:new Date().toISOString(), pasto:p&&p.nm?p.nm:null}; closeMapa(); if(cb) cb(u); toast('Ubicación elegida'+(u.pasto?' (pasto '+u.pasto+')':'')); });
-  $('mapa-lotacion').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ MAPA.lot=b.dataset.v; setSeg($('mapa-lotacion'), MAPA.lot); if(MAPA.lot) cargarDatosPasto(MAPA.est); mapaPedirDibujo(); }));
+  $('mapa-lotacion').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ MAPA.lot=b.dataset.v; setSeg($('mapa-lotacion'), MAPA.lot); if(MAPA.lot==='ndvi'){ guiaLSput('manejo.guia.estancia_ndvi', MAPA.est); ndviCargar(MAPA.est); } else if(MAPA.lot) cargarDatosPasto(MAPA.est); mapaPedirDibujo(); }));
   $('mapa-estancia').addEventListener('change',()=>cambiarEstanciaGuia($('mapa-estancia').value));
   $('mapa-conf').addEventListener('change',()=>{ MAPA.conf=$('mapa-conf').value; try{ localStorage.setItem('manejo.mapa_conf.crit', MAPA.conf); }catch(e){} cargarConf(); mapaPedirDibujo(); });
   $('mapa-conf-ir').addEventListener('click',()=>{ MAPA.selPen=null; confFit(); MAPA.movido=true; cargarConf(); mapaPedirDibujo(); });
@@ -4571,7 +4611,7 @@ function confInfo(info, msg){ const esc=t=>String(t==null?'':t).replace(/&/g,'&a
   if(MAPA.gps){ const pen=confPenEn(MAPA.gps.lat, MAPA.gps.lon); if(pen) h+='<div>📍 Usted está en el corral <b>'+hxBaiaTxt(pen.nm)+'</b></div>'; }
   info.innerHTML=h+confInfoBase(); msg.textContent=''; }
 function abrirGuiaConf(){ if(!usrEstancias().includes(CONF_EST)){ toast('La guía del confinamiento es solo para usuarios de la Ypoti.'); return; } if(!MAPA.conf) MAPA.conf='fase'; mapaAbrir({modo:'conf', est:CONF_EST}); }
-$('inf-op-conf').addEventListener('click',()=>{ cerrarInformes(); abrirGuiaConf(); });
+
 async function confPdf(){ const ahora=new Date().toISOString(); const w={ id:uuid(), tipo:'informe', clase:'conf', estado:'generando', estancia:CONF_EST, criterio:MAPA.conf||'fase', creado_en:ahora, actualizado_en:ahora, pdf:null, nombre:'guia_confinamiento_'+todayISO()+'.pdf', error:null };
   await dbPut(w); renderHome(); guiaAbrir.add(w.id); toast('Armando la guía del confinamiento…'); generarInforme(w.id); }
 async function generarConf(w){ const id=w.id;
@@ -4802,7 +4842,7 @@ async function anImportar(lista){ const msg=$('animal-imp-msg'); const pon=(t,c)
 $('animal-file').addEventListener('change',e=>{ const fs=Array.from(e.target.files||[]); e.target.value=''; if(fs.length) anImportar(fs); });
 
 /* guía de la estancia: el mapa de la estancia de la persona (la que tiene su ubicación, o la última que miró) */
-function cambiarEstanciaGuia(est){ if(!est) return; MAPA.est=est; MAPA.sel=null; MAPA.selPen=null; confCtrl(); $('mapa-estancia').value=est; try{ localStorage.setItem('manejo.guia.estancia',est); }catch(e){} MAPA.capa=mapaCapas()[0]; pintarBotonCapa(); const pols=geoPols(est).filter(p=>p.n!=='divisa'); if(pols.length) mapaFit(geoBB(pols)); mapaPedirDibujo(); cargarDatosPasto(est); }
+function cambiarEstanciaGuia(est){ if(!est) return; MAPA.est=est; MAPA.sel=null; MAPA.selPen=null; confCtrl(); $('mapa-estancia').value=est; try{ localStorage.setItem('manejo.guia.estancia',est); }catch(e){} MAPA.capa=mapaCapas()[0]; pintarBotonCapa(); const pols=geoPols(est).filter(p=>p.n!=='divisa'); if(pols.length) mapaFit(geoBB(pols)); mapaPedirDibujo(); cargarDatosPasto(est); if(MAPA.lot==='ndvi') ndviCargar(est); }
 function abrirGuia(){ const ests=usrEstancias(); if(!ests.length){ toast('Su usuario no tiene estancias.'); return; } let ult=''; try{ ult=localStorage.getItem('manejo.guia.estancia')||''; }catch(e){}
   const conMapa=ests.filter(geoTiene); const est=ests.includes(ult)?ult:(conMapa[0]||ests[0]);
   const sel=$('mapa-estancia'); sel.innerHTML=''; ests.forEach(e=>{ const o=document.createElement('option'); o.value=e; o.textContent=e+(geoTiene(e)?'':' (sin mapa de pastos)'); sel.appendChild(o); }); sel.value=est;
@@ -5223,7 +5263,7 @@ function mudanzaPintar(regs){ const box=$('mudanza'); if(!box) return; if(!/gith
   $('mud-txt').innerHTML = pend ? '📍 El app se muda a <b>ypoti.com/apps/manejo</b>. Antes de cambiar, deje que se envíe'+(pend===1?' el registro pendiente':'n los '+pend+' registros pendientes')+' (hace falta señal).'
     : '📍 El app se mudó a <b>ypoti.com/apps/manejo</b>. Abra la nueva dirección, agréguela a la pantalla de inicio y entre con su código. Esta dirección deja de usarse.'; }
 $('btn-mudanza').addEventListener('click',()=>{ location.href=NUEVA_DIR; });
-async function renderHome(){ clearTimeout(waTimer); waTimer=setTimeout(()=>avisarInformes().catch(()=>{}), 1500);
+async function renderHome(){ clearTimeout(waTimer); waTimer=setTimeout(()=>avisarInformes().catch(()=>{}), 1500); clearTimeout(renderHome.pre); renderHome.pre=setTimeout(()=>{ try{ precargaDiaria(); }catch(e){} }, 6000); /* v4.15.9 */
   if(!USR) return; pintarSync();
   let all=[]; try{ all=await dbAll(); }catch(e){}
   mudanzaPintar(all.filter(w=>w.tipo!=='informe'));
@@ -5280,10 +5320,14 @@ async function guiaPdf(est){ if(!est) return;
   if(navigator.onLine) generarInforme(w.id);
 }
 /* ---------- Generar informes: trazabilidad, mortandad, pastura (guía), informe IA, preguntar a la IA ---------- */
-const cerrarInformes=()=>$('informes-modal').classList.add('hidden');
-$('btn-informes').addEventListener('click',()=>{ $('inf-op-conf').classList.toggle('hidden', !usrEstancias().includes(CONF_EST)); $('informes-modal').classList.remove('hidden'); });
+const cerrarInformes=()=>{ $('informes-modal').classList.add('hidden'); $('ia-menu').classList.add('hidden'); };
+$('btn-informes').addEventListener('click',()=>{ $('informes-modal').classList.remove('hidden'); });
+/* v4.15.9: guía de la estancia, guía del confinamiento e IA con su propio botón en el inicio */
+$('btn-guia').addEventListener('click',()=>abrirGuia());
+$('btn-conf').addEventListener('click',()=>abrirGuiaConf());
+$('btn-ia').addEventListener('click',()=>$('ia-menu').classList.remove('hidden'));
+$('ia-menu-cerrar').addEventListener('click',()=>$('ia-menu').classList.add('hidden'));
 $('informes-cancel').addEventListener('click',cerrarInformes);
-$('inf-op-pastura').addEventListener('click',()=>{ cerrarInformes(); abrirGuia(); });
 $('inf-op-traz').addEventListener('click',async()=>{ cerrarInformes();
   const p=await pedirInforme(); if(!p) return;
   const clave=await pedirClave(p.estancia, {titulo:'Informe de trazabilidad'}); if(clave===null) return;
@@ -6003,7 +6047,8 @@ async function opCargarParametros(forzar){ if(!USR || !navigator.onLine || !cfg.
     if(j.ok){ OP_PAR=Object.assign(j,{_t:Date.now(), _u:USR.id}); try{ localStorage.setItem(OP_PAR_KEY, JSON.stringify(OP_PAR)); }catch(e){} } }catch(e){}
   return opPar(); }
 function opAplicarRol(){ const t=opEsTratorista(); document.documentElement.classList.toggle('rol-tratorista', t);
-  const b=$('btn-informes'); if(b){ if(!b.dataset.txt) b.dataset.txt=b.textContent; b.textContent=t?'🗺 Lotes activos (ControlPasto)':b.dataset.txt; }
+  const b=$('btn-guia'); if(b){ if(!b.dataset.txt) b.dataset.txt=b.textContent; b.textContent=t?'🗺 Lotes activos (ControlPasto)':b.dataset.txt; }
+  const bc=$('btn-conf'); if(bc) bc.classList.toggle('hidden', t || !(typeof usrEstancias==='function' && usrEstancias().includes('Ypoti')));
   opCargarParametros().catch(()=>{}); }
 /* archivo entero de la balanza (para la IA del servidor), hasta 3 MB en total */
 function balanzasCrudos(){ let tot=0; return (balanzas||[]).filter(b=>b&&b.texto).map(b=>({nombre:b.nombre, texto:b.texto})).filter(c=>{ tot+=c.texto.length; return tot<=3000000; }); }
@@ -6379,6 +6424,124 @@ async function makeConsumoPdf(w, R){ const {PDFDocument, StandardFonts, rgb}=win
   titulo('Cada trato'); tabla([{k:'f',t:'Fecha',w:9},{k:'lo',t:'Lote',w:11},{k:'pa',t:'Pasto',w:10},{k:'ca',t:'Cab.',w:6,align:'r'},{k:'pe',t:'Peso',w:6,align:'r'},{k:'pr',t:'Suplemento',w:16},{k:'d',t:'Días',w:5,align:'r'},{k:'bc',t:'Bolsas calc.',w:8,align:'r'},{k:'bp',t:'Bolsas puestas',w:8,align:'r'},{k:'kg',t:'kg',w:7,align:'r'},{k:'po',t:'Tratorista',w:14}],
     R.tratos.map(t=>({f:spF(t.fecha), lo:t.lote, pa:t.piquete, ca:fmtN(t.cab), pe:fmtN(t.peso), pr:t.producto, d:fmtN(t.dias), bc:t.sacos_calc==null?'—':fmtN(t.sacos_calc), bp:fmtN(t.sacos), kg:fmtN(t.kg), po:t.por})));
   return await pdf.save(); }
+/* ---------- v4.15.9: guía de la estancia: precarga diaria, actualización discreta, historial del pasto, NDVI y lluvia ----------
+   · Precarga: una vez por día (al entrar al app, con señal) se bajan los datos del ControlPasto de las estancias del usuario, la última
+     imagen NDVI de su estancia y la guía del confinamiento (Bovino.OS) si es de la Ypoti. Al abrir la guía se ve lo guardado al instante y
+     se actualiza de fondo («⟳ actualizando…» arriba). El botón ⟳ fuerza la actualización.
+   · Historial del pasto: ocupación semana a semana del último año (UA/ha), entradas y salidas, indicadores y la lista de manejos
+     (como el «histórico do pasto» del app operacional).
+   · NDVI: la última imagen del repositorio ndvi-fazendas (Sentinel-2 / Landsat), pintada sobre los pastos, y el NDVI de cada pasto.
+   · Lluvia: los próximos 8 días en la estancia (Open-Meteo, el mismo pronóstico del plan de suplementación). */
+const NDVI_BASE='https://lucasmoller9646.github.io/ndvi-fazendas/';
+const NDVI={}; let NDVI_CARGANDO=0;
+const NDVI_PAL=[[184,58,14],[246,128,43],[249,162,31],[251,191,11],[212,207,39],[163,207,44],[118,207,42],[63,191,40],[31,189,91],[34,168,143],[43,143,188],[26,119,153],[10,79,140],[29,47,126]];
+const NDVI_LO=-0.2, NDVI_HI=0.95;
+function ndviRGB(v){ const i=Math.max(0,Math.min(255,Math.round((v-NDVI_LO)/(NDVI_HI-NDVI_LO)*255))); return NDVI_PAL[Math.min(NDVI_PAL.length-1,Math.floor(i/256*NDVI_PAL.length))]; }
+function ndviCss(v){ if(v==null) return '#888'; const c=ndviRGB(v); return 'rgb('+c.join(',')+')'; }
+function ndviNorm(s){ return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
+function guiaLS(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } }
+function guiaLSput(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+async function ndviIndice(forzar){ let x=guiaLS('manejo.ndvi.idx'); if(x && !forzar && Date.now()-x.t<24*3600e3) return x.d;
+  if(!navigator.onLine) return x?x.d:null; try{ const r=await fetch(NDVI_BASE+'data/fazendas.json',{cache:'no-store'}); if(!r.ok) throw new Error('HTTP '+r.status); const d=await r.json(); guiaLSput('manejo.ndvi.idx',{t:Date.now(), d}); return d; }catch(e){ return x?x.d:null; } }
+function ndviSlug(idx, est){ if(!idx) return null; const n=ndviNorm(est); const ks=Object.keys(idx);
+  return ks.find(k=>ndviNorm(idx[k].nome)===n) || ks.find(k=>ndviNorm(idx[k].nome).includes(n) || n.includes(ndviNorm(idx[k].nome))) || ks.find(k=>ndviNorm(k)===n) || null; }
+async function ndviImagen(url){ let blob=null;
+  try{ if('caches' in window){ const c=await caches.open('manejo-ndvi'); const hit=await c.match(url); if(hit) blob=await hit.blob(); if(!blob && navigator.onLine){ const r=await fetch(url,{mode:'cors'}); if(r.ok){ await c.put(url, r.clone()); blob=await r.blob(); } } } }catch(e){}
+  if(!blob && navigator.onLine){ const r=await fetch(url,{mode:'cors'}); if(!r.ok) throw new Error('HTTP '+r.status); blob=await r.blob(); }
+  if(!blob) throw new Error('sin la imagen (hace falta señal una vez)');
+  const im=await new Promise((ok,err)=>{ const u=URL.createObjectURL(blob); const i=new Image(); i.onload=()=>{ URL.revokeObjectURL(u); ok(i); }; i.onerror=()=>{ URL.revokeObjectURL(u); err(new Error('imagen NDVI inválida')); }; i.src=u; });
+  const W=im.naturalWidth, H=im.naturalHeight; const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const cx=cv.getContext('2d',{willReadFrequently:true}); cx.drawImage(im,0,0);
+  const d=cx.getImageData(0,0,W,H); const px=d.data;
+  for(let j=0;j<px.length;j+=4){ if(px[j+3]===0 || px[j]===0){ px[j+3]=0; continue; } const v=(px[j]-1)/254*1.15-0.2; const c=ndviRGB(v); px[j]=c[0]; px[j+1]=c[1]; px[j+2]=c[2]; px[j+3]=235; }
+  cx.putImageData(d,0,0); return cv; }
+async function ndviCargar(est, forzar){ if(!est) return null; const k='manejo.ndvi.'+est; let meta=guiaLS(k); const cur=NDVI[est];
+  if(cur && cur.cv && !forzar && meta && Date.now()-meta.t<24*3600e3) return cur;
+  NDVI_CARGANDO++; guiaActPintar();
+  try{
+    if((!meta || forzar || Date.now()-meta.t>24*3600e3) && navigator.onLine){ const idx=await ndviIndice(forzar); const slug=ndviSlug(idx, est);
+      if(!slug){ NDVI[est]={error:'no hay NDVI para '+est}; return NDVI[est]; }
+      const r=await fetch(NDVI_BASE+idx[slug].arquivo,{cache:'no-store'}); if(!r.ok) throw new Error('HTTP '+r.status); const D=await r.json();
+      const ps=(D.passagens||[]).filter(p=>p.img); const p=ps[ps.length-1]; if(!p) throw new Error('todavía sin imágenes NDVI de '+est);
+      const serie={}; Object.keys(D.serie||{}).forEach(key=>{ const s=D.serie[key]||[]; serie[key]=s.slice(-6); });
+      meta={t:Date.now(), slug, fecha:p.data, sat:p.sat||'S2', limpo:p.limpo, img:NDVI_BASE+p.img, bbox:D.bbox, atualizado:D.atualizado, serie};
+      if(!guiaLSput(k, meta)){ meta.serie={}; guiaLSput(k, meta); } }
+    if(!meta) throw new Error('sin datos NDVI guardados (hace falta señal una vez)');
+    const cv=(cur&&cur.cv&&cur.img===meta.img)?cur.cv:await ndviImagen(meta.img);
+    NDVI[est]=Object.assign({}, meta, {cv, error:null});
+  }catch(e){ NDVI[est]=Object.assign({}, cur||{}, meta||{}, {error:String(e.message||e)}); }
+  finally{ NDVI_CARGANDO=Math.max(0,NDVI_CARGANDO-1); guiaActPintar(); if(typeof mapaPedirDibujo==='function') mapaPedirDibujo(); }
+  return NDVI[est]; }
+/* pinta la imagen NDVI recortada a los pastos de la estancia */
+function ndviDibujar(g, ox, oy, s, pols){ const N=NDVI[MAPA.est]; if(!N || !N.cv || !N.bbox) return false; const [w,so,e,n]=N.bbox;
+  const x0=(lon2x(w,0)-ox)*s, x1=(lon2x(e,0)-ox)*s, y0=(lat2y(n,0)-oy)*s, y1=(lat2y(so,0)-oy)*s;
+  g.save(); g.beginPath(); pols.forEach(p=>{ p.w.forEach(r=>{ r.forEach((c,i)=>{ const x=(c[0]-ox)*s, y=(c[1]-oy)*s; if(i) g.lineTo(x,y); else g.moveTo(x,y); }); g.closePath(); }); }); g.clip('evenodd');
+  g.imageSmoothingEnabled=false; g.drawImage(N.cv, x0, y0, x1-x0, y1-y0); g.restore(); return true; }
+function ndviDePasto(est, p){ const N=NDVI[est]; if(!N || !N.serie || !p || !p.nm) return null; const n=ndviNorm(p.nm); let best=null;
+  Object.keys(N.serie).forEach(key=>{ const nm=key.split('|').slice(1).join('|'); if(ndviNorm(nm)!==n) return; const s=N.serie[key]; const r=s.filter(x=>!N.fecha||x[0]<=N.fecha).pop()||s[s.length-1]; if(r && (!best || r[0]>best[0])) best=r; });
+  return best; }
+function ndviLeyenda(){ const N=NDVI[MAPA.est]; const bar='<span style="display:inline-block;width:150px;height:9px;border-radius:3px;vertical-align:-1px;background:linear-gradient(90deg,'+NDVI_PAL.map((c,i)=>'rgb('+c.join(',')+') '+(i/NDVI_PAL.length*100).toFixed(1)+'%,rgb('+c.join(',')+') '+((i+1)/NDVI_PAL.length*100).toFixed(1)+'%').join(',')+')"></span>';
+  if(!N) return '<b>NDVI</b> <span style="opacity:.75">buscando la última imagen…</span>';
+  if(N.error && !N.cv) return '<b>NDVI</b> <span style="opacity:.75">'+String(N.error).replace(/</g,'&lt;')+'</span>';
+  return '<b>NDVI</b> '+fmtDate(N.fecha)+(N.sat&&N.sat!=='S2'?' (Landsat, 30 m)':' (Sentinel-2, 10 m)')+'<br><span style="opacity:.8">−0,2</span> '+bar+' <span style="opacity:.8">0,95</span> <span style="opacity:.75">· verde = más pasto</span>'; }
+/* aviso discreto de actualización en la barra de la guía */
+function guiaActPintar(){ const a=$('mapa-act'), b=$('mapa-act-conf'); if(a) a.classList.toggle('hidden', !(MAPA.modo==='guia' && (MAPA.cargando || NDVI_CARGANDO))); if(b) b.classList.toggle('hidden', !(MAPA.modo==='conf' && MAPA.confCargando)); }
+/* lluvia de los próximos 8 días en la estancia */
+function guiaPronHtml(pr){ if(!pr || !pr.ok || !(pr.dias||[]).length) return ''; const DS=['dom','lun','mar','mié','jue','vie','sáb'];
+  return '<div class="sub" style="margin-top:4px">🌧 Lluvia prevista ('+String(pr.fuente||'Open-Meteo').replace(/</g,'&lt;')+')</div><div class="pron">'+pr.dias.map(d=>{ const dt=new Date(d.d+'T12:00:00Z'); const ll=d.mm!=null&&d.mm>=5&&(d.prob==null||d.prob>=60);
+    return '<div class="d'+(ll?' ll':'')+'">'+DS[dt.getUTCDay()]+' '+d.d.slice(8,10)+'<b>'+(d.mm==null?'–':d.mm>=1?Math.round(d.mm):d.mm>0?'<1':'0')+'</b>'+(d.prob!=null?Math.round(d.prob)+'%':'')+'</div>'; }).join('')+'</div>'; }
+/* precarga diaria (silenciosa) */
+let PRECARGA_EN_CURSO=false;
+async function precargaDiaria(forzar){ if(PRECARGA_EN_CURSO || !USR || !navigator.onLine || !cfg.endpoint) return; const hoy=todayISO(); const st=guiaLS('manejo.precarga')||{};
+  if(!forzar && st.fecha===hoy && st.usr===USR.id) return; PRECARGA_EN_CURSO=true; guiaLSput('manejo.precarga',{fecha:hoy, usr:USR.id});
+  try{ const ests=usrEstancias().filter(geoTiene);
+    for(const e of ests){ if(!navigator.onLine || !USR) break; const c=DATOS_PASTO[e]||datosPastoGuardados(e); if(!forzar && c && c.t && Date.now()-c.t<6*3600e3 && c.porPol) continue; try{ await cargarDatosPasto(e,true); }catch(err){} }
+    const fav=[cfg.estancia, guiaLS('manejo.guia.estancia_ndvi')].filter((x,i,a)=>x && a.indexOf(x)===i && usrEstancias().includes(x)); if(!fav.length && ests.length===1) fav.push(ests[0]);
+    for(const e of fav){ try{ await ndviCargar(e); }catch(err){} }
+    if(usrEstancias().includes(CONF_EST) && !(typeof opEsTratorista==='function' && opEsTratorista())){ try{ await cargarConf(true); }catch(err){} }
+  } finally{ PRECARGA_EN_CURSO=false; } }
+/* ---------- historial del pasto ---------- */
+const HIST_MEM={};
+function histClave(est,p){ return 'manejo.hist.'+est+'.'+p.i; }
+async function abrirHistorial(p){ const est=MAPA.est; const lista=geoPols(est).filter(q=>q.n!=='divisa'); const i=lista.indexOf(p); if(!p || i<0) return;
+  const k=histClave(est,p); let c=HIST_MEM[k]||guiaLS(k); const m=$('hist-modal'); $('hist-titulo').textContent='📈 Pasto '+(p.nm||'(sin nombre)')+' · '+est; m.classList.remove('hidden');
+  if(c) histPintar(c, p, !!navigator.onLine && Date.now()-(c._t||0)>3*3600e3); else { $('hist-sub').textContent='Buscando el historial del pasto…'; $('hist-ind').innerHTML=''; $('hist-graf').innerHTML=''; $('hist-movs').innerHTML=''; }
+  if(c && Date.now()-(c._t||0)<3*3600e3) return;
+  if(!navigator.onLine || !cfg.endpoint || !USR){ if(!c) $('hist-sub').textContent='Sin señal: el historial se busca la primera vez con conexión.'; return; }
+  try{ const res=await fetchSrv(cfg.endpoint,{method:'POST', body:JSON.stringify({tipo:'pasto_historial', usuario:USR.codigo, estancia:est, i, mapas:lista.map(q=>({c:q.c, r:(GEO.capas[q.c]||{}).r||q.c, n:q.n, nm:q.nm, a:q.a, fz:(GEO.capas[q.c]||{}).fz||[], f:q.f||null}))}), redirect:'follow'}, 90000);
+    const j=JSON.parse(await res.text()); if(!j.ok) throw new Error(msgDatosError(j.error||'error'));
+    c=Object.assign(j,{_t:Date.now()}); HIST_MEM[k]=c; const chico=Object.assign({}, c, {movs:(c.movs||[]).slice(0,150)});
+    const idx=guiaLS('manejo.hist.idx')||[]; const nidx=[k].concat(idx.filter(x=>x!==k)); nidx.slice(20).forEach(x=>{ try{ localStorage.removeItem(x); }catch(e){} }); guiaLSput('manejo.hist.idx', nidx.slice(0,20)); guiaLSput(k, chico);
+    if(!m.classList.contains('hidden')) histPintar(c, p, false); }
+  catch(e){ if(!m.classList.contains('hidden')){ if(c) $('hist-sub').textContent+=' · ⚠ no se pudo actualizar ('+(e.message||e)+')'; else $('hist-sub').textContent='No se pudo traer el historial: '+(e.message||e); } } }
+function histPintar(c, p, actualizando){ const esc=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;'); const I=c.ind||{};
+  $('hist-sub').textContent=fmtN(c.pasto&&c.pasto.a,1)+' ha · del '+fmtDate(c.desde)+' al '+fmtDate(c.hoje)+(c.manejo_ate?' · ControlPasto hasta '+fmtDate(c.manejo_ate):'')+(actualizando?' · ⟳ actualizando…':'');
+  const card=(t,v,s)=>'<div>'+t+'<b>'+v+'</b>'+(s?'<small>'+s+'</small>':'')+'</div>';
+  const dh=(p && typeof datosDe==='function')?datosDe(p):null; /* hoy: lo mismo que la ficha del mapa */
+  $('hist-ind').innerHTML=card('Hoy', fmtN(dh?dh.cab:I.hoy_cab)+' cab', (dh?dh.lot_h:I.hoy_lot)!=null?fmtN(dh?dh.lot_h:I.hoy_lot,2)+' UA/ha':'')
+    +card('Semanas ocupadas', fmtN(I.semanas_ocupadas)+' de '+fmtN(I.semanas), fmtN(I.dias_ocupados)+' días con animales')
+    +card('Lotación media', I.lot_media_ocupado!=null?fmtN(I.lot_media_ocupado,2)+' UA/ha':'—', 'cuando estuvo ocupado')
+    +card('Descanso medio', I.descanso_medio!=null?fmtN(I.descanso_medio)+' días':'—', fmtN(I.ciclos)+' ocupaciones en el año')
+    +card('Última entrada', I.ultima_entrada?fmtDate(I.ultima_entrada):'—', '')+card('Última salida', I.ultima_salida?fmtDate(I.ultima_salida):'—', '');
+  $('hist-graf').innerHTML=histSvg(c);
+  const ms=c.movs||[]; $('hist-movs').innerHTML=ms.length?ms.map(m=>{ const q=Number(m.qtd)||0; const sig=m.dir==='entra'?'+':m.dir==='sale'?'−':'';
+    const det=[m.lote?'lote '+esc(m.lote):'', m.lote_origem&&m.lote_origem!==m.lote?'de lote '+esc(m.lote_origem):'', (m.de||m.a)&&m.op!=='Entrada'?esc(m.de||'?')+' → '+esc(m.a||(m.op==='Muerte'?'muerte':'salida')):'', m.parceiro?esc(m.parceiro):'', m.peso?fmtN(m.peso)+' kg':''].filter(Boolean).join(' · ');
+    return '<div class="m '+m.dir+'"><span>'+fmtDate(m.data)+(m.hora?'<small>'+esc(m.hora)+'</small>':'')+'</span><span><b>'+esc(m.op)+'</b><small>'+det+'</small></span><span class="q">'+(q?sig+fmtN(q)+' cab':'')+'</span></div>'; }).join('')
+    :'<div class="hint">Sin manejos de este pasto en el período.</div>'; }
+function histSvg(c){ const S=c.semanas||[]; if(!S.length) return '<div class="hint">Sin datos de ocupación.</div>'; const W=720, Ht=230, L=40, R=8, T=10, H1=120, G=26, H2=50;
+  const n=S.length, bw=(W-L-R)/n; const vmax=Math.max(2.5, ...S.map(s=>s.ua_ha||0))*1.08; const qmax=Math.max(1, ...S.map(s=>Math.max(s.entra||0,s.sale||0)));
+  const y1=v=>T+H1-(v/vmax)*H1; const mid=T+H1+G+H2/2; let h='<svg viewBox="0 0 '+W+' '+Ht+'" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">';
+  [0,1,2].concat(vmax>3.5?[3]:[]).forEach(v=>{ if(v>vmax) return; const y=y1(v); h+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="#8885" stroke-width="'+(v?0.6:1)+'"/><text x="'+(L-5)+'" y="'+(y+3.5)+'" font-size="10" text-anchor="end" fill="#888">'+v+'</text>'; });
+  h+='<text x="'+L+'" y="'+(T-1)+'" font-size="10" fill="#888">UA/ha por semana</text>';
+  S.forEach((s,k)=>{ const x=L+k*bw; if(s.dias>0 && s.ua_ha!=null){ const y=y1(s.ua_ha); h+='<rect x="'+(x+0.6).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+Math.max(1,bw-1.2).toFixed(1)+'" height="'+(T+H1-y).toFixed(1)+'" fill="'+(lotColor(s.ua_ha)||'#999')+'"><title>Semana del '+fmtDate(s.s)+': '+fmtN(s.ua_ha,2)+' UA/ha · '+fmtN(s.cab)+' cab · '+s.dias+' días ocupado'+(s.lotes&&s.lotes.length?' · '+s.lotes.join(', '):'')+'</title></rect>'; }
+    if(s.entra){ const hh=(s.entra/qmax)*(H2/2); h+='<rect x="'+(x+0.6).toFixed(1)+'" y="'+(mid-hh).toFixed(1)+'" width="'+Math.max(1,bw-1.2).toFixed(1)+'" height="'+hh.toFixed(1)+'" fill="#04522B"><title>Entraron '+fmtN(s.entra)+' cab (semana del '+fmtDate(s.s)+')</title></rect>'; }
+    if(s.sale){ const hh=(s.sale/qmax)*(H2/2); h+='<rect x="'+(x+0.6).toFixed(1)+'" y="'+mid+'" width="'+Math.max(1,bw-1.2).toFixed(1)+'" height="'+hh.toFixed(1)+'" fill="#701E0C"><title>Salieron '+fmtN(s.sale)+' cab (semana del '+fmtDate(s.s)+')</title></rect>'; } });
+  h+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+mid+'" y2="'+mid+'" stroke="#8886"/><text x="'+(L-5)+'" y="'+(mid-H2/2+8)+'" font-size="9.5" text-anchor="end" fill="#04522B">entra</text><text x="'+(L-5)+'" y="'+(mid+H2/2)+'" font-size="9.5" text-anchor="end" fill="#701E0C">sale</text>';
+  const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']; let ult='';
+  S.forEach((s,k)=>{ const ym=s.s.slice(0,7); if(ym===ult) return; ult=ym; const x=L+k*bw; h+='<line x1="'+x+'" x2="'+x+'" y1="'+(T+H1)+'" y2="'+(T+H1+4)+'" stroke="#888"/><text x="'+(x+2)+'" y="'+(T+H1+14)+'" font-size="10" fill="#888">'+MES[+s.s.slice(5,7)-1]+(s.s.slice(5,7)==='01'?' '+s.s.slice(2,4):'')+'</text>'; });
+  return h+'</svg>'; }
+$('hist-cerrar').addEventListener('click',()=>$('hist-modal').classList.add('hidden'));
+$('mapa-recargar-conf').addEventListener('click',()=>{ if(!navigator.onLine){ toast('Sin señal: se ven los datos guardados.'); return; } cargarConf(true); });
+$('mapa-recargar').addEventListener('click',()=>{ if(!navigator.onLine){ toast('Sin señal: se ven los datos guardados.'); return; } if(MAPA.modo==='conf'){ cargarConf(true); return; } const est=MAPA.est; cargarDatosPasto(est,true); if(MAPA.lot==='ndvi' || NDVI[est]) ndviCargar(est,true); toast('Actualizando '+est+'…'); });
 })();
 </script>
 </body>

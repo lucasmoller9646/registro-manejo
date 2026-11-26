@@ -1,9 +1,18 @@
-# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.15.8
+# Registro de manejo · Rural Bioenergía / Ypoti — versión 4.15.9
 
 App offline para el registro diario de manejo. Módulos de pasto: entrada pasto, salida de animales, mortalidad, nacimiento, pesaje de auditoría, pesaje simple, aplicación de medicamento y pérdida de botón electrónico. Módulos de intensivo (solo Ypoti): entrada RIP, entrada confinamiento, descarga de camión, salida a faena, informe Padroniza y escore de heces.
 
 Abrir en el celular: https://ypoti.com/apps/manejo/ y agregar a la pantalla de inicio (la dirección vieja https://lucasmoller9646.github.io/registro-manejo/ sigue funcionando y avisa de la mudanza).
 La URL del servidor y el correo de trazabilidad ya vienen configurados dentro del app: no hay que configurar nada en cada teléfono.
+
+## Novedades 4.15.9
+
+- **Botones propios en el inicio:** debajo de «＋ Nuevo registro» quedan **🗺 Guía de la estancia**, **🐂 Guía del confinamiento** (usuarios de la Ypoti), **📑 Generar informes** (buscar animal, trazabilidad, sanidad y mortandad, consumo de suplemento) y **🤖 IA** (pedir informe o preguntar). El tratorista ve solo «🗺 Lotes activos (ControlPasto)».
+- **Guía siempre a mano:** una vez por día, al entrar al app con señal, el celular baja solo los datos del ControlPasto de sus estancias, la última imagen NDVI de su estancia y la guía del confinamiento (Bovino.OS). Al abrir la guía se ve lo guardado al instante; si hay algo más nuevo se actualiza de fondo con un aviso discreto arriba («⟳ actualizando…»). El botón ⟳ actualiza en el momento. Sin señal abre igual.
+- **Historial del pasto:** al tocar un pasto, «📈 Historial del pasto» muestra la lotación semana a semana del último año (UA/ha, con los colores de la lotación), las entradas y salidas de cada semana, indicadores (semanas ocupadas, lotación media cuando estuvo ocupado, descanso medio entre ocupaciones, última entrada y salida) y la lista de manejos del pasto (entradas, salidas, transferencias, cambios de piquete, pesajes), como en el app operacional.
+- **NDVI en la guía:** opción «NDVI» arriba del mapa: la última imagen del app NDVI (Sentinel-2 / Landsat) pintada sobre los pastos con la misma escala, y el NDVI de cada pasto al tocarlo.
+- **Lluvia en la guía:** los próximos 8 días de lluvia en la estancia (Open-Meteo), con los días de lluvia marcados.
+- Servidor: pedido nuevo `pasto_historial` y el pronóstico en `mapa_pasto`.
 
 ## Novedades 4.15.8
 
